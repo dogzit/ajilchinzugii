@@ -2,12 +2,18 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CitationBlock } from '@/components/citation-block';
+import { JsonLd } from '@/components/json-ld';
 import { RichText } from '@/components/rich-text';
 import { Link } from '@/i18n/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { getPaper, getPaperSlugs } from '@/lib/cms';
-import { isRichTextEmpty } from '@/lib/format';
-import { siteUrl } from '@/lib/site';
+import { isRichTextEmpty, lexicalText } from '@/lib/format';
+import {
+  breadcrumbJsonLd,
+  scholarlyArticleJsonLd,
+  scholarMetaTags,
+} from '@/lib/seo/jsonld';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 
 type Props = { params: Promise<{ locale: Locale; slug: string }> };
 
@@ -21,16 +27,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const paper = await getPaper(slug, locale);
   if (!paper) return {};
 
-  return {
+  const abstract = lexicalText(paper.abstract?.root as never).trim();
+
+  return buildPageMetadata({
+    locale,
+    path: `/research/${slug}`,
     title: paper.title,
-    description: paper.seo?.metaDescription ?? undefined,
-    alternates: {
-      canonical: `${siteUrl}/${locale}/research/${slug}`,
-      languages: Object.fromEntries(
-        routing.locales.map((code) => [code, `${siteUrl}/${code}/research/${slug}`]),
-      ),
-    },
-  };
+    description: abstract || undefined,
+    seo: paper.seo,
+    kind: 'paper',
+    // Google Scholar reads these, not the JSON-LD below.
+    other: scholarMetaTags(paper),
+  });
 }
 
 /** A download or an external resource, rendered as one row of buttons. */
@@ -65,9 +73,23 @@ export default async function PaperPage({ params }: Props) {
   if (!paper) notFound();
 
   const pdf = typeof paper.pdf === 'object' && paper.pdf ? paper.pdf : null;
+  const abstract = lexicalText(paper.abstract?.root as never).trim();
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+      <JsonLd
+        data={[
+          scholarlyArticleJsonLd(paper, locale, abstract),
+          breadcrumbJsonLd(
+            [
+              { name: t('nav.home'), path: '/' },
+              { name: t('pages.research.title'), path: '/research' },
+              { name: paper.title, path: `/research/${slug}` },
+            ],
+            locale,
+          ),
+        ]}
+      />
       <p className="mb-8">
         <Link
           href="/research"

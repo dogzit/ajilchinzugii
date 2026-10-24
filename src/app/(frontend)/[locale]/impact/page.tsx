@@ -7,20 +7,35 @@ import { StaleNotice } from '@/components/stale-notice';
 import type { Locale } from '@/i18n/routing';
 import { formatDateTime } from '@/lib/format';
 import { getImpact } from '@/lib/impact';
-import { pageMetadata } from '@/lib/metadata';
+import { JsonLd } from '@/components/json-ld';
+import { getMethodology } from '@/lib/cms';
+import { breadcrumbJsonLd, datasetJsonLd } from '@/lib/seo/jsonld';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return pageMetadata(locale, 'impact', '/impact');
+  const t = await getTranslations({ locale });
+
+  return buildPageMetadata({
+    locale,
+    path: '/impact',
+    title: t('pages.impact.title'),
+    description: t('pages.impact.lead'),
+    kind: 'figures',
+  });
 }
 
 export default async function ImpactPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, impact] = await Promise.all([getTranslations(), getImpact(locale)]);
+  const [t, impact, methodology] = await Promise.all([
+    getTranslations(),
+    getImpact(locale),
+    getMethodology(locale),
+  ]);
   const updated = formatDateTime(impact.fetchedAt, locale);
 
   // A metric gets a chart only if the sheet carries months for it.
@@ -29,6 +44,26 @@ export default async function ImpactPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+      <JsonLd
+        data={[
+          datasetJsonLd({
+            locale,
+            name: `${t('site.name')} — ${t('pages.impact.title')}`,
+            description: t('pages.impact.lead'),
+            metrics: impact.metrics,
+            monthly: impact.monthly,
+            fetchedAt: impact.fetchedAt,
+            methodology,
+          }),
+          breadcrumbJsonLd(
+            [
+              { name: t('nav.home'), path: '/' },
+              { name: t('pages.impact.title'), path: '/impact' },
+            ],
+            locale,
+          ),
+        ]}
+      />
       <PageHeader title={t('pages.impact.title')} lead={t('pages.impact.lead')} />
 
       <div className="mt-6 flex flex-col gap-4">

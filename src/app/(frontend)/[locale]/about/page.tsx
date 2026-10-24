@@ -7,14 +7,24 @@ import { RichText } from '@/components/rich-text';
 import type { Locale } from '@/i18n/routing';
 import { getPartners, getSite, getTeam } from '@/lib/cms';
 import { formatDate, isRichTextEmpty } from '@/lib/format';
-import { pageMetadata } from '@/lib/metadata';
+import { JsonLd } from '@/components/json-ld';
+import { breadcrumbJsonLd, personJsonLd } from '@/lib/seo/jsonld';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 import { contactEmail as contactEmailFromEnv } from '@/lib/site';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return pageMetadata(locale, 'about', '/about');
+  const [t, doc] = await Promise.all([getTranslations({ locale }), getSite(locale)]);
+
+  return buildPageMetadata({
+    locale,
+    path: '/about',
+    title: t('pages.about.title'),
+    description: t('pages.about.lead'),
+    seo: doc.seo,
+  });
 }
 
 export default async function AboutPage({ params }: Props) {
@@ -33,6 +43,20 @@ export default async function AboutPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+      {/* Only confirmed adults reach this page, so only adults are described. */}
+      {team.length > 0 ? (
+        <JsonLd data={team.map((member) => personJsonLd(member, locale))} />
+      ) : null}
+      <JsonLd
+        data={breadcrumbJsonLd(
+          [
+            { name: t('nav.home'), path: '/' },
+            { name: t('pages.about.title'), path: '/about' },
+          ],
+          locale,
+        )}
+      />
+
       <PageHeader title={t('pages.about.title')} lead={site.missionLine} />
 
       <section aria-labelledby="organisation" className="mt-10">

@@ -6,13 +6,23 @@ import { StatusBadge } from '@/components/status-badge';
 import type { Locale } from '@/i18n/routing';
 import { getPolicy } from '@/lib/cms';
 import { formatDate, isRichTextEmpty, richTextHeadings } from '@/lib/format';
-import { pageMetadata } from '@/lib/metadata';
+import { JsonLd } from '@/components/json-ld';
+import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return pageMetadata(locale, 'policy', '/policy');
+  const [t, doc] = await Promise.all([getTranslations({ locale }), getPolicy(locale)]);
+
+  return buildPageMetadata({
+    locale,
+    path: '/policy',
+    title: t('pages.policy.title'),
+    description: t('pages.policy.lead'),
+    seo: doc.seo,
+  });
 }
 
 export default async function PolicyPage({ params }: Props) {
@@ -29,6 +39,16 @@ export default async function PolicyPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+      <JsonLd
+        data={breadcrumbJsonLd(
+          [
+            { name: t('nav.home'), path: '/' },
+            { name: t('pages.policy.title'), path: '/policy' },
+          ],
+          locale,
+        )}
+      />
+
       <PageHeader title={t('pages.policy.title')} lead={t('pages.policy.lead')} />
 
       <section aria-labelledby="status" className="mt-10">

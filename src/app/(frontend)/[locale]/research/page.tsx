@@ -4,13 +4,22 @@ import { PageHeader } from '@/components/page-header';
 import { Link } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/routing';
 import { getPapers } from '@/lib/cms';
-import { pageMetadata } from '@/lib/metadata';
+import { JsonLd } from '@/components/json-ld';
+import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return pageMetadata(locale, 'research', '/research');
+  const t = await getTranslations({ locale });
+
+  return buildPageMetadata({
+    locale,
+    path: '/research',
+    title: t('pages.research.title'),
+    description: t('pages.research.lead'),
+  });
 }
 
 export default async function ResearchPage({ params }: Props) {
@@ -21,6 +30,16 @@ export default async function ResearchPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+      <JsonLd
+        data={breadcrumbJsonLd(
+          [
+            { name: t('nav.home'), path: '/' },
+            { name: t('pages.research.title'), path: '/research' },
+          ],
+          locale,
+        )}
+      />
+
       <PageHeader title={t('pages.research.title')} lead={t('pages.research.lead')} />
 
       {papers.length === 0 ? (

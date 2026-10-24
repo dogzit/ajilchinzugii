@@ -51,6 +51,22 @@ pnpm dev                     # http://localhost:3000 -> /mn
   collection, run `pnpm migrate:create`, read the SQL, then `pnpm migrate`.
 - **Generated files** — `src/payload-types.ts`, `src/migrations/*` and
   `src/app/(payload)/admin/importMap.js` are regenerated, not hand-edited.
+- **SEO lives in `src/lib/seo/`**: `metadata.ts` composes every route's tags
+  (CMS SEO group → the page's own title → the Site global), `jsonld.ts` holds
+  the structured data typed against schema.org, `urls.ts` builds every address
+  from `NEXT_PUBLIC_SITE_URL`.
+- **A field still holding `[ХҮЛЭЭГДЭЖ БУЙ / TBD]` counts as empty** in titles,
+  share cards and structured data — the marker belongs on the page, not in a
+  search result.
+- **`NEXT_PUBLIC_*` values are inlined at build time.** Setting
+  `NEXT_PUBLIC_GSC_VERIFICATION` or `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` on a running
+  server does nothing; they have to be present when `pnpm build` runs (which is
+  how Vercel does it).
+- **Analytics**: Plausible loads only when a domain is configured, through its
+  `file-downloads` and `outbound-links` extensions — a PDF download and a click
+  to another site arrive as events without any of our own JavaScript. It sets
+  no cookies. The site's only cookie is `NEXT_LOCALE`, which remembers the
+  reader's language.
 - **`"type": "module"`** is required: Payload's CLI loads its TypeScript
   through tsx, which mis-resolves CommonJS interop in this project otherwise
   (`@next/env` and undici both break).

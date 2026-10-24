@@ -7,13 +7,21 @@ import type { Locale } from '@/i18n/routing';
 import { getSite } from '@/lib/cms';
 import { formatDateTime } from '@/lib/format';
 import { getImpact } from '@/lib/impact';
-import { pageMetadata } from '@/lib/metadata';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return pageMetadata(locale, 'home', '/');
+  const [t, site] = await Promise.all([getTranslations({ locale }), getSite(locale)]);
+
+  return buildPageMetadata({
+    locale,
+    path: '/',
+    title: t('pages.home.title'),
+    description: site.missionLine,
+    seo: site.seo,
+  });
 }
 
 export default async function HomePage({ params }: Props) {

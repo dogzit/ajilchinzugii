@@ -4,12 +4,15 @@ import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import '@/app/globals.css';
 import { fontVariables } from '@/app/fonts';
+import { Analytics } from '@/components/analytics';
+import { JsonLd } from '@/components/json-ld';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { SkipLink } from '@/components/skip-link';
-import { htmlLang, routing } from '@/i18n/routing';
+import { htmlLang, routing, type Locale } from '@/i18n/routing';
 import { getSite } from '@/lib/cms';
-import { siteUrl } from '@/lib/site';
+import { ngoJsonLd, webSiteJsonLd } from '@/lib/seo/jsonld';
+import { buildRootMetadata } from '@/lib/seo/metadata';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -23,14 +26,8 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale });
 
-  return {
-    metadataBase: new URL(siteUrl),
-    title: {
-      default: `${t('site.name')} — ${t('site.tagline')}`,
-      template: `%s — ${t('site.name')}`,
-    },
-    description: t('site.description'),
-  };
+  // Every page inherits this template, so each one only states its own title.
+  return buildRootMetadata(locale as Locale, t('site.name'), t('site.tagline'));
 }
 
 export default async function LocaleLayout({
@@ -51,6 +48,7 @@ export default async function LocaleLayout({
   return (
     <html lang={htmlLang[locale]} className={fontVariables}>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
+        <JsonLd data={[ngoJsonLd(site, locale), webSiteJsonLd(site, locale)]} />
         <NextIntlClientProvider>
           <SkipLink />
           <SiteHeader />
@@ -59,6 +57,7 @@ export default async function LocaleLayout({
           </main>
           <SiteFooter contactEmail={site.contactEmail} />
         </NextIntlClientProvider>
+        <Analytics />
       </body>
     </html>
   );

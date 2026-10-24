@@ -5,13 +5,26 @@ import { RichText } from '@/components/rich-text';
 import type { Locale } from '@/i18n/routing';
 import { getMethodology } from '@/lib/cms';
 import { formatDate, isRichTextEmpty } from '@/lib/format';
-import { pageMetadata } from '@/lib/metadata';
+import { JsonLd } from '@/components/json-ld';
+import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 
 type Props = { params: Promise<{ locale: Locale }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
-  return pageMetadata(locale, 'methodology', '/methodology');
+  const [t, doc] = await Promise.all([
+    getTranslations({ locale }),
+    getMethodology(locale),
+  ]);
+
+  return buildPageMetadata({
+    locale,
+    path: '/methodology',
+    title: t('pages.methodology.title'),
+    description: t('pages.methodology.lead'),
+    seo: doc.seo,
+  });
 }
 
 export default async function MethodologyPage({ params }: Props) {
@@ -30,6 +43,16 @@ export default async function MethodologyPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+      <JsonLd
+        data={breadcrumbJsonLd(
+          [
+            { name: t('nav.home'), path: '/' },
+            { name: t('pages.methodology.title'), path: '/methodology' },
+          ],
+          locale,
+        )}
+      />
+
       <PageHeader
         title={t('pages.methodology.title')}
         lead={t('pages.methodology.lead')}
