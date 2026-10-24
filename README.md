@@ -6,8 +6,10 @@ rules (evidence, small-cell suppression, no minors' data, accessibility).
 
 Phase 1 is the scaffold: routing, i18n, design tokens, landmarks and
 placeholder pages marked `[ХҮЛЭЭГДЭЖ БУЙ / TBD]`. Phase 2 adds Payload CMS on
-Neon Postgres with media in Cloudflare R2, admin at `/admin`. No figures yet —
-the impact pipeline is phase 3.
+Neon Postgres with media in Cloudflare R2, admin at `/admin`. Phase 3 adds the
+impact pipeline in `src/lib/impact/` — see
+[docs/impact-sheet.md](docs/impact-sheet.md). No figures are rendered yet; the
+pages come next.
 
 Editors: see [docs/README-editor.md](docs/README-editor.md) (in Mongolian).
 
@@ -41,6 +43,10 @@ pnpm dev                     # http://localhost:3000 -> /mn
   `@theme inline`. Contrast is asserted in `tests/unit/tokens.test.ts`.
 - **Fonts**: Unbounded (display headings only), IBM Plex Sans (body),
   IBM Plex Mono (figures, dates, citations — tabular numerals via `.num`).
+- **Figures come only from the sheet.** `src/lib/impact/` is the only path to a
+  number: read two ranges, validate with zod, suppress anything under five
+  cases, then store the suppressed result. Nothing sums the monthly points —
+  that would make a suppressed month recoverable by subtraction.
 - **Schema changes go through a migration.** `push` is off, so edit the
   collection, run `pnpm migrate:create`, read the SQL, then `pnpm migrate`.
 - **Generated files** — `src/payload-types.ts`, `src/migrations/*` and
