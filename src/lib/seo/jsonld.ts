@@ -62,7 +62,9 @@ export function ngoJsonLd(site: Site, locale: Locale): WithContext<NGO> {
       : {}),
     ...(city ? { address: { '@type': 'PostalAddress', addressLocality: city } } : {}),
     ...(sameAs.length > 0 ? { sameAs } : {}),
-    logo: `${siteUrl}/icon.svg`,
+    // A real, fetchable file in public/ — a logo URL that 404s is an error in
+    // Google's Rich Results Test, not a warning.
+    logo: `${siteUrl}/logo.png`,
   };
 }
 

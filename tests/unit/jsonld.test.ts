@@ -1,4 +1,6 @@
 // @vitest-environment node
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   breadcrumbJsonLd,
@@ -79,6 +81,13 @@ describe('the organisation', () => {
     expect(bare.address).toBeUndefined();
     expect(bare.sameAs).toBeUndefined();
     expect(bare.name).toBeTruthy();
+  });
+
+  it('points its logo at a file that actually exists', () => {
+    // A logo URL that 404s is an error in Google's Rich Results Test, and the
+    // site had no public/ directory at all when this was first written.
+    const path = new URL(ngo.logo).pathname;
+    expect(existsSync(resolve(process.cwd(), 'public', path.slice(1)))).toBe(true);
   });
 
   it('points the website at the same organisation', () => {

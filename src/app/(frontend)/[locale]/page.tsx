@@ -5,6 +5,7 @@ import { MetricTile } from '@/components/metric-tile';
 import { StaleNotice } from '@/components/stale-notice';
 import type { Locale } from '@/i18n/routing';
 import { getSite } from '@/lib/cms';
+import { filledIn } from '@/lib/placeholder';
 import { formatDateTime } from '@/lib/format';
 import { getImpact } from '@/lib/impact';
 import { buildPageMetadata } from '@/lib/seo/metadata';
@@ -19,7 +20,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     locale,
     path: '/',
     title: t('pages.home.title'),
-    description: site.missionLine,
+    // Until the mission line is written, the catalogue's own description is a
+    // better answer than repeating the site's name.
+    description: filledIn(site.missionLine) ?? t('site.description'),
     seo: site.seo,
   });
 }

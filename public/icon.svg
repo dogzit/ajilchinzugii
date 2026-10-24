@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Ажилчин Зөгий">
+  <title>Ажилчин Зөгий</title>
+  <rect width="48" height="48" rx="8" fill="#fbfaf8"/>
+  <path d="M24 7 38 15v18L24 41 10 33V15z" fill="none" stroke="#b06e07" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="24" cy="24" r="6" fill="#b06e07"/>
+</svg>
