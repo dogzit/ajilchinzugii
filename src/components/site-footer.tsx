@@ -1,11 +1,14 @@
 import { useTranslations } from 'next-intl';
 import { LanguageSwitch } from '@/components/language-switch';
 import { NavLinks } from '@/components/nav-links';
-import { contactEmail } from '@/lib/site';
+import { contactEmail as contactEmailFromEnv } from '@/lib/site';
 
-export function SiteFooter() {
+export function SiteFooter({ contactEmail }: { contactEmail?: string | null }) {
   const t = useTranslations();
   const year = new Date().getFullYear();
+  // The CMS is the source of truth; the env value keeps the footer filled
+  // before the client has edited the Site global.
+  const email = contactEmail || contactEmailFromEnv;
 
   return (
     <footer className="border-border bg-surface-muted mt-16 border-t">
@@ -19,7 +22,7 @@ export function SiteFooter() {
           </p>
           {/* Publish only: a plain, selectable address — never a form. */}
           <p className="num text-ink mt-2 text-sm select-all">
-            {contactEmail || t('footer.contactEmailMissing')}
+            {email || t('footer.contactEmailMissing')}
           </p>
         </section>
 

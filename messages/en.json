@@ -67,5 +67,87 @@
       "title": "About",
       "lead": "The organisation, the team and our partners."
     }
+  },
+  "common": {
+    "readMore": "Read more",
+    "asOf": "As of {date}",
+    "lastUpdated": "Last updated",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Could not copy",
+    "nothingYet": "Nothing here yet.",
+    "openInNewTab": "(opens in a new tab)"
+  },
+  "impact": {
+    "suppressed": "Fewer than 5",
+    "suppressedExplained": "A figure resting on fewer than five cases is not published, because it could identify someone.",
+    "howCounted": "How is this counted?",
+    "basedOnCases": "Based on {count} cases",
+    "noFigures": "No figures have been fetched yet.",
+    "stale": "The source spreadsheet could not be read. These are the figures from the last successful fetch.",
+    "monthlyTitle": "Month by month",
+    "monthlyGapNote": "A gap is a month with fewer than five cases — it is not counted as zero.",
+    "chartSummary": "{label}: {from} to {to}. Highest {max}. {suppressedCount} months withheld.",
+    "showData": "Show the data as a table",
+    "month": "Month",
+    "value": "Value",
+    "metric": "Metric"
+  },
+  "home": {
+    "metricsHeading": "Headline figures",
+    "exploreHeading": "Explore",
+    "allFigures": "See every figure"
+  },
+  "methodology": {
+    "sourcesHeading": "Sources",
+    "definitionsHeading": "Definitions",
+    "countingHeading": "Counting rules",
+    "limitationsHeading": "Limitations",
+    "changeLogHeading": "Change log",
+    "anchorLabel": "Link to this section"
+  },
+  "research": {
+    "listHeading": "Research",
+    "pdf": "Download PDF",
+    "code": "Code",
+    "data": "Data",
+    "citationHeading": "Cite this",
+    "apa": "APA",
+    "bibtex": "BibTeX",
+    "abstractHeading": "Abstract",
+    "authors": "Authors",
+    "venue": "Venue",
+    "year": "Year",
+    "backToList": "All research",
+    "statusLabel": "Status",
+    "status": {
+      "working-paper": "Working paper",
+      "preprint": "Preprint",
+      "under-review": "Under review",
+      "published": "Published"
+    }
+  },
+  "policy": {
+    "statusHeading": "Status",
+    "historyHeading": "History",
+    "fullTextHeading": "Full text",
+    "tocHeading": "Contents",
+    "status": {
+      "drafted": "Drafted",
+      "submitted": "Submitted",
+      "under-review": "Under review",
+      "adopted": "Adopted",
+      "rejected": "Rejected"
+    }
+  },
+  "about": {
+    "teamHeading": "Team",
+    "partnersHeading": "Partners",
+    "contactHeading": "Contact",
+    "noFormNote": "We collect nothing through this site. Please write to us by email.",
+    "minorsNote": "Members under 18 are never listed individually, by name or photograph.",
+    "legalName": "Legal name",
+    "founded": "Founded",
+    "city": "City"
   }
 }

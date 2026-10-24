@@ -67,5 +67,87 @@
       "title": "Бидний тухай",
       "lead": "Байгууллага, хамт олон, хамтрагчид."
     }
+  },
+  "common": {
+    "readMore": "Дэлгэрэнгүй",
+    "asOf": "{date}-ны байдлаар",
+    "lastUpdated": "Сүүлд шинэчлэгдсэн",
+    "copy": "Хуулах",
+    "copied": "Хуулагдлаа",
+    "copyFailed": "Хуулж чадсангүй",
+    "nothingYet": "Энэ хэсэгт одоогоор мэдээлэл алга.",
+    "openInNewTab": "(шинэ цонхонд нээгдэнэ)"
+  },
+  "impact": {
+    "suppressed": "5-аас цөөн",
+    "suppressedExplained": "5-аас цөөн хэрэг дээр тулгуурласан тоог хувь хүнийг таних эрсдэлтэй тул нийтлэхгүй.",
+    "howCounted": "Хэрхэн тоолсон бэ?",
+    "basedOnCases": "{count} хэрэг дээр үндэслэв",
+    "noFigures": "Тоо хараахан татагдаагүй байна.",
+    "stale": "Эх хүснэгтээс татах боломжгүй байна. Доорх тоо нь сүүлд амжилттай татсан хувилбар.",
+    "monthlyTitle": "Сар бүрийн явц",
+    "monthlyGapNote": "Тасарсан хэсэг нь 5-аас цөөн хэрэгтэй сар — тэгээр тооцоогүй болно.",
+    "chartSummary": "{label}: {from}-с {to} хүртэл. Хамгийн их {max}. {suppressedCount} сарын тоо нуугдсан.",
+    "showData": "Тоон өгөгдлийг хүснэгтээр харах",
+    "month": "Сар",
+    "value": "Утга",
+    "metric": "Үзүүлэлт"
+  },
+  "home": {
+    "metricsHeading": "Голлох тоо",
+    "exploreHeading": "Цааш үзэх",
+    "allFigures": "Бүх тоог харах"
+  },
+  "methodology": {
+    "sourcesHeading": "Эх сурвалж",
+    "definitionsHeading": "Тодорхойлолт",
+    "countingHeading": "Тоолох журам",
+    "limitationsHeading": "Хязгаарлалт",
+    "changeLogHeading": "Өөрчлөлтийн бүртгэл",
+    "anchorLabel": "Энэ хэсгийн холбоос"
+  },
+  "research": {
+    "listHeading": "Судалгаанууд",
+    "pdf": "PDF татах",
+    "code": "Код",
+    "data": "Өгөгдөл",
+    "citationHeading": "Эшлэх",
+    "apa": "APA",
+    "bibtex": "BibTeX",
+    "abstractHeading": "Хураангуй",
+    "authors": "Зохиогчид",
+    "venue": "Хэвлэл",
+    "year": "Он",
+    "backToList": "Бүх судалгаа",
+    "statusLabel": "Төлөв",
+    "status": {
+      "working-paper": "Ажлын хувилбар",
+      "preprint": "Preprint",
+      "under-review": "Хянагдаж байна",
+      "published": "Нийтлэгдсэн"
+    }
+  },
+  "policy": {
+    "statusHeading": "Төлөв",
+    "historyHeading": "Явцын бүртгэл",
+    "fullTextHeading": "Бүрэн эх",
+    "tocHeading": "Агуулга",
+    "status": {
+      "drafted": "Боловсруулсан",
+      "submitted": "Хүргүүлсэн",
+      "under-review": "Хэлэлцэгдэж байна",
+      "adopted": "Батлагдсан",
+      "rejected": "Татгалзсан"
+    }
+  },
+  "about": {
+    "teamHeading": "Хамт олон",
+    "partnersHeading": "Хамтрагчид",
+    "contactHeading": "Холбоо барих",
+    "noFormNote": "Бид вэбээр ямар нэг мэдээлэл цуглуулдаггүй. Зөвхөн и-мэйлээр холбогдоно уу.",
+    "minorsNote": "18 нас хүрээгүй гишүүдийг нэр, зургаар нь нийтэд танилцуулдаггүй.",
+    "legalName": "Хуулийн нэр",
+    "founded": "Байгуулагдсан",
+    "city": "Хот"
   }
 }

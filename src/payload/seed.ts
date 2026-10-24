@@ -15,6 +15,42 @@ import config from '../payload.config';
 const TBD = '[ХҮЛЭЭГДЭЖ БУЙ / TBD]';
 const today = new Date().toISOString().slice(0, 10);
 
+/**
+ * The surveys the figures are read against. Named, but with no link: a URL is
+ * a fact to be checked, not guessed, so the editor adds it from the
+ * publisher's own page.
+ */
+const sources = {
+  mn: [
+    {
+      title: 'Хүүхдийн хөдөлмөрийн судалгаа 2021–2022 (ҮСХ / ОУХБ)',
+      note: `Үндэсний түвшний судалгаа. Эх холбоосыг нэмнэ үү: ${TBD}`,
+    },
+    {
+      title: 'Хөдөлмөр эрхлэлтийн судалгаа 2022 (ҮСХ)',
+      note: `Хөдөлмөрийн зах зээлийн суурь үзүүлэлт. Эх холбоосыг нэмнэ үү: ${TBD}`,
+    },
+    {
+      title: 'Байгууллагын хэргийн бүртгэл',
+      note: 'Зөвхөн нэгтгэсэн тоо. Хэрэг тус бүрийн мэдээлэл вэб рүү хэзээ ч гардаггүй.',
+    },
+  ],
+  en: [
+    {
+      title: 'Child Labour Survey 2021–22 (NSO / ILO)',
+      note: `National survey. Add the publisher's link: ${TBD}`,
+    },
+    {
+      title: 'Labour Force Survey 2022 (NSO)',
+      note: `Baseline labour market statistics. Add the publisher's link: ${TBD}`,
+    },
+    {
+      title: "The organisation's own case log",
+      note: 'Aggregates only. Case-level data never leaves the spreadsheet.',
+    },
+  ],
+} as const;
+
 /** Minimal Lexical document holding a single paragraph. */
 const paragraph = (text: string) => ({
   root: {
@@ -46,6 +82,22 @@ const paragraph = (text: string) => ({
     ],
   },
 });
+
+type Row = Record<string, unknown>;
+
+/**
+ * Writes a localized array in two passes without losing the first language.
+ *
+ * Payload keys a localized array's values to its row ids. Sending rows with no
+ * ids on the second pass creates new rows and silently drops what the first
+ * pass wrote, which is how the Mongolian text went missing the first time this
+ * seed ran. So: write Mongolian, read the ids back, then write English onto
+ * those same rows.
+ */
+const withIds = (
+  rows: readonly Row[],
+  saved: { id?: string | null }[] | null | undefined,
+): Row[] => rows.map((row, index) => ({ ...row, id: saved?.[index]?.id ?? undefined }));
 
 const seed = async () => {
   const payload = await getPayload({ config });
@@ -114,23 +166,44 @@ const seed = async () => {
   });
 
   if (!methodology?.definitions?.length) {
-    for (const locale of ['mn', 'en'] as const) {
-      await payload.updateGlobal({
-        slug: 'methodology',
-        locale,
-        overrideAccess: true,
-        data: {
-          sources: [{ title: TBD, note: TBD }],
-          // Anchor ids are part of published URLs. These two are placeholders
-          // and should be replaced before the first real figure links to them.
-          definitions: [{ anchorId: 'tbd-definition', term: TBD, definition: TBD }],
-          countingRules: [{ anchorId: 'tbd-counting-rule', rule: TBD, detail: TBD }],
-          limitations: paragraph(TBD),
-          changeLog: [{ date: today, summary: TBD }],
-          seo: { metaTitle: TBD, metaDescription: TBD },
-        },
-      });
-    }
+    const definitions = [{ anchorId: 'tbd-definition', term: TBD, definition: TBD }];
+    const countingRules = [{ anchorId: 'tbd-counting-rule', rule: TBD, detail: TBD }];
+    const changeLog = [{ date: today, summary: TBD }];
+
+    await payload.updateGlobal({
+      slug: 'methodology',
+      locale: 'mn',
+      overrideAccess: true,
+      data: {
+        sources: [...sources.mn],
+        definitions,
+        countingRules,
+        limitations: paragraph(TBD),
+        changeLog,
+        seo: { metaTitle: TBD, metaDescription: TBD },
+      },
+    });
+
+    const saved = await payload.findGlobal({
+      slug: 'methodology',
+      locale: 'mn',
+      overrideAccess: true,
+    });
+
+    await payload.updateGlobal({
+      slug: 'methodology',
+      locale: 'en',
+      overrideAccess: true,
+      data: {
+        sources: withIds(sources.en, saved?.sources) as never,
+        definitions: withIds(definitions, saved?.definitions) as never,
+        countingRules: withIds(countingRules, saved?.countingRules) as never,
+        limitations: paragraph(TBD),
+        changeLog: withIds(changeLog, saved?.changeLog) as never,
+        seo: { metaTitle: TBD, metaDescription: TBD },
+      },
+    });
+
     logger.info('Seeded Methodology global with placeholders');
   } else {
     logger.info('Methodology global already filled in — left untouched');
@@ -144,21 +217,42 @@ const seed = async () => {
   });
 
   if (!policy?.summary) {
-    for (const locale of ['mn', 'en'] as const) {
-      await payload.updateGlobal({
-        slug: 'policy',
-        locale,
-        overrideAccess: true,
-        data: {
-          summary: TBD,
-          fullText: paragraph(TBD),
-          status: 'drafted',
-          statusDate: today,
-          history: [{ date: today, status: 'drafted', note: TBD }],
-          seo: { metaTitle: TBD, metaDescription: TBD },
-        },
-      });
-    }
+    const history = [{ date: today, status: 'drafted' as const, note: TBD }];
+
+    await payload.updateGlobal({
+      slug: 'policy',
+      locale: 'mn',
+      overrideAccess: true,
+      data: {
+        summary: TBD,
+        fullText: paragraph(TBD),
+        status: 'drafted',
+        statusDate: today,
+        history,
+        seo: { metaTitle: TBD, metaDescription: TBD },
+      },
+    });
+
+    const saved = await payload.findGlobal({
+      slug: 'policy',
+      locale: 'mn',
+      overrideAccess: true,
+    });
+
+    await payload.updateGlobal({
+      slug: 'policy',
+      locale: 'en',
+      overrideAccess: true,
+      data: {
+        summary: TBD,
+        fullText: paragraph(TBD),
+        status: 'drafted',
+        statusDate: today,
+        history: withIds(history, saved?.history) as never,
+        seo: { metaTitle: TBD, metaDescription: TBD },
+      },
+    });
+
     logger.info('Seeded Policy global with placeholders');
   } else {
     logger.info('Policy global already filled in — left untouched');

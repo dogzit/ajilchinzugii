@@ -8,6 +8,7 @@ import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { SkipLink } from '@/components/skip-link';
 import { htmlLang, routing } from '@/i18n/routing';
+import { getSite } from '@/lib/cms';
 import { siteUrl } from '@/lib/site';
 
 export function generateStaticParams() {
@@ -45,6 +46,8 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale);
 
+  const site = await getSite(locale);
+
   return (
     <html lang={htmlLang[locale]} className={fontVariables}>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
@@ -54,7 +57,7 @@ export default async function LocaleLayout({
           <main id="main" tabIndex={-1} className="flex-1">
             {children}
           </main>
-          <SiteFooter />
+          <SiteFooter contactEmail={site.contactEmail} />
         </NextIntlClientProvider>
       </body>
     </html>
