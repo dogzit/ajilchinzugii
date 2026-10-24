@@ -22,6 +22,31 @@ last good snapshot, so do not rename or reorder the columns.
 `Totals!A:H`, `Monthly!A:D`. Scope нь `spreadsheets.readonly` — бичих эрх
 байхгүй.
 
+### Юуг хамгаалж чадахгүйг нь ойлгох / What this does not protect
+
+**MN —** Google Sheets-д **таб тус бүрээр эрх өгөх боломж байдаггүй.** Хүснэгтийг
+хуваалцахад тэр хүн (энэ тохиолдолд service account) **тухайн файлын бүх табыг**
+API-аар уншиж чадна. Табыг нуух, «protected range» тавих нь зөвхөн **засварлахаас**
+хамгаална, уншихаас хамгаалахгүй.
+
+Тиймээс жинхэнэ хамгаалалт нь дараах **хоёр** зүйл:
+
+1. **Хэргийн бүртгэл нь тусдаа файл** бөгөөд service account-тай **огт
+   хуваалцагддаггүй**. Энэ л үндсэн хаалт.
+2. Сайтын код `Totals!A:H`, `Monthly!A:D` хоёроос өөр муж гуйх **боломжгүй**:
+   мужууд нь модулийн тогтмол (`client.ts`), функц нь аргумент авдаггүй. Үүнийг
+   тестээр барьсан (`tests/unit/impact-client.test.ts`).
+
+Өөрөөр хэлбэл: **нийтийн нийлбэр хүснэгтэд хэзээ ч хэргийн мөр, хүний нэр
+оруулж болохгүй** — тэнд юу байна, түүнийг service account уншиж чадна гэж үз.
+
+**EN —** Google Sheets has no per-tab permissions: sharing a spreadsheet gives
+the grantee API read access to _every_ tab in that file, and hiding a tab or
+protecting a range only restricts editing. So the real boundary is that the case
+log is a **separate spreadsheet that is never shared**, backed by the code only
+ever requesting the two contract ranges. Treat everything in the public totals
+spreadsheet as readable by the service account.
+
 ---
 
 ## Таб 1 — `Totals`
