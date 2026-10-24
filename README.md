@@ -5,7 +5,11 @@ Impact and methodology site for a working-teens labour-rights NGO. Mongolian
 rules (evidence, small-cell suppression, no minors' data, accessibility).
 
 Phase 1 is the scaffold: routing, i18n, design tokens, landmarks and
-placeholder pages marked `[ХҮЛЭЭГДЭЖ БУЙ / TBD]`. No figures yet.
+placeholder pages marked `[ХҮЛЭЭГДЭЖ БУЙ / TBD]`. Phase 2 adds Payload CMS on
+Neon Postgres with media in Cloudflare R2, admin at `/admin`. No figures yet —
+the impact pipeline is phase 3.
+
+Editors: see [docs/README-editor.md](docs/README-editor.md) (in Mongolian).
 
 ## Getting started
 
@@ -37,3 +41,10 @@ pnpm dev                     # http://localhost:3000 -> /mn
   `@theme inline`. Contrast is asserted in `tests/unit/tokens.test.ts`.
 - **Fonts**: Unbounded (display headings only), IBM Plex Sans (body),
   IBM Plex Mono (figures, dates, citations — tabular numerals via `.num`).
+- **Schema changes go through a migration.** `push` is off, so edit the
+  collection, run `pnpm migrate:create`, read the SQL, then `pnpm migrate`.
+- **Generated files** — `src/payload-types.ts`, `src/migrations/*` and
+  `src/app/(payload)/admin/importMap.js` are regenerated, not hand-edited.
+- **`"type": "module"`** is required: Payload's CLI loads its TypeScript
+  through tsx, which mis-resolves CommonJS interop in this project otherwise
+  (`@next/env` and undici both break).
