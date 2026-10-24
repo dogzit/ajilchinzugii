@@ -55,6 +55,14 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
     meta: {
       titleSuffix: ' — Ажилчин Зөгий',
+      description:
+        'Ажилчин Зөгий — агуулгын удирдлага / content management for Ajilchin Zögii',
+    },
+    components: {
+      graphics: {
+        Logo: '@/payload/components/BrandLogo#BrandLogo',
+        Icon: '@/payload/components/BrandIcon#BrandIcon',
+      },
     },
   },
   collections: [Papers, Team, Partners, Media, Users],

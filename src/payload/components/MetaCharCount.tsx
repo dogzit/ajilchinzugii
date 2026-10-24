@@ -18,16 +18,22 @@ export const MetaCharCount = ({ path, field }: Props) => {
   const max = field?.maxLength ?? 0;
   const over = max > 0 && length > max;
 
+  // One text node, not several: the description element is a flex container,
+  // so a leading space inside a second span would be trimmed away.
+  const label =
+    (max > 0 ? `${length}/${max}` : `${length}`) +
+    ' тэмдэгт / characters' +
+    (over ? ' — хэт урт / too long' : '');
+
   return (
     <div
       className="field-description"
-      style={{ color: over ? 'var(--theme-error-500)' : undefined }}
+      style={{
+        color: over ? 'var(--theme-error-500)' : undefined,
+        fontVariantNumeric: 'tabular-nums',
+      }}
     >
-      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-        {max > 0 ? `${length}/${max}` : length}
-      </span>{' '}
-      тэмдэгт / characters
-      {over ? ' — хэт урт / too long' : ''}
+      {label}
     </div>
   );
 };

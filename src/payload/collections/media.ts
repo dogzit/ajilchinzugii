@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload';
 import { consentErrorMessage, mediaSubjects, missingConsent } from '../../lib/consent';
 import { anonymiseFileName } from '../../lib/filenames';
+import { stripPdfMetadata } from '../../lib/pdf';
 import { anyone, isStaff } from '../access';
 import { seoField } from '../fields/seo';
 
@@ -90,9 +91,17 @@ export const Media: CollectionConfig = {
   },
   hooks: {
     beforeOperation: [
-      ({ operation, req }) => {
+      async ({ operation, req }) => {
         if ((operation === 'create' || operation === 'update') && req.file) {
           req.file.name = anonymiseFileName(req.file.name);
+
+          // Images are re-encoded by sharp, which drops their metadata. A PDF
+          // is stored as uploaded, so its Info dictionary and XMP packet have
+          // to be cleared here or the author's name travels with the file.
+          if (req.file.mimetype === 'application/pdf') {
+            req.file.data = await stripPdfMetadata(req.file.data);
+            req.file.size = req.file.data.length;
+          }
         }
       },
     ],

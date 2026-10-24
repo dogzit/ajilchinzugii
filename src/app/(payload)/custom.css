@@ -1,0 +1,57 @@
+/*
+ * Admin-only styling. The public site is built with Tailwind and shares none
+ * of this. Kept to a few variables so Payload's own stylesheet keeps working
+ * after an upgrade.
+ */
+
+:root {
+  /* Honey accent and focus ring from the site's design tokens. */
+  --brand-honey: #b06e07;
+  --brand-honey-strong: #8a5505;
+  --accessibility-outline: 2px solid var(--brand-honey-strong);
+  --accessibility-outline-offset: 2px;
+}
+
+[data-theme='dark'] {
+  --brand-honey: #e9ae43;
+  --brand-honey-strong: #f2be5e;
+  --accessibility-outline: 2px solid var(--brand-honey-strong);
+}
+
+/* Mongolian Cyrillic reads poorly at Payload's default 13px. */
+html {
+  --base-body-size: 14;
+}
+
+.brand-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: center;
+  text-align: center;
+}
+
+.brand-logo__word {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.brand-logo__dot {
+  color: var(--brand-honey);
+}
+
+.brand-logo__tagline {
+  font-size: 0.8rem;
+  color: var(--theme-elevation-600);
+  max-width: 28ch;
+  line-height: 1.4;
+}
+
+/* The dashboard group headings carry the Mongolian label first. */
+.dashboard__group-title {
+  letter-spacing: 0.01em;
+}
