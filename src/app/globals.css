@@ -1,0 +1,131 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens. Calm, evidentiary, institutional: deep ink neutrals, honey
+ * accent used sparingly. Contrast ratios are asserted in
+ * tests/unit/tokens.test.ts — text pairs >= 4.5:1, UI pairs >= 3:1 (WCAG AA).
+ */
+
+/* tokens:light */
+:root {
+  --bg: #fbfaf8;
+  --surface: #ffffff;
+  --surface-muted: #f2efe9;
+  --border: #cfc8ba;
+  --border-strong: #8c857a;
+
+  --ink: #14120f;
+  --ink-soft: #3a352d;
+  --ink-muted: #5c564b;
+
+  /* Honey/amber: `accent` is text-safe, `accent-mark` is for marks and rules. */
+  --accent: #8a5505;
+  --accent-mark: #b06e07;
+  --accent-surface: #fdf3df;
+  --focus: #8a5505;
+}
+/* tokens:dark */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121110;
+    --surface: #1a1917;
+    --surface-muted: #232120;
+    --border: #38352f;
+    --border-strong: #7d766c;
+
+    --ink: #f6f3ed;
+    --ink-soft: #d8d2c7;
+    --ink-muted: #aba49a;
+
+    --accent: #e9ae43;
+    --accent-mark: #e9ae43;
+    --accent-surface: #2a2217;
+    --focus: #f2be5e;
+  }
+}
+/* tokens:end */
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+
+  --color-accent: var(--accent);
+  --color-accent-mark: var(--accent-mark);
+  --color-accent-surface: var(--accent-surface);
+  --color-focus: var(--focus);
+
+  --font-display: var(--font-unbounded), system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  :root {
+    color-scheme: light dark;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    text-underline-offset: 0.2em;
+  }
+
+  /* Unbounded is a display face: headings only, never body copy. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  /* Figures, citations and any other numbers line up in columns. */
+  code,
+  kbd,
+  samp,
+  pre,
+  time,
+  data {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: var(--accent-surface);
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Any rendered figure, date or citation. */
+@utility num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}

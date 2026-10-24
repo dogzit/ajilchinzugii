@@ -1,0 +1,71 @@
+{
+  "site": {
+    "name": "Ajilchin Zögii",
+    "tagline": "Labour rights of working children and teens",
+    "description": "Impact, methodology and research of an organisation protecting the labour rights of working children and teens."
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "primaryNav": "Primary navigation",
+    "footerNav": "Footer navigation",
+    "menu": "Menu",
+    "menuToggle": "Open and close the menu"
+  },
+  "nav": {
+    "home": "Home",
+    "impact": "Impact",
+    "methodology": "Methodology",
+    "research": "Research",
+    "policy": "Policy",
+    "about": "About"
+  },
+  "language": {
+    "label": "Language / Хэл",
+    "names": {
+      "mn": "Монгол",
+      "en": "English"
+    },
+    "switchTo": {
+      "mn": "View this page in Mongolian / Монгол хэл дээр үзэх",
+      "en": "View this page in English / Англи хэл дээр үзэх"
+    },
+    "current": "Current language: {language}"
+  },
+  "footer": {
+    "contactHeading": "Contact",
+    "contactNote": "We collect no personal data through this site. Please write to the address below.",
+    "contactEmailMissing": "[ХҮЛЭЭГДЭЖ БУЙ / TBD]",
+    "copyright": "© {year} {name}",
+    "sourceNote": "Every figure on this site can be checked against its evidence."
+  },
+  "placeholder": {
+    "tbd": "[ХҮЛЭЭГДЭЖ БУЙ / TBD]",
+    "note": "The content of this page is added in a later phase."
+  },
+  "pages": {
+    "home": {
+      "title": "Ajilchin Zögii",
+      "lead": "Protecting the labour rights of working children and teens through collective bargaining, negotiation and policy work."
+    },
+    "impact": {
+      "title": "Impact",
+      "lead": "Measured results and the evidence behind them."
+    },
+    "methodology": {
+      "title": "Methodology",
+      "lead": "How each figure is produced and how it can be checked."
+    },
+    "research": {
+      "title": "Research",
+      "lead": "Research reports and papers."
+    },
+    "policy": {
+      "title": "Policy",
+      "lead": "Policy proposals and legislative work."
+    },
+    "about": {
+      "title": "About",
+      "lead": "The organisation, the team and our partners."
+    }
+  }
+}

@@ -1,0 +1,490 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ажилчин Зөгий төлөвлөгөө</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: one reading column; a sticky progress rail of hexagon cells (one per phase), phases as stacked work orders with prompt + checklist. */
+:root{
+  --bg:#F4F5F2; --surface:#FFFFFF; --ink:#15171C; --muted:#5A5E66; --line:#DCDDD7;
+  --honey:#E3A008; --honey-ink:#7A4E00; --honey-wash:#FBF0D3; --ok:#2F7A4B;
+  --code-bg:#1B1D22; --code-fg:#E9E7DF;
+  --f-display:"Unbounded","Arial Black",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#111215; --surface:#1A1C20; --ink:#ECEBE5; --muted:#A3A6AD; --line:#2C2F35;
+  --honey:#F2B92B; --honey-ink:#F5C85A; --honey-wash:#2A2312; --ok:#5DBB84;
+  --code-bg:#0B0C0E; --code-fg:#E9E7DF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111215; --surface:#1A1C20; --ink:#ECEBE5; --muted:#A3A6AD; --line:#2C2F35;
+  --honey:#F2B92B; --honey-ink:#F5C85A; --honey-wash:#2A2312; --ok:#5DBB84;
+  --code-bg:#0B0C0E; --code-fg:#E9E7DF; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.6 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:860px;margin:0 auto;padding-block:40px 80px;display:grid;gap:56px}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font:700 clamp(28px,6vw,44px)/1.08 var(--f-display);letter-spacing:-.01em}
+h2{font:500 22px/1.25 var(--f-display)}
+h3{font:600 17px/1.35 var(--f-body)}
+p{margin:0;max-width:65ch}
+a{color:var(--honey-ink)}
+.eyebrow{font:500 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+:focus-visible{outline:3px solid var(--honey);outline-offset:2px;border-radius:4px}
+
+/* header */
+header{display:grid;gap:18px}
+.lede{color:var(--muted);font-size:17px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font:400 13px/1.4 var(--f-mono);color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
+
+/* progress rail */
+.rail{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);
+  border-bottom:1px solid var(--line);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));
+  padding:10px max(16px,env(safe-area-inset-left,0px))}
+.rail-in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hexes{display:flex;gap:4px;flex-wrap:wrap}
+.hex{width:26px;height:30px;display:grid;place-items:center;text-decoration:none;
+  clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  background:var(--line);color:var(--muted);font:500 11px/1 var(--f-mono);position:relative}
+.hex::after{content:"";position:absolute;inset:0;background:var(--honey);
+  clip-path:inset(calc(100% - var(--fill,0%)) 0 0 0);transition:clip-path .4s}
+.hex span{position:relative;z-index:1}
+.hex.done{color:#15171C}
+.count{font:500 13px/1 var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.count b{color:var(--ink)}
+
+/* decisions */
+.table-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px}
+th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font:500 11px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:var(--bg)}
+td:first-child{font-weight:600;white-space:nowrap}
+.yes{display:inline-block;font:500 12px/1 var(--f-mono);padding:4px 7px;border-radius:3px;background:var(--honey-wash);color:var(--honey-ink)}
+
+.qa{display:grid;gap:14px}
+.qa-item{display:grid;gap:6px;padding:18px 20px;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+.qa-item p{color:var(--muted)}
+.qa-item p strong{color:var(--ink)}
+
+/* how to */
+ol.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:12px}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:start}
+ol.steps li::before{content:counter(s);font:500 13px/32px var(--f-mono);text-align:center;
+  width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--surface)}
+code{font:400 .9em var(--f-mono);background:var(--honey-wash);color:var(--honey-ink);padding:1px 5px;border-radius:3px}
+
+/* phases */
+.phases{display:grid;gap:28px}
+.phase{background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;scroll-margin-top:70px}
+.phase-head{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;padding:22px 22px 18px;border-bottom:1px solid var(--line)}
+.pnum{grid-row:span 2;font:700 30px/1 var(--f-display);color:var(--honey);min-width:42px}
+.phase-head p{color:var(--muted);font-size:15px}
+.phase-body{display:grid;gap:18px;padding:20px 22px 22px}
+.prompt{position:relative;border-radius:6px;background:var(--code-bg)}
+.prompt-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 8px 8px 14px;border-bottom:1px solid #2E3137}
+.prompt-bar span{font:500 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:#9A9DA4}
+.copy{font:500 13px/1 var(--f-body);border:0;border-radius:4px;padding:8px 12px;cursor:pointer;
+  background:var(--honey);color:#15171C;min-height:34px}
+.copy:hover{filter:brightness(1.06)}
+.copy.ok{background:#5DBB84}
+pre{margin:0;padding:14px 16px 16px;color:var(--code-fg);font:400 13px/1.62 var(--f-mono);
+  white-space:pre-wrap;word-break:break-word;max-height:320px;overflow:auto}
+.done-when{font-size:14px;color:var(--muted);padding:12px 14px;border-left:3px solid var(--honey);background:var(--honey-wash);border-radius:0 4px 4px 0}
+.done-when b{color:var(--ink)}
+
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.checks label{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:7px 8px;border-radius:4px;cursor:pointer;font-size:15px}
+.checks label:hover{background:var(--bg)}
+.checks input{appearance:none;width:20px;height:20px;margin:2px 0 0;border:1.5px solid var(--muted);border-radius:4px;display:grid;place-items:center;cursor:pointer;background:var(--surface)}
+.checks input:checked{background:var(--ok);border-color:var(--ok)}
+.checks input:checked::after{content:"";width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
+.checks input:checked + span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.phase.manual .phase-head{background:var(--honey-wash)}
+.tag{font:500 11px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--honey-ink);margin-left:6px}
+
+footer{border-top:1px solid var(--line);padding-top:20px;display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px}
+.reset{background:none;border:1px solid var(--line);color:var(--muted);border-radius:4px;padding:8px 12px;font:inherit;cursor:pointer}
+@media (max-width:520px){.phase-head,.phase-body{padding-inline:16px}.pnum{font-size:24px;min-width:32px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<nav class="rail" aria-label="Явц">
+  <div class="rail-in">
+    <div class="hexes" id="hexes"></div>
+    <div class="count" id="count" aria-live="polite"></div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header>
+    <div class="eyebrow">Бүтээх төлөвлөгөө · Claude Code</div>
+    <h1>Ажилчин Зөгий</h1>
+    <p class="lede">Хөдөлмөр эрхэлж буй өсвөр насныхны эрхийг хамгаалдаг байгууллагын impact болон аргачлалын сайт. Нийтлэгдсэн тоо бүрийг нотолгоотой нь тулгаж шалгах боломжтой байна.</p>
+    <div class="meta">
+      <span>Хэл <b>MN · EN</b></span>
+      <span>Stack <b>Next.js · Payload · Neon · R2</b></span>
+      <span>Хурд <b>&lt; 2с, 4G</b></span>
+      <span>Хүртээмж <b>WCAG 2.1 AA</b></span>
+    </div>
+  </header>
+
+  <section style="display:grid;gap:18px" aria-labelledby="dec">
+    <div class="eyebrow">Шийдвэрүүд</div>
+    <h2 id="dec">Stack ба хадгалалт</h2>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Асуудал</th><th>Сонголт</th><th>Яагаад</th></tr></thead>
+        <tbody>
+          <tr><td>CMS</td><td>Payload CMS 3</td><td>Next.js апп дотроо <code>/admin</code> дээр ажилладаг тул тусдаа сервер шаардлагагүй. MN/EN localization суусан, кодгүйгээр текст засах, судалгаа нэмэх боломжтой.</td></tr>
+          <tr><td>Өгөгдлийн сан</td><td>Neon Postgres <span class="yes">тийм</span></td><td>Payload нь Postgres дээр шууд ажиллана. Хуудасны текст, судалгаа, багийн мэдээлэл, change log-ийг энд хадгална.</td></tr>
+          <tr><td>Зураг, PDF</td><td>Cloudflare R2</td><td>S3-тэй нийцтэй, гаралтын урсгалын (egress) төлбөргүй. Payload-ийн <code>storage-s3</code> adapter-аар шууд холбогдоно.</td></tr>
+          <tr><td>Impact тоо</td><td>Google Sheets API</td><td>Зөвхөн нэгтгэсэн "public totals" spreadsheet-ийг уншина. Өдөрт нэг удаа шинэчилнэ. 5-аас бага тохиолдолтой тоог сервер талд нуудаг.</td></tr>
+          <tr><td>Hosting</td><td>Vercel</td><td>HTTPS автоматаар ажиллана, ISR болон Cron дэмждэг, домэйн солиход хялбар.</td></tr>
+          <tr><td>Analytics</td><td>Plausible / Umami</td><td>Cookie ашигладаггүй тул banner хэрэггүй, хувийн мэдээллийн хуульд нийцнэ.</td></tr>
+          <tr><td>Backup</td><td>Neon PITR + шөнийн dump</td><td>Neon-ийн point-in-time сэргээлт ажиллана. Үүн дээр GitHub Action шөнө бүр <code>pg_dump</code> хийж тусдаа R2 bucket руу хадгална.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="qa">
+      <div class="qa-item">
+        <h3>NeonDB ашиглаж болох уу?</h3>
+        <p><strong>Болно.</strong> CMS-ийн контентод тохиромжтой бөгөөд эхний шатанд үнэгүй tier хангалттай. Апп-даа pooled connection, migration-д direct connection ашиглана. <strong>Харин зураг болон PDF-ийг Neon-д хадгалахгүй.</strong> Binary файл өгөгдлийн санг томруулж, backup-ыг удаашруулдаг тул DB-д зөвхөн файлын URL ба metadata-г хадгална.</p>
+      </div>
+      <div class="qa-item">
+        <h3>Зураг хадгалахад юу хэрэгтэй вэ?</h3>
+        <p><strong>R2 bucket</strong>-ыг клиентийн Cloudflare бүртгэл дээр үүсгэнэ. Upload хийх үед <strong>EXIF/GPS мэдээллийг автоматаар устгана</strong>, учир нь зураг авсан байршил ил гарч болно. AVIF/WebP хэлбэрээр 480, 960, 1600 px хэмжээтэй хувилбаруудыг үүсгэнэ. Alt текстийг хоёр хэл дээр заавал бөглүүлнэ. Файлын нэрийг санамсаргүй тэмдэгтээр өгч хүний нэр оруулахгүй. Гишүүдийн зураг оруулахад өсвөр насны гишүүн болон эцэг эхийн зөвшөөрлийн талбаруудыг бөглөхгүй бол нийтлэх боломжгүй байна. Илүү хялбар хувилбар хэрэгтэй бол Vercel Blob ашиглаж болно.</p>
+      </div>
+      <div class="qa-item">
+        <h3>Google Sheet-ийг яаж аюулгүй холбох вэ?</h3>
+        <p>Case log-ийг клиентийн хувийн spreadsheet-д үлдээнэ. <strong>Тусдаа "public totals" spreadsheet</strong> үүсгээд IMPORTRANGE ба формулаар зөвхөн нийт дүнг тооцоолно. Service account-д зөвхөн энэ хоёр дахь файлд Viewer эрх өгнө. Ингэснээр код алдаатай байсан ч case-level мөрүүд сайт руу хэзээ ч хүрэхгүй.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid;gap:18px" aria-labelledby="how">
+    <div class="eyebrow">Ашиглах заавар</div>
+    <h2 id="how">Claude Code дээр хэрхэн ажиллуулах вэ</h2>
+    <ol class="steps">
+      <li><p>Хоосон folder үүсгээд <code>CLAUDE.md</code> файлыг root-д нь хуулна. Claude Code энэ файлыг session бүрийн эхэнд автоматаар уншдаг.</p></li>
+      <li><p>Тэр folder дотроо терминалаас <code>claude</code> командыг ажиллуулна.</p></li>
+      <li><p>Phase бүрийн prompt-ыг <b>Хуулах</b> товчоор хуулж, шинэ session-д (<code>/clear</code>) оруулна. Нэг session-д нэг phase хийхэд context цэвэр байна.</p></li>
+      <li><p>Phase бүр дуусахад checklist-ийг шалгаж, <code>pnpm dev</code> дээр өөрөө нүдээр харсны дараа дараагийн phase руу шилжинэ.</p></li>
+    </ol>
+  </section>
+
+  <section style="display:grid;gap:18px" aria-labelledby="ph">
+    <div class="eyebrow">Phase-үүд</div>
+    <h2 id="ph">Ажлын дараалал</h2>
+    <div class="phases" id="phases">
+
+      <article class="phase manual" id="p0" data-phase="0">
+        <div class="phase-head">
+          <div class="pnum mono">00</div>
+          <h3>Бүртгэл ба материал <span class="tag">гараар · клиент</span></h3>
+          <p>Код бичихээс өмнө бүх бүртгэлийг клиентийн нэр дээр нээнэ. Харин чамайг member эсвэл collaborator болгож урина.</p>
+        </div>
+        <div class="phase-body">
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Домэйн авах: <code>ajilchinzogii.mn</code> сул эсэхийг бүртгэгч байгууллагаас шалгаж, клиентийн нэр дээр бүртгүүлэх</span></label></li>
+            <li><label><input type="checkbox"><span>GitHub organization үүсгээд, repo-г клиентийн мэдэлд байлгах</span></label></li>
+            <li><label><input type="checkbox"><span>Vercel, Neon, Cloudflare (R2), Plausible бүртгэлүүдийг клиентийн имэйлээр нээх</span></label></li>
+            <li><label><input type="checkbox"><span>Google Cloud дээр project үүсгэж, Sheets API идэвхжүүлээд read-only service account гаргах</span></label></li>
+            <li><label><input type="checkbox"><span>"Public totals" spreadsheet үүсгэж, <code>Totals</code> ба <code>Monthly</code> tab нэмээд service account-д зөвхөн Viewer эрх өгөх</span></label></li>
+            <li><label><input type="checkbox"><span>Өсвөр насны гишүүн болон эцэг эхийн бичгээр өгөх зөвшөөрлийн маягтыг бэлтгэх</span></label></li>
+            <li><label><input type="checkbox"><span>Хоёр судалгааны PDF, код, өгөгдлийн холбоос болон Хөдөлмөрийн хуулийн нэмэлт өөрчлөлтийн бүрэн текстийг цуглуулах</span></label></li>
+            <li><label><input type="checkbox"><span>Байгууллагын англи нэр, нэг өгүүлбэрээр илэрхийлсэн зорилго (mission), холбоо барих имэйлийг тодорхой болгох</span></label></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase" id="p1" data-phase="1">
+        <div class="phase-head">
+          <div class="pnum mono">01</div>
+          <h3>Суурь бүтэц</h3>
+          <p>Next.js, хоёр хэлний маршрут, дизайн token, фонт, хүртээмжийн суурь.</p>
+        </div>
+        <div class="phase-body">
+          <div class="prompt"><div class="prompt-bar"><span>Prompt · Phase 1</span><button class="copy" type="button">Хуулах</button></div>
+<pre>Read CLAUDE.md fully before doing anything. We are doing PHASE 1 — Scaffold. Do not start later phases.
+
+Create a Next.js project (App Router, TypeScript strict, pnpm) with Tailwind CSS and next-intl.
+
+Requirements:
+- Locales mn (default) and en, URL prefixes /mn and /en. Middleware redirects / to /mn (respect Accept-Language only on first visit).
+- &lt;html lang&gt; set per locale.
+- LanguageSwitch component on every page that links to the SAME path in the other locale, is a real &lt;a&gt; link, keyboard reachable, and labelled in both languages.
+- Skip-to-content link, semantic header/nav/main/footer landmarks, visible focus styles.
+- Header nav: Нүүр, Нөлөөлөл, Аргачлал, Судалгаа, Бодлого, Бидний тухай (English equivalents in en). Mobile menu must work without JS hover and be keyboard operable.
+- Footer: contact email from env shown as selectable text, language switch, copyright.
+- Design tokens as CSS variables (light + dark via prefers-color-scheme): ink neutrals, honey/amber accent used sparingly, AA contrast checked. Wire tokens into Tailwind theme.
+- Fonts via next/font/google with cyrillic + latin subsets: Unbounded (display headings only), IBM Plex Sans (body), IBM Plex Mono (figures, citations). Use font-variant-numeric: tabular-nums for numbers.
+- Placeholder pages for home, impact, methodology, research, policy, about — content marked [ХҮЛЭЭГДЭЖ БУЙ / TBD].
+- All UI strings in messages/mn.json and messages/en.json. No hardcoded strings in components.
+- Tooling: ESLint, Prettier, Vitest, Playwright. Scripts: dev, build, lint, typecheck, test, e2e.
+- .env.example with NEXT_PUBLIC_SITE_URL and NEXT_PUBLIC_CONTACT_EMAIL. Never hardcode a domain.
+
+When finished: run lint, typecheck, test and build; fix failures; add one Playwright test that the language switch keeps the path; commit "phase 1: scaffold".</pre></div>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span><code>/mn/impact</code> хуудсаас хэл солиход <code>/en/impact</code> руу шилжиж байна</span></label></li>
+            <li><label><input type="checkbox"><span>Tab товчоор skip link, цэс, хэл солих товч бүгд хүрч, focus харагдаж байна</span></label></li>
+            <li><label><input type="checkbox"><span>Dark mode дээр текст уншигдаж байна</span></label></li>
+            <li><label><input type="checkbox"><span>360 px өргөнтэй дэлгэц дээр хэвтээ scroll гарахгүй байна</span></label></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase" id="p2" data-phase="2">
+        <div class="phase-head">
+          <div class="pnum mono">02</div>
+          <h3>CMS, Neon, R2</h3>
+          <p>Кодгүйгээр засах admin, контентын загвар, зургийн аюулгүй байдал.</p>
+        </div>
+        <div class="phase-body">
+          <div class="prompt"><div class="prompt-bar"><span>Prompt · Phase 2</span><button class="copy" type="button">Хуулах</button></div>
+<pre>Read CLAUDE.md. PHASE 2 — Payload CMS on Neon with R2 media. Do not start later phases.
+
+Install Payload CMS 3 into this Next.js app, admin at /admin.
+- DB: @payloadcms/db-postgres. DATABASE_URL = Neon pooled URL (app), DATABASE_URL_UNPOOLED = direct URL (migrations). Use generated migrations, not schema push, for production.
+- Localization: mn (default, fallback) and en.
+- Storage: @payloadcms/storage-s3 pointed at Cloudflare R2 (R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL). No file bytes in Postgres.
+
+Collections:
+- Users: admin/editor roles, no public sign-up.
+- Media: required localized alt (mn + en). Field subject: none | adult member | teen member. If "teen member": consentTeen, consentParent (checkboxes, both required true), consentDate, consentRecordRef — block publishing otherwise. Strip ALL EXIF/GPS metadata with sharp. Generate AVIF + WebP at 480/960/1600. Store files under random slug names, never personal names.
+- Papers: title, slug, abstract (rich text), authors, year, venue, doi, status, pdf (upload), codeUrl, dataUrl. Auto-generate APA and BibTeX strings in a hook.
+- Team: name, role, bio, photo. Required checkbox "confirmedAdult18Plus" — only adults are listed publicly; minors are never listed individually.
+- Partners: name, logo, url.
+
+Globals:
+- Site: mission line, contact email, social links, default SEO, organization schema fields (legal name, founding date, address city).
+- Methodology: sources[], definitions[] and countingRules[] each with a stable anchorId, limitations, changeLog[] {date, summary}.
+- Policy: summary, fullText (rich text), status (drafted | submitted | under review | adopted | rejected), statusDate, history[].
+- ImpactSnapshot: json + fetchedAt, read-only in admin.
+
+Every collection and global gets a localized SEO group (metaTitle ≤ 60 chars, metaDescription ≤ 160 chars, with admin character counters).
+Access: public read only for published docs. Enable drafts + versions for Papers, Methodology and Policy.
+afterChange hooks call revalidatePath for both locales of affected routes.
+Seed script with clearly marked placeholders only — no invented people, numbers or partners.
+Write docs/README-editor.md IN MONGOLIAN for a non-coder: log in, edit page text, add a paper with PDF, update policy status, add a change-log entry, upload a photo with consent.
+
+Run lint/typecheck/test/build, fix failures, commit "phase 2: cms".</pre></div>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span><code>/admin</code> дээр нэвтэрч, судалгаа нэмэх үед PDF нь R2 руу хадгалагдаж байна</span></label></li>
+            <li><label><input type="checkbox"><span>GPS мэдээлэлтэй зураг оруулахад EXIF арилсан байна (exiftool-оор шалгах)</span></label></li>
+            <li><label><input type="checkbox"><span>Өсвөр насны гишүүний зургийг зөвшөөрөлгүйгээр нийтлэх гэхэд систем зөвшөөрөхгүй байна</span></label></li>
+            <li><label><input type="checkbox"><span>Монгол хэл дээрх editor-ийн гарын авлага бэлэн болсон</span></label></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase" id="p3" data-phase="3">
+        <div class="phase-head">
+          <div class="pnum mono">03</div>
+          <h3>Impact өгөгдлийн урсгал</h3>
+          <p>Sheet → шалгалт → 5-аас бага бол нуух → snapshot → өдөр бүрийн шинэчлэл.</p>
+        </div>
+        <div class="phase-body">
+          <div class="prompt"><div class="prompt-bar"><span>Prompt · Phase 3</span><button class="copy" type="button">Хуулах</button></div>
+<pre>Read CLAUDE.md, especially "Impact data contract". PHASE 3 — Impact data pipeline. Do not build page UI yet.
+
+Implement src/lib/impact/:
+- client.ts: Google Sheets API v4 with a read-only service account (GOOGLE_SA_EMAIL, GOOGLE_SA_PRIVATE_KEY, IMPACT_SHEET_ID). Read ONLY the ranges Totals!A:H and Monthly!A:D. Use the "spreadsheets.readonly" scope.
+- schema.ts: zod schemas for both tabs. If validation fails, reject the whole fetch.
+- suppress.ts: one pure function. n_cases &lt; 5 or missing → value null, suppressed true. Apply to each total AND each monthly point individually. Never compute a total by summing cells; use the sheet's own totals so suppressed values cannot be back-calculated.
+- index.ts: getImpact(locale) → { metrics, monthly, fetchedAt, stale }. Uses fetch caching with revalidate 86400 and tag "impact". On success, save the validated + suppressed result to the ImpactSnapshot global. On failure, return the last snapshot with stale: true.
+- Never log row contents or values — log only error type and timestamp.
+
+Also:
+- app/api/revalidate/route.ts: POST with header x-revalidate-secret (REVALIDATE_SECRET) → revalidateTag("impact"). 401 otherwise.
+- vercel.json cron: daily at 22:00 UTC (06:00 Ulaanbaatar) calling the route (use CRON_SECRET per Vercel docs).
+- Vitest unit tests with fixtures: n=4 suppressed, n=5 shown, missing n suppressed, bad schema rejected, failure falls back to snapshot, monthly suppression independent.
+- Document the two tabs, with an example row each, in docs/impact-sheet.md (Mongolian + English).
+
+Run lint/typecheck/test, fix failures, commit "phase 3: impact pipeline".</pre></div>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Unit тестүүд бүгд амжилттай давж байна (ялангуяа n=4 ба n=5 тохиолдол)</span></label></li>
+            <li><label><input type="checkbox"><span>Sheet-ийг түр эвдэхэд сайт сүүлийн зөв snapshot-оо харуулж байна</span></label></li>
+            <li><label><input type="checkbox"><span>Service account өөр tab уншиж чадахгүй байгааг шалгасан</span></label></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase" id="p4" data-phase="4">
+        <div class="phase-head">
+          <div class="pnum mono">04</div>
+          <h3>Хуудсууд ба дизайн</h3>
+          <p>Зургаан хуудас, тоо бүр нотолгоо руугаа холбоостой.</p>
+        </div>
+        <div class="phase-body">
+          <div class="prompt"><div class="prompt-bar"><span>Prompt · Phase 4</span><button class="copy" type="button">Хуулах</button></div>
+<pre>Read CLAUDE.md, especially "Design direction". PHASE 4 — Pages and visual design. Server Components first; "use client" only for copy buttons and the mobile menu.
+
+Pages (all content from Payload + getImpact; nothing hardcoded):
+- Home: one-line mission; the four metrics where show_on_home is TRUE — large tabular numerals or the suppressed label, the "as of" date, and a link "Хэрхэн тоолсон бэ? / How is this counted?" to the methodology anchor; short cards linking to the other pages.
+- Impact: every metric with value (or suppressed label), as-of date, method link. Monthly trend chart as server-rendered SVG: gaps for suppressed months (not zero), labelled axes, colors from tokens so it works in both themes, role="img" with a text summary, plus the full data as a &lt;table&gt; inside &lt;details&gt;. Show "Сүүлд шинэчлэгдсэн" time and a visible notice when stale is true.
+- Methodology: data sources (NSO/ILO Child Labour Survey 2021–22, Labour Force Survey 2022, NGO case log) with links; definitions and counting rules rendered with their anchorId as id; limitations; dated change log, newest first.
+- Research index + research/[slug]: abstract, buttons for PDF / code / data, citation block with APA and BibTeX and copy buttons, year and venue.
+- Policy: summary, status badge with date, history as a vertical timeline, full text with a table of contents.
+- About: founder, team (adults only), partners with logos, contact email as selectable text + copy button. No contact form.
+
+Design: calm, evidentiary, institutional — like a statistics office, not a charity campaign. Ink neutrals, honey accent used sparingly, at most ONE subtle hexagon motif (e.g. metric markers). Generous whitespace, 65ch text width, clear type scale. No stock photos of children. Mobile-first: verify at 360px, 768px, 1280px. next/image with correct sizes and priority only on the LCP image.
+
+Run lint/typecheck/test/build, fix failures, commit "phase 4: pages".</pre></div>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Тоо бүр "as of" огноотой бөгөөд аргачлалын тодорхой хэсэг рүү холбоостой</span></label></li>
+            <li><label><input type="checkbox"><span>Нуусан сарууд графикт 0 биш, хоосон зай (gap) хэлбэрээр харагдаж байна</span></label></li>
+            <li><label><input type="checkbox"><span>Хуудасны кодноос нэг ч статистик тоо олдохгүй байна</span></label></li>
+            <li><label><input type="checkbox"><span>Citation хуулах товч ажиллаж байна</span></label></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase" id="p5" data-phase="5">
+        <div class="phase-head">
+          <div class="pnum mono">05</div>
+          <h3>SEO ба analytics</h3>
+          <p>Metadata, hreflang, sitemap, schema.org, Search Console, Plausible.</p>
+        </div>
+        <div class="phase-body">
+          <div class="prompt"><div class="prompt-bar"><span>Prompt · Phase 5</span><button class="copy" type="button">Хуулах</button></div>
+<pre>Read CLAUDE.md. PHASE 5 — SEO and analytics. All URLs built from NEXT_PUBLIC_SITE_URL.
+
+- generateMetadata on EVERY route, from the CMS SEO group with fallback to Site defaults. Title template "%s | Ажилчин Зөгий" (localized). description, canonical, alternates.languages { mn, en, x-default → en }, openGraph (locale mn_MN / en_US, image), twitter summary_large_image.
+- app/sitemap.ts: every page and every paper in both locales, with alternates.languages and lastModified from CMS updatedAt.
+- app/robots.ts: allow all, disallow /admin and /api, link to the sitemap.
+- JSON-LD components (src/lib/seo/jsonld.ts, typed):
+  • NGO (Organization subtype) + WebSite on every page — name in both languages, logo, email, sameAs, foundingDate from the Site global.
+  • Person for the founder on About (worksFor → the NGO).
+  • ScholarlyArticle on each paper (author, datePublished, abstract, url, encoding → PDF), plus Google Scholar meta tags: citation_title, citation_author, citation_publication_date, citation_pdf_url.
+  • Dataset on Impact (name, description, temporalCoverage, dateModified = fetchedAt, isBasedOn → the sources).
+  • BreadcrumbList on inner pages.
+- Dynamic OG images per page with next/og, using a Cyrillic-capable font.
+- Google Search Console verification meta from NEXT_PUBLIC_GSC_VERIFICATION.
+- Plausible via next/script (NEXT_PUBLIC_PLAUSIBLE_DOMAIN); custom events for PDF downloads and outbound clicks. No cookies.
+- Unit tests that JSON-LD output is valid JSON with the required fields and that every route returns a non-empty title and description in both locales.
+
+Run lint/typecheck/test/build, fix failures, commit "phase 5: seo".</pre></div>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Хуудас бүрийн source дээр өөр өөр title ба description байна</span></label></li>
+            <li><label><input type="checkbox"><span><code>/sitemap.xml</code> дээр хоёр хэлний хувилбар alternates-тайгаа гарч байна</span></label></li>
+            <li><label><input type="checkbox"><span>Google Rich Results Test дээр алдаа гарахгүй байна</span></label></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase" id="p6" data-phase="6">
+        <div class="phase-head">
+          <div class="pnum mono">06</div>
+          <h3>Хурд ба хүртээмжийн аудит</h3>
+          <p>axe, Lighthouse CI, keyboard тест — алдаа гарвал build унана.</p>
+        </div>
+        <div class="phase-body">
+          <div class="prompt"><div class="prompt-bar"><span>Prompt · Phase 6</span><button class="copy" type="button">Хуулах</button></div>
+<pre>Read CLAUDE.md. PHASE 6 — Performance and accessibility audit.
+
+- Playwright e2e for every page in both locales: language switch keeps the path; keyboard-only navigation reaches every link and button; focus is always visible; skip link moves focus to main; copy buttons work with keyboard.
+- @axe-core/playwright on every page with tags wcag2a, wcag2aa, wcag21a, wcag21aa — fail on any violation. Test light and dark color schemes.
+- Lighthouse CI (mobile, simulated 4G) with assertions: performance ≥ 0.9, accessibility = 1, seo = 1, best-practices ≥ 0.95, LCP &lt; 2500 ms, CLS &lt; 0.1, client JS per route ≤ 100 KB gzipped.
+- GitHub Actions workflow running lint, typecheck, unit, e2e, axe and Lighthouse on every PR.
+- Audit the code: search for hardcoded numbers in page components, hardcoded domains, and any field that could expose a minor's name, school or workplace. Remove or fix.
+- Fix every failure found. Write docs/audit.md with the final scores and what you changed.
+
+Commit "phase 6: audit".</pre></div>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>axe тест 0 зөрчилтэй гарсан</span></label></li>
+            <li><label><input type="checkbox"><span>Lighthouse mobile дээр Performance 90+, Accessibility болон SEO 100 оноотой</span></label></li>
+            <li><label><input type="checkbox"><span>Утсаар 4G сүлжээнд бодит туршилт хийхэд 2 секундээс бага хугацаанд ачаалж байна</span></label></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="phase" id="p7" data-phase="7">
+        <div class="phase-head">
+          <div class="pnum mono">07</div>
+          <h3>Deploy, backup, хүлээлгэн өгөх</h3>
+          <p>Домэйн холбох, аюулгүй байдлын header, шөнийн backup, монгол гарын авлага.</p>
+        </div>
+        <div class="phase-body">
+          <div class="prompt"><div class="prompt-bar"><span>Prompt · Phase 7</span><button class="copy" type="button">Хуулах</button></div>
+<pre>Read CLAUDE.md. PHASE 7 — Deploy prep, backups, handover. Do NOT deploy or touch any account yourself; prepare everything and give me exact steps.
+
+- Finalize .env.example: every variable with a comment saying what it is, where to get it, and which client-owned account it belongs to.
+- Security headers in next.config: Content-Security-Policy (self, R2 public host, Plausible host), Strict-Transport-Security, X-Content-Type-Options, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy denying camera/mic/geolocation.
+- Redirects: www → apex (or the reverse, configurable), and a documented pattern for a future 301 from an old domain.
+- GitHub Action "backup.yml": nightly pg_dump of Neon (direct URL) → gzip → upload to a SEPARATE R2 backup bucket; keep 30 daily + 12 monthly; weekly mirror of the media bucket. Fail loudly and notify by email on error.
+- docs/RESTORE.md: step-by-step database and media restore, tested once locally.
+- docs/HANDOVER.md IN MONGOLIAN: list of all accounts (all owned by the client), how to update the Google Sheet, what the "fewer than 5" rule does, how to add a paper, how to move to a new domain (env + Vercel domain + 301), how to check Search Console, who to contact.
+- A deploy checklist for me: create Vercel project from the GitHub repo, set env vars, run migrations, connect the domain DNS, verify HTTPS, submit sitemap in Search Console, add the site in Plausible.
+
+Run the full test suite, commit "phase 7: handover".</pre></div>
+          <ul class="checks">
+            <li><label><input type="checkbox"><span>Домэйн холбогдож, HTTPS ажиллаж байна</span></label></li>
+            <li><label><input type="checkbox"><span>Search Console баталгаажиж, sitemap илгээгдсэн</span></label></li>
+            <li><label><input type="checkbox"><span>Эхний шөнийн backup R2 bucket-д орсон байна</span></label></li>
+            <li><label><input type="checkbox"><span>Клиент өөрөө admin-д нэвтэрч, нэг текст засаж үзсэн</span></label></li>
+          </ul>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <footer>
+    <span>Тэмдэглэгээ зөвхөн энэ browser дээр хадгалагдана.</span>
+    <button class="reset" type="button" id="reset">Тэмдэглэгээг арилгах</button>
+  </footer>
+</main>
+
+<script>
+(function(){
+  var KEY='az-plan-v1', state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){state={}}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+  var phases=[].slice.call(document.querySelectorAll('.phase'));
+  var hexWrap=document.getElementById('hexes'), count=document.getElementById('count');
+  phases.forEach(function(ph){
+    var n=ph.dataset.phase, a=document.createElement('a');
+    a.className='hex'; a.href='#p'+n; a.setAttribute('aria-label','Phase '+n);
+    a.innerHTML='<span>'+n+'</span>'; hexWrap.appendChild(a); ph._hex=a;
+    [].slice.call(ph.querySelectorAll('.checks input')).forEach(function(cb,i){
+      var id='p'+n+'c'+i; cb.id=id; cb.checked=!!state[id];
+      cb.addEventListener('change',function(){state[id]=cb.checked;save();render()});
+    });
+  });
+  function render(){
+    var all=0,done=0;
+    phases.forEach(function(ph){
+      var cbs=ph.querySelectorAll('.checks input'), d=0;
+      cbs.forEach(function(c){if(c.checked)d++});
+      all+=cbs.length; done+=d;
+      var pct=cbs.length?Math.round(d/cbs.length*100):0;
+      ph._hex.style.setProperty('--fill',pct+'%');
+      ph._hex.classList.toggle('done',pct===100);
+    });
+    count.innerHTML='<b>'+done+'</b> / '+all+' шалгалт';
+  }
+  render();
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var pre=btn.closest('.prompt').querySelector('pre'), txt=pre.textContent;
+      function ok(){btn.textContent='Хуулсан';btn.classList.add('ok');setTimeout(function(){btn.textContent='Хуулах';btn.classList.remove('ok')},1600)}
+      function fallback(){var r=document.createRange();r.selectNodeContents(pre);var s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='Сонгосон — Ctrl+C'}
+      try{navigator.clipboard.writeText(txt).then(ok,fallback)}catch(e){fallback()}
+    });
+  });
+  document.getElementById('reset').addEventListener('click',function(){
+    state={};save();document.querySelectorAll('.checks input').forEach(function(c){c.checked=false});render();
+  });
+})();
+</script>
+
+</body></html>
