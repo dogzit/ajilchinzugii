@@ -1,0 +1,132 @@
+name: Nightly backup
+
+on:
+  schedule:
+    # 19:00 UTC = 03:00 Ulaanbaatar, after the day's edits and before the
+    # 22:00 UTC figure refresh.
+    - cron: '0 19 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  database:
+    name: Database dump
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install the Postgres client
+        run: |
+          sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+          curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/pgdg.gpg
+          sudo apt-get update
+          # Neon runs Postgres 18; pg_dump refuses to dump a newer server.
+          sudo apt-get install -y postgresql-client-18
+
+      - name: Dump and compress
+        env:
+          # The direct URL: pg_dump cannot run through Neon's pooler.
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+        run: |
+          set -euo pipefail
+          test -n "$DATABASE_URL_UNPOOLED" || { echo "DATABASE_URL_UNPOOLED is not set"; exit 1; }
+          # The URL asks for sslmode=verify-full, which needs a CA bundle.
+          # The runner has one; point libpq at it.
+          case "$DATABASE_URL_UNPOOLED" in
+            *sslrootcert=*) ;;
+            *\?*) DATABASE_URL_UNPOOLED="$DATABASE_URL_UNPOOLED&sslrootcert=system" ;;
+            *)     DATABASE_URL_UNPOOLED="$DATABASE_URL_UNPOOLED?sslrootcert=system" ;;
+          esac
+          mkdir -p backup
+          # Custom format: restores selectively and in parallel.
+          pg_dump --format=custom --no-owner --no-privileges \
+            --file=backup/db.dump "$DATABASE_URL_UNPOOLED"
+          gzip -9 backup/db.dump
+          ls -l backup/
+          # A dump smaller than 1 KB means something went wrong quietly.
+          test "$(stat -c%s backup/db.dump.gz)" -gt 1024 || { echo "dump is suspiciously small"; exit 1; }
+
+      - name: Upload to the backup bucket
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          BACKUP_BUCKET: ${{ secrets.R2_BACKUP_BUCKET }}
+        run: |
+          set -euo pipefail
+          DAY=$(date -u +%F)
+          MONTH=$(date -u +%Y-%m)
+          aws s3 cp backup/db.dump.gz "s3://$BACKUP_BUCKET/db/daily/$DAY.dump.gz" \
+            --endpoint-url "$R2_ENDPOINT"
+          # On the first of the month, keep a copy that the daily prune leaves alone.
+          if [ "$(date -u +%d)" = "01" ]; then
+            aws s3 cp backup/db.dump.gz "s3://$BACKUP_BUCKET/db/monthly/$MONTH.dump.gz" \
+              --endpoint-url "$R2_ENDPOINT"
+          fi
+
+      - name: Prune — keep 30 daily and 12 monthly
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          BACKUP_BUCKET: ${{ secrets.R2_BACKUP_BUCKET }}
+        run: bash scripts/prune-backups.sh
+
+      - name: Report the result
+        if: always()
+        run: echo "status=${{ job.status }}" >> "$GITHUB_STEP_SUMMARY"
+
+  media:
+    name: Weekly media mirror
+    runs-on: ubuntu-latest
+    # Sundays only; the media bucket changes far less often than the database.
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 19 * * *'
+    steps:
+      - name: Mirror the media bucket
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          MEDIA_BUCKET: ${{ secrets.R2_BUCKET }}
+          BACKUP_BUCKET: ${{ secrets.R2_BACKUP_BUCKET }}
+        run: |
+          set -euo pipefail
+          if [ "$(date -u +%u)" != "7" ] && [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+            echo "Not Sunday — skipping the media mirror."
+            exit 0
+          fi
+          aws s3 sync "s3://$MEDIA_BUCKET" "s3://$BACKUP_BUCKET/media/" \
+            --endpoint-url "$R2_ENDPOINT" --delete --only-show-errors
+          echo "Media mirrored." >> "$GITHUB_STEP_SUMMARY"
+
+  notify:
+    name: Shout if anything failed
+    needs: [database, media]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      # GitHub already emails the repository owner on a failed scheduled run.
+      # This is the second channel, to an address the organisation watches.
+      - name: Email the alert address
+        uses: dawidd6/action-send-mail@v4
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: '[Ажилчин Зөгий] Шөнийн нөөцлөлт амжилтгүй боллоо'
+          to: ${{ secrets.BACKUP_ALERT_EMAIL }}
+          from: Ажилчин Зөгий backup
+          body: |
+            Шөнийн нөөцлөлт амжилтгүй боллоо / The nightly backup failed.
+
+            Ажиллуулалт / Run:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Хийх зүйл / What to do: docs/RESTORE.md

@@ -13,6 +13,14 @@ pages come next.
 
 Editors: see [docs/README-editor.md](docs/README-editor.md) (in Mongolian).
 
+| Doc                                          | What it covers                                              |
+| -------------------------------------------- | ----------------------------------------------------------- |
+| [docs/HANDOVER.md](docs/HANDOVER.md)         | Accounts, how the figures flow, domain moves — in Mongolian |
+| [docs/DEPLOY.md](docs/DEPLOY.md)             | First deployment, step by step                              |
+| [docs/RESTORE.md](docs/RESTORE.md)           | Database and media restore, tested                          |
+| [docs/audit.md](docs/audit.md)               | Performance and accessibility measurements                  |
+| [docs/impact-sheet.md](docs/impact-sheet.md) | The spreadsheet contract                                    |
+
 ## Getting started
 
 ```sh
