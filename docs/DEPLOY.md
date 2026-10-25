@@ -8,6 +8,33 @@ touched on your behalf.
 
 ---
 
+## Одоогийн байдал / Where this stands (2026-10-25)
+
+Сайт **амьд болсон**: <https://ajilchinzugii.vercel.app>
+
+| Хийгдсэн                                                             | Тайлбар                                |
+| -------------------------------------------------------------------- | -------------------------------------- |
+| Vercel төсөл `kenomus-projects/ajilchinzugii`, GitHub-тай холбогдсон | `main` руу push хийх бүрт шинэчлэгдэнэ |
+| Орчны хувьсагчид (Production + Preview)                              | Neon, R2, Payload, canonical host      |
+| `REVALIDATE_SECRET`, `CRON_SECRET`                                   | шинээр үүсгэв, `.env.local`-д бас бий  |
+| Өгөгдлийн сан                                                        | migration орсон, админ данс ажиллана   |
+| HTTPS, HSTS, CSP, sitemap, canonical, OG зураг                       | шалгагдсан                             |
+
+**Дутуу үлдсэн** (бүгд танай данс дээрх алхмууд, доорх хэсгүүдэд дэлгэрэнгүй):
+
+- Домэйн авч холбох → `NEXT_PUBLIC_SITE_URL`, `SITE_CANONICAL_HOST` солих (5-р хэсэг)
+- `NEXT_PUBLIC_CONTACT_EMAIL` одоогоор `info@example.org` — жинхэнэ хаягаар солих
+- Google Sheet-ийг service account-тай хуваалцах → жинхэнэ тоо урсана
+- Search Console, Plausible
+- Нөөцлөлтийн GitHub secrets
+- Нээхийн өмнө `pnpm seed:demo:clear`
+
+> `R2_PUBLIC_URL` хоосон байна. Зураг Payload-ийн `/api/media/file/...` замаар
+> гарч байгаа тул **ажиллаж байна**; R2-гийн нийтийн хаягийг асаавал зураг
+> шууд CDN-ээс үйлчлэгдэж, бага зэрэг хурдасна.
+
+---
+
 ## 0. Урьдчилсан нөхцөл / Before you start
 
 - [ ] GitHub репо танд байгаа: `github.com/dogzit/ajilchinzugii`

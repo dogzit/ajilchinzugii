@@ -48,7 +48,10 @@ export default async function ResearchPage({ params }: Props) {
       ) : (
         <ul className="mt-10 flex flex-col">
           {papers.map((paper) => (
-            <li key={paper.id} className="border-border bg-surface mb-4 rounded-sm border p-5">
+            <li
+              key={paper.id}
+              className="border-border bg-surface mb-4 rounded-sm border p-5"
+            >
               <article className="flex flex-col gap-2">
                 <div className="num text-ink-muted flex flex-wrap items-baseline gap-x-3 text-xs">
                   {paper.year ? <span>{paper.year}</span> : null}
@@ -80,7 +83,9 @@ export default async function ResearchPage({ params }: Props) {
                     paper.codeUrl ? { key: 'code', label: t('research.code') } : null,
                     paper.dataUrl ? { key: 'data', label: t('research.data') } : null,
                   ]
-                    .filter((chip): chip is { key: string; label: string } => Boolean(chip))
+                    .filter((chip): chip is { key: string; label: string } =>
+                      Boolean(chip),
+                    )
                     .map((chip) => (
                       <li
                         key={chip.key}
