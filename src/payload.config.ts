@@ -6,6 +6,7 @@ import { s3Storage } from '@payloadcms/storage-s3';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
 import { Media } from './payload/collections/media';
+import { buildEmailAdapter } from './payload/email';
 import { Papers } from './payload/collections/papers';
 import { Partners } from './payload/collections/partners';
 import { Team } from './payload/collections/team';
@@ -50,6 +51,9 @@ const r2Configured = Boolean(
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SITE_URL,
   secret: process.env.PAYLOAD_SECRET ?? '',
+  // Undefined when no SMTP credentials are set; Payload then logs mail
+  // instead of sending it, which keeps builds and tests credential-free.
+  email: buildEmailAdapter(),
   admin: {
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
@@ -62,6 +66,8 @@ export default buildConfig({
       // A show/hide control on every password field, including the login and
       // create-first-user forms Payload renders itself.
       afterLogin: ['@/payload/components/PasswordToggle#PasswordToggle'],
+      // The handbook, one click from the screen the editor is stuck on.
+      afterNavLinks: ['@/payload/components/GuideLink#GuideLink'],
       graphics: {
         Logo: '@/payload/components/BrandLogo#BrandLogo',
         Icon: '@/payload/components/BrandIcon#BrandIcon',

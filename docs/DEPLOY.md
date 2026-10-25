@@ -27,6 +27,7 @@ touched on your behalf.
 - Google Sheet-ийг service account-тай хуваалцах → жинхэнэ тоо урсана
 - Search Console, Plausible
 - Нөөцлөлтийн GitHub secrets
+- SMTP холбох → «Forgot password» ажиллана (`SMTP_*`, `.env.example`-ийн 8-р хэсэг)
 - Нээхийн өмнө `pnpm seed:demo:clear`
 
 > `R2_PUBLIC_URL` хоосон байна. Зураг Payload-ийн `/api/media/file/...` замаар
@@ -73,6 +74,7 @@ Production, Preview хоёуланд нь тавь. Утга бүрийн тай
 | `R2_PUBLIC_URL`                                               | bucket-ийн нийтийн хаяг (байвал)       |
 | `GOOGLE_SA_EMAIL`, `GOOGLE_SA_PRIVATE_KEY`, `IMPACT_SHEET_ID` | Google Sheets                          |
 | `REVALIDATE_SECRET`                                           | `openssl rand -hex 24`                 |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`        | нууц үг сэргээх захидал илгээх         |
 | `CRON_SECRET`                                                 | `openssl rand -hex 24`                 |
 | `NEXT_PUBLIC_GSC_VERIFICATION`                                | Search Console-оос (3-р алхмын дараа)  |
 | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`                                | `<домэйн>`                             |

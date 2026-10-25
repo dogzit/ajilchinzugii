@@ -5,8 +5,9 @@ import { routing } from '@/i18n/routing';
 export default createMiddleware(routing);
 
 export const config = {
-  // Everything except the Payload admin and API, Next internals and files
-  // with an extension. /admin is Payload's own route and must not be
-  // rewritten to /mn/admin.
-  matcher: ['/', '/(mn|en)/:path*', '/((?!admin|api|_next|_vercel|.*\\..*).*)'],
+  // Everything except the Payload admin and API, Next internals, the
+  // editors' handbook and files with an extension. /admin is Payload's own
+  // route and must not be rewritten to /mn/admin; /guide is a static file
+  // (Next serves public/guide.html there) and has no locale of its own.
+  matcher: ['/', '/(mn|en)/:path*', '/((?!admin|api|guide|_next|_vercel|.*\\..*).*)'],
 };
