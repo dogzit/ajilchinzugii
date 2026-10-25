@@ -68,19 +68,21 @@ describe('the citation copy buttons', () => {
     );
 
   // `userEvent.setup()` installs its own clipboard on jsdom, so the spy goes
-  // on afterwards or it is replaced before the click happens.
-  const clipboardSpy = (result: Promise<void>) => {
+  // on afterwards or it is replaced before the click happens. The result is a
+  // factory, not a promise: a rejected promise built here would sit unhandled
+  // until the click, which Node reports as an unhandled rejection.
+  const clipboardSpy = (result: () => Promise<void>) => {
     const user = userEvent.setup();
     const writeText = vi
       .spyOn(navigator.clipboard, 'writeText')
-      .mockReturnValue(result as Promise<void>);
+      .mockImplementation(() => result());
     return { user, writeText };
   };
 
   afterEach(() => vi.restoreAllMocks());
 
   it('writes the APA string to the clipboard and says so', async () => {
-    const { user, writeText } = clipboardSpy(Promise.resolve());
+    const { user, writeText } = clipboardSpy(() => Promise.resolve());
 
     drawCitation();
     await user.click(screen.getByRole('button', { name: /APA/ }));
@@ -90,7 +92,7 @@ describe('the citation copy buttons', () => {
   });
 
   it('writes the BibTeX entry, newlines and all', async () => {
-    const { user, writeText } = clipboardSpy(Promise.resolve());
+    const { user, writeText } = clipboardSpy(() => Promise.resolve());
 
     drawCitation();
     await user.click(screen.getByRole('button', { name: /BibTeX/ }));
@@ -100,7 +102,7 @@ describe('the citation copy buttons', () => {
   });
 
   it('says it failed rather than pretending it worked', async () => {
-    const { user } = clipboardSpy(Promise.reject(new Error('denied')));
+    const { user } = clipboardSpy(() => Promise.reject(new Error('denied')));
 
     drawCitation();
     await user.click(screen.getByRole('button', { name: /APA/ }));

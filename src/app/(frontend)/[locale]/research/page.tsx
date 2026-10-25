@@ -48,7 +48,7 @@ export default async function ResearchPage({ params }: Props) {
       ) : (
         <ul className="mt-10 flex flex-col">
           {papers.map((paper) => (
-            <li key={paper.id} className="border-border border-t py-6">
+            <li key={paper.id} className="border-border bg-surface mb-4 rounded-sm border p-5">
               <article className="flex flex-col gap-2">
                 <div className="num text-ink-muted flex flex-wrap items-baseline gap-x-3 text-xs">
                   {paper.year ? <span>{paper.year}</span> : null}
@@ -70,6 +70,26 @@ export default async function ResearchPage({ params }: Props) {
                     {paper.authors.map((author) => author.name).join(', ')}
                   </p>
                 ) : null}
+
+                {/* What the paper carries, before the reader opens it. */}
+                <ul className="mt-1 flex flex-wrap gap-2">
+                  {[
+                    typeof paper.pdf === 'object' && paper.pdf?.url
+                      ? { key: 'pdf', label: t('research.pdf') }
+                      : null,
+                    paper.codeUrl ? { key: 'code', label: t('research.code') } : null,
+                    paper.dataUrl ? { key: 'data', label: t('research.data') } : null,
+                  ]
+                    .filter((chip): chip is { key: string; label: string } => Boolean(chip))
+                    .map((chip) => (
+                      <li
+                        key={chip.key}
+                        className="border-border text-ink-muted rounded-sm border px-2 py-0.5 text-xs"
+                      >
+                        {chip.label}
+                      </li>
+                    ))}
+                </ul>
               </article>
             </li>
           ))}
