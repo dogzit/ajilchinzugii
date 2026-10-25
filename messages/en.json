@@ -9,7 +9,8 @@
     "primaryNav": "Primary navigation",
     "footerNav": "Footer navigation",
     "menu": "Menu",
-    "menuToggle": "Open and close the menu"
+    "menuToggle": "Open and close the menu",
+    "themeSwitch": "Appearance"
   },
   "nav": {
     "home": "Home",
@@ -17,7 +18,8 @@
     "methodology": "Methodology",
     "research": "Research",
     "policy": "Policy",
-    "about": "About"
+    "about": "About",
+    "cta": "Get in touch"
   },
   "language": {
     "label": "Language / Хэл",
@@ -36,7 +38,9 @@
     "contactNote": "We collect no personal data through this site. Please write to the address below.",
     "contactEmailMissing": "[ХҮЛЭЭГДЭЖ БУЙ / TBD]",
     "copyright": "© {year} {name}",
-    "sourceNote": "Every figure on this site can be checked against its evidence."
+    "sourceNote": "Every figure on this site can be checked against its evidence.",
+    "socialHeading": "Social",
+    "addressHeading": "Address"
   },
   "placeholder": {
     "tbd": "[ХҮЛЭЭГДЭЖ БУЙ / TBD]",
@@ -96,7 +100,21 @@
   "home": {
     "metricsHeading": "Headline figures",
     "exploreHeading": "Explore",
-    "allFigures": "See every figure"
+    "allFigures": "See every figure",
+    "whoWeAreEyebrow": "WHO WE ARE",
+    "whoWeAreBody": "Ajilchin Zögii is a non-governmental organisation protecting the labour rights of working children and teenagers through collective bargaining, negotiation and policy work. We publish evidence rather than promotion: every figure here can be traced back to how it was counted.",
+    "pillarsHeading": "What we do",
+    "pillarsLead": "Three sides of it: how we measure, what we found, and what we are trying to change.",
+    "collaborateHeading": "Work with us",
+    "collaborateBody": "We welcome researchers, organisations, funders and journalists. Our data and our methods are published, so they can be checked, repeated and argued with.",
+    "collaborateCta": "Get in touch",
+    "partnersHeading": "Partners",
+    "partnersLead": "Organisations we work alongside.",
+    "pillarBody": {
+      "methodology": "For every figure we publish the definition behind it, how many cases it rests on, and the date it was true. The <b>fewer-than-five rule</b>: a figure based on fewer than five cases is never shown as a number, because small numbers can identify a person.",
+      "research": "Reports are published with their data and their code. Citations are ready in APA and BibTeX, so using the work does not mean retyping it.",
+      "policy": "Submissions and legislative changes are laid out in order, with dates and sources — separating what was proposed from what was actually adopted."
+    }
   },
   "methodology": {
     "sourcesHeading": "Sources",
@@ -149,5 +167,11 @@
     "legalName": "Legal name",
     "founded": "Founded",
     "city": "City"
+  },
+  "theme": {
+    "label": "Appearance",
+    "auto": "Auto",
+    "light": "Light",
+    "dark": "Dark"
   }
 }

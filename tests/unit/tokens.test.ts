@@ -68,3 +68,28 @@ describe.each(['light', 'dark'] as const)('%s theme tokens', (theme) => {
     ).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+/**
+ * The dark palette is written twice — once for the system setting, once for
+ * an explicit choice — because CSS cannot combine a media query and a plain
+ * selector in one rule. If the two ever drift, the switch and the system
+ * setting start producing different colours.
+ */
+describe('the two dark blocks', () => {
+  const declarations = (selector: string): string[] => {
+    const start = css.indexOf(selector);
+    expect(start, selector).toBeGreaterThan(-1);
+    const block = css.slice(start, css.indexOf('}', start));
+    return [...block.matchAll(/(--[a-z-]+):\s*(#[0-9a-f]{6})/g)].map(
+      (match) => `${match[1]}:${match[2]}`,
+    );
+  };
+
+  it('declare exactly the same values', () => {
+    const fromSystem = declarations(":root:not([data-theme='light'])");
+    const fromChoice = declarations(":root[data-theme='dark']");
+
+    expect(fromSystem.length).toBeGreaterThan(10);
+    expect(fromChoice).toEqual(fromSystem);
+  });
+});

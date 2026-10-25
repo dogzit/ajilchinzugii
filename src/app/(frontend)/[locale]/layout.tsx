@@ -10,6 +10,7 @@ import { JsonLd } from '@/components/json-ld';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { SkipLink } from '@/components/skip-link';
+import { ThemeScript } from '@/components/theme-script';
 import { htmlLang, routing, type Locale } from '@/i18n/routing';
 import { getSite } from '@/lib/cms';
 import { ngoJsonLd, webSiteJsonLd } from '@/lib/seo/jsonld';
@@ -47,7 +48,11 @@ export default async function LocaleLayout({
   const site = await getSite(locale);
 
   return (
-    <html lang={htmlLang[locale]} className={fontVariables}>
+    <html lang={htmlLang[locale]} className={fontVariables} suppressHydrationWarning>
+      <head>
+        {/* Before the first paint, or the page flashes the system theme. */}
+        <ThemeScript />
+      </head>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
         <JsonLd data={[ngoJsonLd(site, locale), webSiteJsonLd(site, locale)]} />
         <SkipLink />
@@ -56,7 +61,12 @@ export default async function LocaleLayout({
         <main id="main" tabIndex={-1} className="flex-1">
           {children}
         </main>
-        <SiteFooter locale={locale} contactEmail={site.contactEmail} />
+        <SiteFooter
+          locale={locale}
+          contactEmail={site.contactEmail}
+          socialLinks={site.socialLinks}
+          city={site.organization?.addressCity}
+        />
         <Analytics />
       </body>
     </html>

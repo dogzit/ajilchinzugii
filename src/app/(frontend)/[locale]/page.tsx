@@ -1,10 +1,14 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { CardLink } from '@/components/card-link';
+import { Collaborate } from '@/components/home/collaborate';
+import { Hero } from '@/components/home/hero';
+import { PartnersMarquee } from '@/components/home/partners-marquee';
+import { Pillars } from '@/components/home/pillars';
+import { WhoWeAre } from '@/components/home/who-we-are';
 import { MetricTile } from '@/components/metric-tile';
 import { StaleNotice } from '@/components/stale-notice';
 import type { Locale } from '@/i18n/routing';
-import { getSite } from '@/lib/cms';
+import { getPartners, getSite } from '@/lib/cms';
 import { localeHref } from '@/lib/locale-href';
 import { filledIn } from '@/lib/placeholder';
 import { formatDateTime } from '@/lib/format';
@@ -32,10 +36,11 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, site, impact] = await Promise.all([
+  const [t, site, impact, partners] = await Promise.all([
     getTranslations(),
     getSite(locale),
     getImpact(locale),
+    getPartners(locale),
   ]);
 
   // Four at most: a front page that leads with everything leads with nothing.
@@ -43,72 +48,72 @@ export default async function HomePage({ params }: Props) {
   const updated = formatDateTime(impact.fetchedAt, locale);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16">
-      <section>
-        <h1 className="sr-only">{t('site.name')}</h1>
-        <p className="font-display text-ink max-w-[28ch] text-2xl leading-tight sm:text-4xl">
-          {site.missionLine}
-        </p>
-      </section>
+    <>
+      <Hero headline={site.missionLine} />
 
-      <section aria-labelledby="figures" className="mt-16">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-          <h2 id="figures" className="text-xl">
-            {t('home.metricsHeading')}
-          </h2>
-          {updated ? (
-            <p className="num text-ink-muted text-xs">
-              {t('common.lastUpdated')}: {updated}
-            </p>
+      <WhoWeAre eyebrow={t('home.whoWeAreEyebrow')} body={t('home.whoWeAreBody')} />
+
+      <Pillars locale={locale} />
+
+      <section aria-labelledby="figures" className="border-border border-b">
+        <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-20">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+            <h2 id="figures" className="font-display text-ink text-2xl sm:text-3xl">
+              {t('home.metricsHeading')}
+            </h2>
+            {updated ? (
+              <p className="num text-ink-muted text-xs">
+                {t('common.lastUpdated')}: {updated}
+              </p>
+            ) : null}
+          </div>
+
+          {impact.stale ? (
+            <div className="mt-4">
+              <StaleNotice />
+            </div>
           ) : null}
-        </div>
 
-        {impact.stale ? (
-          <div className="mt-4">
-            <StaleNotice />
-          </div>
-        ) : null}
+          {headline.length > 0 ? (
+            <div className="mt-8 grid gap-x-8 gap-y-10 sm:grid-cols-2">
+              {headline.map((metric) => (
+                <MetricTile
+                  key={metric.metricId}
+                  metric={metric}
+                  locale={locale}
+                  size="large"
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-ink-muted mt-4 max-w-[65ch]">{t('impact.noFigures')}</p>
+          )}
 
-        {headline.length > 0 ? (
-          <div className="mt-6 grid gap-x-8 gap-y-10 sm:grid-cols-2">
-            {headline.map((metric) => (
-              <MetricTile
-                key={metric.metricId}
-                metric={metric}
-                locale={locale}
-                size="large"
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="text-ink-muted mt-4 max-w-[65ch]">{t('impact.noFigures')}</p>
-        )}
-
-        <p className="mt-8">
-          <a
-            href={localeHref(locale, '/impact')}
-            className="text-accent decoration-accent-mark hover:text-ink text-sm underline underline-offset-4"
-          >
-            {t('home.allFigures')}
-          </a>
-        </p>
-      </section>
-
-      <section aria-labelledby="explore" className="mt-20">
-        <h2 id="explore" className="text-xl">
-          {t('home.exploreHeading')}
-        </h2>
-        <div className="mt-6 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
-          {(['methodology', 'research', 'policy', 'about'] as const).map((key) => (
-            <CardLink
-              key={key}
-              href={localeHref(locale, `/${key}`)}
-              title={t(`pages.${key}.title`)}
-              description={t(`pages.${key}.lead`)}
-            />
-          ))}
+          <p className="mt-8">
+            <a
+              href={localeHref(locale, '/impact')}
+              className="text-accent decoration-accent-mark hover:text-ink text-sm underline underline-offset-4"
+            >
+              {t('home.allFigures')}
+            </a>
+          </p>
         </div>
       </section>
-    </div>
+
+      <Collaborate
+        locale={locale}
+        heading={t('home.collaborateHeading')}
+        body={t('home.collaborateBody')}
+        cta={t('home.collaborateCta')}
+      />
+
+      <PartnersMarquee
+        partners={partners}
+        locale={locale}
+        heading={t('home.partnersHeading')}
+        lead={t('home.partnersLead')}
+        newTabLabel={t('common.openInNewTab')}
+      />
+    </>
   );
 }

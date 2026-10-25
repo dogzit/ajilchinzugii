@@ -25,23 +25,46 @@
   --focus: #8a5505;
 }
 /* tokens:dark */
+/*
+ * The dark palette is declared twice, by design.
+ *
+ * The first block is the reader who has never touched the switch: their
+ * system setting decides, unless they have explicitly chosen light. The
+ * second is the explicit choice, which has to beat a light system setting.
+ * CSS cannot put a media query and a plain selector in one rule, so the
+ * values are repeated — tests/unit/tokens.test.ts asserts the two blocks
+ * stay identical.
+ */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --bg: #121110;
     --surface: #1a1917;
     --surface-muted: #232120;
     --border: #38352f;
     --border-strong: #7d766c;
-
     --ink: #f6f3ed;
     --ink-soft: #d8d2c7;
     --ink-muted: #aba49a;
-
     --accent: #e9ae43;
     --accent-mark: #e9ae43;
     --accent-surface: #2a2217;
     --focus: #f2be5e;
   }
+}
+
+:root[data-theme='dark'] {
+  --bg: #121110;
+  --surface: #1a1917;
+  --surface-muted: #232120;
+  --border: #38352f;
+  --border-strong: #7d766c;
+  --ink: #f6f3ed;
+  --ink-soft: #d8d2c7;
+  --ink-muted: #aba49a;
+  --accent: #e9ae43;
+  --accent-mark: #e9ae43;
+  --accent-surface: #2a2217;
+  --focus: #f2be5e;
 }
 /* tokens:end */
 
@@ -69,6 +92,15 @@
 @layer base {
   :root {
     color-scheme: light dark;
+  }
+
+  /* Native controls and scrollbars follow the explicit choice too. */
+  :root[data-theme='light'] {
+    color-scheme: light;
+  }
+
+  :root[data-theme='dark'] {
+    color-scheme: dark;
   }
 
   body {
@@ -120,6 +152,63 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+/*
+ * The partner strip. One track, duplicated once in the markup, translated by
+ * exactly half its width — so the second copy lands where the first began and
+ * the loop has no seam. Pauses on hover and on keyboard focus inside it.
+ */
+.marquee {
+  /* The strip runs under the page edge rather than stopping at it, so a
+     logo entering the frame is never half-cut against a hard line. */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 4rem,
+    #000 calc(100% - 4rem),
+    transparent
+  );
+}
+
+@keyframes marquee-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .marquee-track {
+    animation: marquee-drift 48s linear infinite;
+  }
+
+  .marquee:hover .marquee-track,
+  .marquee:focus-within .marquee-track {
+    animation-play-state: paused;
+  }
+}
+
+/*
+ * Asked for less motion: no slide, and no duplicate either — the one real
+ * list wraps onto as many rows as it needs.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    overflow: visible;
+    mask-image: none;
+  }
+
+  .marquee-clone {
+    display: none;
+  }
+
+  .marquee-track {
+    flex-wrap: wrap;
+    row-gap: 1.5rem;
   }
 }
 
