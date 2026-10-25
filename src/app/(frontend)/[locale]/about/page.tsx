@@ -7,6 +7,7 @@ import { RichText } from '@/components/rich-text';
 import type { Locale } from '@/i18n/routing';
 import { getPartners, getSite, getTeam } from '@/lib/cms';
 import { formatDate, isRichTextEmpty } from '@/lib/format';
+import { mediaSrc } from '@/lib/media';
 import { JsonLd } from '@/components/json-ld';
 import { breadcrumbJsonLd, personJsonLd } from '@/lib/seo/jsonld';
 import { buildPageMetadata } from '@/lib/seo/metadata';
@@ -99,12 +100,13 @@ export default async function AboutPage({ params }: Props) {
           <ul className="mt-6 grid gap-x-8 gap-y-10 sm:grid-cols-2">
             {team.map((member) => {
               const photo = typeof member.photo === 'object' ? member.photo : null;
+              const photoSrc = mediaSrc(photo?.url);
               return (
                 <li key={member.id} className="border-border flex gap-4 border-t pt-4">
-                  {photo?.url ? (
+                  {photoSrc ? (
                     <Image
-                      src={photo.url}
-                      alt={photo.alt?.[locale] ?? ''}
+                      src={photoSrc}
+                      alt={photo?.alt?.[locale] ?? ''}
                       width={88}
                       height={88}
                       sizes="88px"
@@ -138,10 +140,11 @@ export default async function AboutPage({ params }: Props) {
           <ul className="mt-6 flex flex-wrap items-center gap-x-10 gap-y-6">
             {partners.map((partner) => {
               const logo = typeof partner.logo === 'object' ? partner.logo : null;
-              const mark = logo?.url ? (
+              const logoSrc = mediaSrc(logo?.url);
+              const mark = logoSrc ? (
                 <Image
-                  src={logo.url}
-                  alt={logo.alt?.[locale] ?? partner.name}
+                  src={logoSrc}
+                  alt={logo?.alt?.[locale] ?? partner.name}
                   width={128}
                   height={48}
                   sizes="128px"
