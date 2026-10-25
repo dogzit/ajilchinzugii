@@ -102,15 +102,18 @@ export default async function AboutPage({ params }: Props) {
               const photo = typeof member.photo === 'object' ? member.photo : null;
               const photoSrc = mediaSrc(photo?.url);
               return (
-                <li key={member.id} className="border-border flex gap-4 border-t pt-4">
+                <li
+                  key={member.id}
+                  className="border-border bg-surface flex items-center gap-4 rounded-sm border p-4"
+                >
                   {photoSrc ? (
                     <Image
                       src={photoSrc}
                       alt={photo?.alt?.[locale] ?? ''}
-                      width={88}
-                      height={88}
-                      sizes="88px"
-                      className="h-22 w-22 shrink-0 rounded-sm object-cover"
+                      width={96}
+                      height={96}
+                      sizes="96px"
+                      className="border-border h-24 w-24 shrink-0 rounded-full border object-cover"
                     />
                   ) : null}
                   <div className="flex flex-col gap-1">
@@ -137,7 +140,7 @@ export default async function AboutPage({ params }: Props) {
         {partners.length === 0 ? (
           <p className="text-ink-muted mt-6 max-w-[65ch]">{t('common.nothingYet')}</p>
         ) : (
-          <ul className="mt-6 flex flex-wrap items-center gap-x-10 gap-y-6">
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {partners.map((partner) => {
               const logo = typeof partner.logo === 'object' ? partner.logo : null;
               const logoSrc = mediaSrc(logo?.url);
@@ -155,7 +158,10 @@ export default async function AboutPage({ params }: Props) {
               );
 
               return (
-                <li key={partner.id}>
+                <li
+                  key={partner.id}
+                  className="border-border bg-surface flex flex-col gap-3 rounded-sm border p-4"
+                >
                   {partner.url ? (
                     <a
                       href={partner.url}
@@ -167,6 +173,7 @@ export default async function AboutPage({ params }: Props) {
                   ) : (
                     mark
                   )}
+                  <span className="text-ink-muted text-sm">{partner.name}</span>
                 </li>
               );
             })}

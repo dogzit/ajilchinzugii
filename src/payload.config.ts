@@ -59,6 +59,9 @@ export default buildConfig({
         'Ажилчин Зөгий — агуулгын удирдлага / content management for Ajilchin Zögii',
     },
     components: {
+      // A show/hide control on every password field, including the login and
+      // create-first-user forms Payload renders itself.
+      afterLogin: ['@/payload/components/PasswordToggle#PasswordToggle'],
       graphics: {
         Logo: '@/payload/components/BrandLogo#BrandLogo',
         Icon: '@/payload/components/BrandIcon#BrandIcon',

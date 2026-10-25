@@ -24,6 +24,7 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BrandIcon as BrandIcon_2d7e8cce325d8ee1b56c07046b718547 } from '@/payload/components/BrandIcon'
 import { BrandLogo as BrandLogo_0033a55789ad92fc2b26dea6d094cf16 } from '@/payload/components/BrandLogo'
+import { PasswordToggle as PasswordToggle_8dd8dd46440bfe886fafe54c2c6e4615 } from '@/payload/components/PasswordToggle'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 import { S3ClientUploadHandler as S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24 } from '@payloadcms/storage-s3/client'
 
@@ -55,6 +56,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/payload/components/BrandIcon#BrandIcon": BrandIcon_2d7e8cce325d8ee1b56c07046b718547,
   "@/payload/components/BrandLogo#BrandLogo": BrandLogo_0033a55789ad92fc2b26dea6d094cf16,
+  "@/payload/components/PasswordToggle#PasswordToggle": PasswordToggle_8dd8dd46440bfe886fafe54c2c6e4615,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1,
   "@payloadcms/storage-s3/client#S3ClientUploadHandler": S3ClientUploadHandler_f97aa6c64367fa259c5bc0567239ef24
 }

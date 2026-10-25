@@ -156,6 +156,56 @@ const demoSheet = {
   ],
 };
 
+/**
+ * A geometric portrait: initials on a tinted ground.
+ *
+ * Deliberately not a photograph of a person. CLAUDE.md forbids stock photos
+ * of children, and a stock photo of an adult standing in for a named member
+ * would be its own small lie.
+ */
+async function avatarPng(initials: string, tint: string): Promise<Buffer> {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400">
+    <rect width="400" height="400" fill="${tint}"/>
+    <path d="M200 40 330 115v170L200 360 70 285V115z" fill="none" stroke="#fbfaf8"
+      stroke-opacity="0.35" stroke-width="10" stroke-linejoin="round"/>
+    <text x="200" y="232" text-anchor="middle" font-family="sans-serif"
+      font-size="128" font-weight="600" fill="#fbfaf8">${initials}</text>
+  </svg>`;
+  return sharp(Buffer.from(svg)).png().toBuffer();
+}
+
+/** A one-page PDF, so the download button on a paper has something to fetch. */
+async function samplePdf(title: string): Promise<Buffer> {
+  const { PDFDocument, StandardFonts, rgb } = await import('pdf-lib');
+  const pdf = await PDFDocument.create();
+  const page = pdf.addPage([595, 842]);
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+
+  page.drawRectangle({
+    x: 56,
+    y: 760,
+    width: 44,
+    height: 8,
+    color: rgb(0.69, 0.43, 0.03),
+  });
+  page.drawText('SAMPLE / ZHISHEE', {
+    x: 56,
+    y: 712,
+    size: 28,
+    font,
+    color: rgb(0.08, 0.07, 0.06),
+  });
+  page.drawText(title, { x: 56, y: 672, size: 14, font, color: rgb(0.36, 0.33, 0.28) });
+  page.drawText('This file is demo content. Replace it with the real paper in /admin.', {
+    x: 56,
+    y: 630,
+    size: 11,
+    font,
+    color: rgb(0.36, 0.33, 0.28),
+  });
+  return Buffer.from(await pdf.save());
+}
+
 /** A flat wordmark, so the partner logos exercise the image pipeline. */
 async function logoPng(label: string, tint: string): Promise<Buffer> {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="180">
@@ -450,10 +500,31 @@ const run = async () => {
   logger.info('partners: 2, with logos');
 
   // ── Team: adults only, and plainly not real people ───────────────────────
-  for (const [name, roleMn, roleEn] of [
-    ['А. Жишээбаатар', 'Үүсгэн байгуулагч, захирал', 'Founder and director'],
-    ['Б. Жишээмаа', 'Хуулийн зөвлөх', 'Legal adviser'],
+  for (const [name, roleMn, roleEn, initials, tint] of [
+    [
+      'А. Жишээбаатар',
+      'Үүсгэн байгуулагч, захирал',
+      'Founder and director',
+      'АЖ',
+      '#8a5505',
+    ],
+    ['Б. Жишээмаа', 'Хуулийн зөвлөх', 'Legal adviser', 'БЖ', '#3a352d'],
   ] as const) {
+    const png = await avatarPng(initials, tint);
+    const photo = await payload.create({
+      collection: 'media',
+      overrideAccess: true,
+      data: {
+        alt: {
+          mn: `${MARK_MN}: ${name}-ийн хөрөг (геометр зураг, бодит гэрэл зураг биш)`,
+          en: `${MARK_EN}: portrait of ${name} — a drawn mark, not a photograph`,
+        },
+        // A drawing, so there is no person in the file and no consent to record.
+        subject: 'none',
+      },
+      file: { data: png, mimetype: 'image/png', name: 'portrait.png', size: png.length },
+    });
+
     const created = await payload.create({
       collection: 'team',
       locale: 'mn',
@@ -461,6 +532,7 @@ const run = async () => {
       data: {
         name: `${MARK_MN}: ${name}`,
         role: roleMn,
+        photo: photo.id,
         confirmedAdult18Plus: true,
       },
     });
@@ -509,6 +581,25 @@ const run = async () => {
   ];
 
   for (const paper of papers) {
+    const pdfBytes = await samplePdf(paper.en.title);
+    const pdfFile = await payload.create({
+      collection: 'media',
+      overrideAccess: true,
+      data: {
+        alt: {
+          mn: `${MARK_MN}: ${paper.mn.title} — PDF`,
+          en: `${MARK_EN}: ${paper.en.title} — PDF`,
+        },
+        subject: 'none',
+      },
+      file: {
+        data: pdfBytes,
+        mimetype: 'application/pdf',
+        name: 'paper.pdf',
+        size: pdfBytes.length,
+      },
+    });
+
     const created = await payload.create({
       collection: 'papers',
       locale: 'mn',
@@ -521,6 +612,9 @@ const run = async () => {
         venue: paper.venue,
         doi: paper.doi,
         abstract: paragraph(paper.mn.abstract),
+        pdf: pdfFile.id,
+        codeUrl: 'https://example.org/code',
+        dataUrl: 'https://example.org/data',
         authors: [
           { name: `${MARK_MN}: А. Жишээбаатар` },
           { name: `${MARK_MN}: Б. Жишээмаа` },

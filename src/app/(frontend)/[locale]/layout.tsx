@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import '@/app/globals.css';
 import { fontVariables } from '@/app/fonts';
 import { Analytics } from '@/components/analytics';
+import { DemoBanner } from '@/components/demo-banner';
 import { JsonLd } from '@/components/json-ld';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
@@ -50,6 +51,7 @@ export default async function LocaleLayout({
       <body className="flex min-h-dvh flex-col font-sans antialiased">
         <JsonLd data={[ngoJsonLd(site, locale), webSiteJsonLd(site, locale)]} />
         <SkipLink />
+        <DemoBanner missionLine={site.missionLine} />
         <SiteHeader locale={locale} />
         <main id="main" tabIndex={-1} className="flex-1">
           {children}

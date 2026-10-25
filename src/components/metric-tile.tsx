@@ -27,7 +27,7 @@ export function MetricTile({
   const asOf = formatDate(metric.asOf, locale);
 
   return (
-    <article className="border-border flex flex-col gap-2 border-t pt-4">
+    <article className="border-border bg-surface hover:border-border-strong flex flex-col gap-2 rounded-sm border p-5 transition-colors">
       <h3 className="text-ink-muted flex items-start gap-2 font-sans text-sm font-normal">
         <Hexagon className="text-accent-mark mt-1 shrink-0" />
         <span>{metric.label}</span>
@@ -51,7 +51,7 @@ export function MetricTile({
         </p>
       )}
 
-      <dl className="num text-ink-muted mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+      <dl className="num border-border text-ink-muted mt-2 flex flex-wrap gap-x-4 gap-y-1 border-t pt-2 text-xs">
         {asOf ? (
           <div className="flex gap-1.5">
             <dt className="sr-only">{t('common.lastUpdated')}</dt>
