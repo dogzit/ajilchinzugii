@@ -1,11 +1,19 @@
 import { useTranslations } from 'next-intl';
+import { otherLocale, type Locale } from '@/i18n/routing';
 import { LanguageSwitch } from '@/components/language-switch';
 import { NavLinks } from '@/components/nav-links';
 import { contactEmail as contactEmailFromEnv } from '@/lib/site';
 
-export function SiteFooter({ contactEmail }: { contactEmail?: string | null }) {
+export function SiteFooter({
+  locale,
+  contactEmail,
+}: {
+  locale: Locale;
+  contactEmail?: string | null;
+}) {
   const t = useTranslations();
   const year = new Date().getFullYear();
+  const other = otherLocale[locale];
   // The CMS is the source of truth; the env value keeps the footer filled
   // before the client has edited the Site global.
   const email = contactEmail || contactEmailFromEnv;
@@ -27,14 +35,23 @@ export function SiteFooter({ contactEmail }: { contactEmail?: string | null }) {
         </section>
 
         <nav aria-label={t('a11y.footerNav')}>
-          <NavLinks className="flex flex-col gap-1 text-sm" />
+          <NavLinks locale={locale} className="flex flex-col gap-1 text-sm" />
         </nav>
 
         <section className="md:justify-self-end">
           <h2 className="font-display text-ink text-sm tracking-wide">
             {t('language.label')}
           </h2>
-          <LanguageSwitch className="mt-2" />
+          <LanguageSwitch
+            locale={locale}
+            target={other}
+            currentLabel={t('language.current', {
+              language: t(`language.names.${locale}`),
+            })}
+            targetLabel={t(`language.names.${other}`)}
+            switchLabel={t(`language.switchTo.${other}`)}
+            className="mt-2"
+          />
         </section>
       </div>
 

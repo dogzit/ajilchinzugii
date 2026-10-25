@@ -1,6 +1,7 @@
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
+import Link from 'next/link';
 import { Hexagon } from '@/components/hexagon';
+import { localeHref } from '@/lib/locale-href';
 import { formatDate, formatNumber } from '@/lib/format';
 import type { LocalizedMetric } from '@/lib/impact';
 import type { Locale } from '@/i18n/routing';
@@ -66,7 +67,7 @@ export function MetricTile({
       </dl>
 
       <Link
-        href={`/methodology#${metric.methodAnchor}`}
+        href={`${localeHref(locale, '/methodology')}#${metric.methodAnchor}`}
         className="text-accent decoration-accent-mark hover:text-ink mt-1 self-start text-sm underline underline-offset-4"
       >
         {t('impact.howCounted')}

@@ -19,12 +19,20 @@ export const plexSans = IBM_Plex_Sans({
   display: 'swap',
 });
 
-/** Figures, dates and citations (tabular numerals). */
+/**
+ * Figures, dates and citations (tabular numerals).
+ *
+ * One weight — 500 was never used — and no preload: the mono face sets small
+ * print and the figures below the lead, so it should not compete with the
+ * heading and body faces for the first seconds of a 4G connection. `swap`
+ * paints the text in the fallback face meanwhile.
+ */
 export const plexMono = IBM_Plex_Mono({
   subsets: ['cyrillic', 'latin'],
-  weight: ['400', '500'],
+  weight: ['400'],
   variable: '--font-plex-mono',
   display: 'swap',
+  preload: false,
 });
 
 export const fontVariables = [

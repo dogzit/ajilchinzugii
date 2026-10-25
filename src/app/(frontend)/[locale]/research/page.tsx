@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageHeader } from '@/components/page-header';
-import { Link } from '@/i18n/navigation';
+import Link from 'next/link';
 import type { Locale } from '@/i18n/routing';
 import { getPapers } from '@/lib/cms';
+import { localeHref } from '@/lib/locale-href';
 import { JsonLd } from '@/components/json-ld';
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
 import { buildPageMetadata } from '@/lib/seo/metadata';
@@ -55,7 +56,7 @@ export default async function ResearchPage({ params }: Props) {
                 </div>
                 <h2 className="text-lg">
                   <Link
-                    href={`/research/${paper.slug}`}
+                    href={localeHref(locale, `/research/${paper.slug}`)}
                     className="text-ink hover:decoration-accent-mark underline-offset-4 hover:underline"
                   >
                     {paper.title}

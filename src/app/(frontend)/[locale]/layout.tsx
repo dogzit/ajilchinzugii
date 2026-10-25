@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { hasLocale, NextIntlClientProvider } from 'next-intl';
+import { hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import '@/app/globals.css';
 import { fontVariables } from '@/app/fonts';
@@ -49,14 +49,12 @@ export default async function LocaleLayout({
     <html lang={htmlLang[locale]} className={fontVariables}>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
         <JsonLd data={[ngoJsonLd(site, locale), webSiteJsonLd(site, locale)]} />
-        <NextIntlClientProvider>
-          <SkipLink />
-          <SiteHeader />
-          <main id="main" tabIndex={-1} className="flex-1">
-            {children}
-          </main>
-          <SiteFooter contactEmail={site.contactEmail} />
-        </NextIntlClientProvider>
+        <SkipLink />
+        <SiteHeader locale={locale} />
+        <main id="main" tabIndex={-1} className="flex-1">
+          {children}
+        </main>
+        <SiteFooter locale={locale} contactEmail={site.contactEmail} />
         <Analytics />
       </body>
     </html>

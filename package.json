@@ -21,7 +21,9 @@
     "migrate:create": "DATABASE_MIGRATING=true payload migrate:create",
     "migrate": "DATABASE_MIGRATING=true payload migrate",
     "migrate:status": "DATABASE_MIGRATING=true payload migrate:status",
-    "seed": "payload run src/payload/seed.ts"
+    "seed": "payload run src/payload/seed.ts",
+    "lhci": "lhci autorun",
+    "test:a11y": "playwright test tests/e2e/a11y.spec.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.92.0",
@@ -41,7 +43,9 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/eslintrc": "^3.3.7",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.64.1",
     "@swc-node/register": "^1.12.1",
     "@tailwindcss/postcss": "^4.3.3",

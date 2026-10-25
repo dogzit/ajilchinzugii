@@ -5,6 +5,7 @@ import { MetricTile } from '@/components/metric-tile';
 import { StaleNotice } from '@/components/stale-notice';
 import type { Locale } from '@/i18n/routing';
 import { getSite } from '@/lib/cms';
+import { localeHref } from '@/lib/locale-href';
 import { filledIn } from '@/lib/placeholder';
 import { formatDateTime } from '@/lib/format';
 import { getImpact } from '@/lib/impact';
@@ -85,7 +86,7 @@ export default async function HomePage({ params }: Props) {
 
         <p className="mt-8">
           <a
-            href={`/${locale}/impact`}
+            href={localeHref(locale, '/impact')}
             className="text-accent decoration-accent-mark hover:text-ink text-sm underline underline-offset-4"
           >
             {t('home.allFigures')}
@@ -101,7 +102,7 @@ export default async function HomePage({ params }: Props) {
           {(['methodology', 'research', 'policy', 'about'] as const).map((key) => (
             <CardLink
               key={key}
-              href={`/${key}`}
+              href={localeHref(locale, `/${key}`)}
               title={t(`pages.${key}.title`)}
               description={t(`pages.${key}.lead`)}
             />

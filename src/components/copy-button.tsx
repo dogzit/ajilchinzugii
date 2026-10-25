@@ -1,16 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
 
 type State = 'idle' | 'copied' | 'failed';
 
 /**
- * One of only two interactive controls on the site that need JavaScript.
- * Without it the text is still selectable, so nothing is lost.
+ * The only control on the public site that needs JavaScript. Its labels are
+ * passed in by the server component that renders it, so no translation
+ * runtime reaches the browser; without JavaScript the text beside it is still
+ * selectable.
  */
-export function CopyButton({ value, label }: { value: string; label?: string }) {
-  const t = useTranslations('common');
+export function CopyButton({
+  value,
+  label,
+  copiedLabel,
+  failedLabel,
+}: {
+  value: string;
+  label: string;
+  copiedLabel: string;
+  failedLabel: string;
+}) {
   const [state, setState] = useState<State>('idle');
 
   const copy = async () => {
@@ -32,9 +42,9 @@ export function CopyButton({ value, label }: { value: string; label?: string }) 
       <span aria-hidden="true" className="text-accent-mark">
         {state === 'copied' ? '✓' : '⧉'}
       </span>
-      <span>{label ?? t('copy')}</span>
+      <span>{label}</span>
       <span role="status" aria-live="polite" className="sr-only">
-        {state === 'copied' ? t('copied') : state === 'failed' ? t('copyFailed') : ''}
+        {state === 'copied' ? copiedLabel : state === 'failed' ? failedLabel : ''}
       </span>
     </button>
   );

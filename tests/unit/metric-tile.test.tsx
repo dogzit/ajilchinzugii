@@ -7,14 +7,6 @@ import { CitationBlock } from '../../src/components/citation-block';
 import { MetricTile } from '../../src/components/metric-tile';
 import type { LocalizedMetric } from '../../src/lib/impact';
 
-vi.mock('../../src/i18n/navigation', () => ({
-  Link: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
-
 const metric = (overrides: Partial<LocalizedMetric> = {}): LocalizedMetric => ({
   metricId: 'cases-resolved',
   label: 'Шийдвэрлэсэн хэрэг',
@@ -44,7 +36,7 @@ describe('every figure carries its date and its rule', () => {
   it('links to the counting rule by anchor', () => {
     draw(metric());
     const link = screen.getByRole('link', { name: 'Хэрхэн тоолсон бэ?' });
-    expect(link).toHaveAttribute('href', '/methodology#counting-cases');
+    expect(link).toHaveAttribute('href', '/mn/methodology#counting-cases');
   });
 
   it('keeps the date and the rule link on a suppressed figure too', () => {
@@ -54,7 +46,7 @@ describe('every figure carries its date and its rule', () => {
     expect(screen.getByText(/2026 оны 9 сарын 30-ны байдлаар/)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Хэрхэн тоолсон бэ?' })).toHaveAttribute(
       'href',
-      '/methodology#counting-cases',
+      '/mn/methodology#counting-cases',
     );
   });
 

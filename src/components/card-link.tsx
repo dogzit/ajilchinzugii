@@ -1,4 +1,4 @@
-import { Link } from '@/i18n/navigation';
+import Link from 'next/link';
 
 /** A quiet card: a heading, one line, and the whole card is the link. */
 export function CardLink({

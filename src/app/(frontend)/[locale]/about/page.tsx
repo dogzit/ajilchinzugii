@@ -185,7 +185,12 @@ export default async function AboutPage({ params }: Props) {
             <span className="num border-border bg-surface-muted text-ink rounded-sm border px-3 py-1.5 select-all">
               {email}
             </span>
-            <CopyButton value={email} />
+            <CopyButton
+              value={email}
+              label={t('common.copy')}
+              copiedLabel={t('common.copied')}
+              failedLabel={t('common.copyFailed')}
+            />
           </div>
         ) : (
           <p className="num text-ink-muted mt-4">{t('placeholder.tbd')}</p>

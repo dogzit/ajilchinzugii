@@ -12,13 +12,13 @@ export function CitationBlock({
   apa?: string | null;
   bibtex?: string | null;
 }) {
-  const t = useTranslations('research');
+  const t = useTranslations();
   if (!apa && !bibtex) return null;
 
   return (
     <section aria-labelledby="citation" className="border-border mt-12 border-t pt-8">
       <h2 id="citation" className="text-xl">
-        {t('citationHeading')}
+        {t('research.citationHeading')}
       </h2>
 
       <div className="mt-4 flex flex-col gap-6">
@@ -26,9 +26,14 @@ export function CitationBlock({
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-4">
               <h3 className="num text-ink-muted text-xs tracking-widest uppercase">
-                {t('apa')}
+                {t('research.apa')}
               </h3>
-              <CopyButton value={apa} label={t('apa')} />
+              <CopyButton
+                value={apa}
+                label={t('research.apa')}
+                copiedLabel={t('common.copied')}
+                failedLabel={t('common.copyFailed')}
+              />
             </div>
             <p className="num border-border bg-surface-muted text-ink max-w-[65ch] rounded-sm border px-4 py-3 text-sm break-words select-all">
               {apa}
@@ -40,9 +45,14 @@ export function CitationBlock({
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-4">
               <h3 className="num text-ink-muted text-xs tracking-widest uppercase">
-                {t('bibtex')}
+                {t('research.bibtex')}
               </h3>
-              <CopyButton value={bibtex} label={t('bibtex')} />
+              <CopyButton
+                value={bibtex}
+                label={t('research.bibtex')}
+                copiedLabel={t('common.copied')}
+                failedLabel={t('common.copyFailed')}
+              />
             </div>
             <pre className="num border-border bg-surface-muted text-ink max-w-full overflow-x-auto rounded-sm border px-4 py-3 text-sm select-all">
               <code>{bibtex}</code>

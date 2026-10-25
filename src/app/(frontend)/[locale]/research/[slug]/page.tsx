@@ -4,9 +4,10 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CitationBlock } from '@/components/citation-block';
 import { JsonLd } from '@/components/json-ld';
 import { RichText } from '@/components/rich-text';
-import { Link } from '@/i18n/navigation';
+import Link from 'next/link';
 import { routing, type Locale } from '@/i18n/routing';
 import { getPaper, getPaperSlugs } from '@/lib/cms';
+import { localeHref } from '@/lib/locale-href';
 import { isRichTextEmpty, lexicalText } from '@/lib/format';
 import {
   breadcrumbJsonLd,
@@ -92,7 +93,7 @@ export default async function PaperPage({ params }: Props) {
       />
       <p className="mb-8">
         <Link
-          href="/research"
+          href={localeHref(locale, '/research')}
           className="text-accent decoration-accent-mark hover:text-ink text-sm underline underline-offset-4"
         >
           ← {t('research.backToList')}
