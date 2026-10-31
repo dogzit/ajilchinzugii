@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import type { Partner } from '@/payload-types';
 import type { Locale } from '@/i18n/routing';
+import { SectionHeader } from '@/components/ui/section-header';
 import { mediaSrc } from '@/lib/media';
 
 /**
@@ -31,10 +32,10 @@ function Logo({ partner, locale }: { partner: Partner; locale: Locale }) {
       width={160}
       height={56}
       sizes="160px"
-      className="h-10 w-auto object-contain grayscale transition duration-200 group-hover:grayscale-0 sm:h-12"
+      className="h-9 w-auto object-contain opacity-60 grayscale transition duration-200 group-hover:opacity-100 group-hover:grayscale-0 sm:h-10"
     />
   ) : (
-    <span className="text-ink-muted group-hover:text-ink text-sm whitespace-nowrap">
+    <span className="text-ink-muted group-hover:text-ink text-sm whitespace-nowrap opacity-70 transition group-hover:opacity-100">
       {partner.name}
     </span>
   );
@@ -65,7 +66,7 @@ function Track({
               href={partner.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-sm"
+              className="block rounded-2xl"
               tabIndex={clone ? -1 : undefined}
             >
               <Logo partner={partner} locale={locale} />
@@ -101,15 +102,12 @@ export function PartnersMarquee({
   while (filled.length < MIN_ITEMS) filled.push(...partners);
 
   return (
-    <section aria-labelledby="partners" className="border-border border-b">
-      <div className="mx-auto max-w-6xl px-4 pt-14 sm:px-6 sm:pt-20">
-        <h2 id="partners" className="font-display text-ink text-2xl sm:text-3xl">
-          {heading}
-        </h2>
-        <p className="text-ink-muted mt-3 max-w-[60ch]">{lead}</p>
+    <section aria-labelledby="partners" className="border-border bg-surface border-y">
+      <div className="shell pt-16 md:pt-24">
+        <SectionHeader id="partners" title={heading} lead={lead} />
       </div>
 
-      <div className="marquee mt-10 flex overflow-hidden pb-14 sm:pb-20">
+      <div className="marquee mt-10 flex overflow-hidden pb-16 md:pb-24">
         <Track partners={filled} locale={locale} newTabLabel={newTabLabel} />
         <Track partners={filled} locale={locale} newTabLabel={newTabLabel} clone />
       </div>

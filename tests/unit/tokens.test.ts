@@ -31,8 +31,8 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
-const backgrounds = ['bg', 'surface', 'surface-muted'] as const;
-const textTokens = ['ink', 'ink-soft', 'ink-muted', 'accent', 'focus'] as const;
+const backgrounds = ['bg', 'surface', 'surface-tint'] as const;
+const textTokens = ['ink', 'ink-soft', 'ink-muted', 'accent-text', 'focus'] as const;
 const uiTokens = ['border-strong', 'accent-mark'] as const;
 
 describe.each(['light', 'dark'] as const)('%s theme tokens', (theme) => {
@@ -65,6 +65,34 @@ describe.each(['light', 'dark'] as const)('%s theme tokens', (theme) => {
   it('keeps body text on the accent surface readable', () => {
     expect(
       contrast(t['ink'] as string, t['accent-surface'] as string),
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
+  /**
+   * The honey fill is a brand colour, not a contrast tool: against cream it
+   * is only about 2:1, which would leave a filled button hard to find on the
+   * page. Two things make it work — the label on it is dark, and every
+   * filled control carries a 1px `accent-mark` border, which is what
+   * actually draws its edge.
+   */
+  it('puts dark text on the honey fill', () => {
+    expect(
+      contrast(t['accent-ink'] as string, t['accent'] as string),
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it('gives the honey fill an edge that can be seen', () => {
+    for (const bg of backgrounds) {
+      expect(
+        contrast(t['accent-mark'] as string, t[bg] as string),
+        `accent-mark on ${bg}`,
+      ).toBeGreaterThanOrEqual(3);
+    }
+  });
+
+  it('keeps the dark panel readable', () => {
+    expect(
+      contrast(t['panel-ink'] as string, t['panel'] as string),
     ).toBeGreaterThanOrEqual(4.5);
   });
 });

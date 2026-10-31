@@ -38,7 +38,7 @@ export default async function PolicyPage({ params }: Props) {
   const headings = richTextHeadings(policy.fullText);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <div className="shell max-w-[62rem] py-14 md:py-20">
       <JsonLd
         data={breadcrumbJsonLd(
           [
@@ -135,7 +135,7 @@ export default async function PolicyPage({ params }: Props) {
                     >
                       <a
                         href={`#${heading.id}`}
-                        className="text-ink-soft hover:text-accent text-sm underline-offset-4 hover:underline"
+                        className="text-ink-soft hover:text-accent-text text-sm underline-offset-4 hover:underline"
                       >
                         {heading.text}
                       </a>

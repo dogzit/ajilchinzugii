@@ -1,8 +1,9 @@
 import { useTranslations } from 'next-intl';
-import type { Site } from '@/payload-types';
+import type { Media, Site } from '@/payload-types';
 import { otherLocale, type Locale } from '@/i18n/routing';
 import { LanguageSwitch } from '@/components/language-switch';
 import { NavLinks } from '@/components/nav-links';
+import { SiteWordmark } from '@/components/site-wordmark';
 import { ThemeSwitch } from '@/components/theme-switch';
 import { contactEmail as contactEmailFromEnv } from '@/lib/site';
 import { filledIn } from '@/lib/placeholder';
@@ -12,11 +13,13 @@ export function SiteFooter({
   contactEmail,
   socialLinks,
   city,
+  logo,
 }: {
   locale: Locale;
   contactEmail?: string | null;
   socialLinks?: Site['socialLinks'];
   city?: string | null;
+  logo?: number | Media | null;
 }) {
   const t = useTranslations();
   const year = new Date().getFullYear();
@@ -28,20 +31,22 @@ export function SiteFooter({
   const place = filledIn(city);
 
   return (
-    <footer className="border-border bg-surface-muted border-t">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+    <footer className="border-border bg-surface-tint border-t">
+      <div className="shell grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2">
-          <p className="font-display text-ink flex items-baseline gap-2 text-lg">
-            <span aria-hidden="true" className="text-accent-mark">
-              ●
-            </span>
-            {t('site.name')}
+          <p className="font-display text-ink flex items-center gap-2.5 text-lg">
+            <SiteWordmark
+              logo={logo}
+              name={t('site.name')}
+              locale={locale}
+              size="footer"
+            />
           </p>
           <p className="text-ink-muted mt-3 max-w-[42ch] text-sm">
             {t('footer.contactNote')}
           </p>
 
-          <h2 className="text-ink-muted mt-8 text-xs tracking-[0.18em] uppercase">
+          <h2 className="text-ink-muted mt-8 text-xs font-semibold tracking-[0.16em] uppercase">
             {t('footer.contactHeading')}
           </h2>
           {/* Publish only: a plain, selectable address — never a form. */}
@@ -51,7 +56,7 @@ export function SiteFooter({
 
           {place ? (
             <>
-              <h2 className="text-ink-muted mt-6 text-xs tracking-[0.18em] uppercase">
+              <h2 className="text-ink-muted mt-6 text-xs font-semibold tracking-[0.16em] uppercase">
                 {t('footer.addressHeading')}
               </h2>
               <p className="text-ink mt-2 text-sm">{place}</p>
@@ -60,8 +65,8 @@ export function SiteFooter({
         </div>
 
         <nav aria-label={t('a11y.footerNav')}>
-          <h2 className="text-ink-muted text-xs tracking-[0.18em] uppercase">
-            {t('a11y.primaryNav')}
+          <h2 className="text-ink-muted text-xs font-semibold tracking-[0.16em] uppercase">
+            {t('nav.pages')}
           </h2>
           <NavLinks locale={locale} className="mt-3 flex flex-col gap-1 text-sm" />
         </nav>
@@ -69,7 +74,7 @@ export function SiteFooter({
         <div className="flex flex-col gap-8">
           {social.length > 0 ? (
             <section>
-              <h2 className="text-ink-muted text-xs tracking-[0.18em] uppercase">
+              <h2 className="text-ink-muted text-xs font-semibold tracking-[0.16em] uppercase">
                 {t('footer.socialHeading')}
               </h2>
               <ul className="mt-3 flex flex-col gap-1 text-sm">
@@ -79,7 +84,7 @@ export function SiteFooter({
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-ink-soft hover:text-ink hover:decoration-accent-mark underline-offset-4 hover:underline"
+                      className="text-ink-soft hover:text-ink transition-colors"
                     >
                       {link.platform}
                       <span className="sr-only"> {t('common.openInNewTab')}</span>
@@ -91,7 +96,7 @@ export function SiteFooter({
           ) : null}
 
           <section>
-            <h2 className="text-ink-muted text-xs tracking-[0.18em] uppercase">
+            <h2 className="text-ink-muted text-xs font-semibold tracking-[0.16em] uppercase">
               {t('language.label')}
             </h2>
             <LanguageSwitch
@@ -117,7 +122,7 @@ export function SiteFooter({
         </div>
       </div>
 
-      <div className="border-border text-ink-muted mx-auto max-w-6xl border-t px-4 py-5 text-sm sm:px-6">
+      <div className="border-border text-ink-muted shell border-t py-6 text-sm">
         <p className="num">{t('footer.copyright', { year, name: t('site.name') })}</p>
         <p className="mt-1">{t('footer.sourceNote')}</p>
       </div>

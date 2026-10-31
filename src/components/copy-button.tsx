@@ -37,7 +37,7 @@ export function CopyButton({
     <button
       type="button"
       onClick={copy}
-      className="border-border-strong text-ink-soft hover:bg-surface-muted hover:text-ink inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-sm"
+      className="border-border-strong text-ink-soft hover:bg-surface-tint hover:text-ink inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-sm font-medium"
     >
       <span aria-hidden="true" className="text-accent-mark">
         {state === 'copied' ? '✓' : '⧉'}

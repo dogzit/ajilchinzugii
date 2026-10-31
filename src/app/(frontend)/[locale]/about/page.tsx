@@ -43,7 +43,7 @@ export default async function AboutPage({ params }: Props) {
   const founded = formatDate(site.organization?.foundingDate, locale);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <div className="shell max-w-[62rem] py-14 md:py-20">
       {/* Only confirmed adults reach this page, so only adults are described. */}
       {team.length > 0 ? (
         <JsonLd data={team.map((member) => personJsonLd(member, locale))} />
@@ -104,7 +104,7 @@ export default async function AboutPage({ params }: Props) {
               return (
                 <li
                   key={member.id}
-                  className="border-border bg-surface flex items-center gap-4 rounded-sm border p-4"
+                  className="border-border bg-surface flex items-center gap-4 rounded-3xl border p-5"
                 >
                   {photoSrc ? (
                     <Image
@@ -160,7 +160,7 @@ export default async function AboutPage({ params }: Props) {
               return (
                 <li
                   key={partner.id}
-                  className="border-border bg-surface flex flex-col gap-3 rounded-sm border p-4"
+                  className="border-border bg-surface flex flex-col gap-3 rounded-3xl border p-5"
                 >
                   {partner.url ? (
                     <a
@@ -192,7 +192,7 @@ export default async function AboutPage({ params }: Props) {
         {email ? (
           <div className="mt-4 flex flex-wrap items-center gap-3">
             {/* Selectable text, never a form (CLAUDE.md rule 5). */}
-            <span className="num border-border bg-surface-muted text-ink rounded-sm border px-3 py-1.5 select-all">
+            <span className="num border-border bg-surface-tint text-ink rounded-2xl border px-3 py-1.5 select-all">
               {email}
             </span>
             <CopyButton

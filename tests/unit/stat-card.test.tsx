@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import messages from '../../messages/mn.json';
 import { CitationBlock } from '../../src/components/citation-block';
-import { MetricTile } from '../../src/components/metric-tile';
+import { StatCard } from '../../src/components/ui/stat-card';
 import type { LocalizedMetric } from '../../src/lib/impact';
 
 const metric = (overrides: Partial<LocalizedMetric> = {}): LocalizedMetric => ({
@@ -20,10 +20,18 @@ const metric = (overrides: Partial<LocalizedMetric> = {}): LocalizedMetric => ({
   ...overrides,
 });
 
+const labels = {
+  suppressed: messages.impact.suppressed,
+  asOf: (date: string) => messages.common.asOf.replace('{date}', date),
+  basedOnCases: (count: number) =>
+    messages.impact.basedOnCases.replace('{count}', String(count)),
+  howCounted: messages.impact.howCounted,
+};
+
 const draw = (value: LocalizedMetric) =>
   render(
     <NextIntlClientProvider locale="mn" messages={messages}>
-      <MetricTile metric={value} locale="mn" />
+      <StatCard metric={value} locale="mn" labels={labels} compact={false} />
     </NextIntlClientProvider>,
   );
 

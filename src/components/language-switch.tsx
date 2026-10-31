@@ -46,7 +46,7 @@ export function LanguageSwitch({
         href={`/${target}${rest}`}
         hrefLang={target}
         data-testid="language-switch"
-        className="border-border-strong text-ink-soft decoration-accent-mark hover:bg-surface-muted hover:text-ink inline-flex items-center gap-2 rounded-sm border px-3 py-1.5 text-sm underline decoration-1 underline-offset-4"
+        className="border-border text-ink-soft hover:bg-surface-tint hover:text-ink inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-colors sm:px-4"
       >
         {/*
           The mark is a drawing, not text, and the explanation lives inside the
@@ -60,7 +60,7 @@ export function LanguageSwitch({
           height="13"
           aria-hidden="true"
           focusable="false"
-          className="text-accent-mark shrink-0"
+          className="text-accent-mark hidden shrink-0 min-[400px]:block"
         >
           <circle
             cx="8"

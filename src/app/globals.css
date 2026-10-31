@@ -1,28 +1,41 @@
 @import 'tailwindcss';
 
 /*
- * Design tokens. Calm, evidentiary, institutional: deep ink neutrals, honey
- * accent used sparingly. Contrast ratios are asserted in
- * tests/unit/tokens.test.ts — text pairs >= 4.5:1, UI pairs >= 3:1 (WCAG AA).
+ * Design tokens. Warm, light and quiet: a cream ground, brown text, one
+ * honey accent. Contrast ratios are asserted in tests/unit/tokens.test.ts —
+ * text pairs >= 4.5:1, UI pairs >= 3:1 (WCAG AA).
+ *
+ * Two honeys, and they are not interchangeable: `accent` is the fill (honey
+ * behind dark text), `accent-text` is what honey-coloured words and links
+ * are set in, and `accent-mark` is for rules and marks that only need 3:1.
  */
 
 /* tokens:light */
 :root {
-  --bg: #fbfaf8;
-  --surface: #ffffff;
-  --surface-muted: #f2efe9;
-  --border: #cfc8ba;
-  --border-strong: #8c857a;
+  --bg: #fbf7ef;
+  --surface: #fffdf8;
+  --surface-tint: #f3e7d3;
+  --border: #eadfcc;
+  --border-strong: #7d6b54;
 
-  --ink: #14120f;
-  --ink-soft: #3a352d;
-  --ink-muted: #5c564b;
+  --ink: #2b2118;
+  --ink-soft: #3f3124;
+  --ink-muted: #5c4a38;
 
-  /* Honey/amber: `accent` is text-safe, `accent-mark` is for marks and rules. */
-  --accent: #8a5505;
-  --accent-mark: #b06e07;
-  --accent-surface: #fdf3df;
-  --focus: #8a5505;
+  --accent: #e8a33d;
+  /* The label on a honey fill is dark in both themes: honey is a brand
+     colour, and cream on honey is barely 2:1. */
+  --accent-ink: #2b2118;
+  --accent-text: #8a520a;
+  --accent-mark: #a8761a;
+  --accent-surface: #f3e7d3;
+  --focus: #8a520a;
+
+  --panel: #2b2118;
+  --panel-ink: #fbf7ef;
+
+  --shadow-float: 0 18px 40px -24px rgb(43 33 24 / 0.35);
+  --shadow-card: 0 1px 2px rgb(43 33 24 / 0.04);
 }
 /* tokens:dark */
 /*
@@ -37,41 +50,49 @@
  */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #121110;
-    --surface: #1a1917;
-    --surface-muted: #232120;
-    --border: #38352f;
-    --border-strong: #7d766c;
-    --ink: #f6f3ed;
-    --ink-soft: #d8d2c7;
-    --ink-muted: #aba49a;
-    --accent: #e9ae43;
-    --accent-mark: #e9ae43;
-    --accent-surface: #2a2217;
-    --focus: #f2be5e;
+    --bg: #1e1712;
+    --surface: #271e18;
+    --surface-tint: #2f241c;
+    --border: #3c2f25;
+    --border-strong: #8a7a68;
+    --ink: #f7f0e4;
+    --ink-soft: #e3d8c7;
+    --ink-muted: #bbab95;
+    --accent: #e8a33d;
+    --accent-ink: #2b2118;
+    --accent-text: #f0b861;
+    --accent-mark: #e8a33d;
+    --accent-surface: #352518;
+    --focus: #f3c274;
+    --panel: #150f0b;
+    --panel-ink: #f7f0e4;
   }
 }
 
 :root[data-theme='dark'] {
-  --bg: #121110;
-  --surface: #1a1917;
-  --surface-muted: #232120;
-  --border: #38352f;
-  --border-strong: #7d766c;
-  --ink: #f6f3ed;
-  --ink-soft: #d8d2c7;
-  --ink-muted: #aba49a;
-  --accent: #e9ae43;
-  --accent-mark: #e9ae43;
-  --accent-surface: #2a2217;
-  --focus: #f2be5e;
+  --bg: #1e1712;
+  --surface: #271e18;
+  --surface-tint: #2f241c;
+  --border: #3c2f25;
+  --border-strong: #8a7a68;
+  --ink: #f7f0e4;
+  --ink-soft: #e3d8c7;
+  --ink-muted: #bbab95;
+  --accent: #e8a33d;
+  --accent-ink: #2b2118;
+  --accent-text: #f0b861;
+  --accent-mark: #e8a33d;
+  --accent-surface: #352518;
+  --focus: #f3c274;
+  --panel: #150f0b;
+  --panel-ink: #f7f0e4;
 }
 /* tokens:end */
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
-  --color-surface-muted: var(--surface-muted);
+  --color-surface-tint: var(--surface-tint);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
 
@@ -80,13 +101,20 @@
   --color-ink-muted: var(--ink-muted);
 
   --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-text: var(--accent-text);
   --color-accent-mark: var(--accent-mark);
   --color-accent-surface: var(--accent-surface);
   --color-focus: var(--focus);
 
-  --font-display: var(--font-unbounded), system-ui, sans-serif;
-  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
-  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --color-panel: var(--panel);
+  --color-panel-ink: var(--panel-ink);
+
+  --font-display: var(--font-literata), Georgia, 'Times New Roman', serif;
+  --font-sans: var(--font-onest), system-ui, sans-serif;
+
+  --shadow-float: var(--shadow-float);
+  --shadow-card: var(--shadow-card);
 }
 
 @layer base {
@@ -110,24 +138,35 @@
     text-underline-offset: 0.2em;
   }
 
-  /* Unbounded is a display face: headings only, never body copy. */
+  /*
+   * Headings are set in the serif at fluid sizes, so a long Mongolian word
+   * never forces a sideways scroll at 360px.
+   */
   h1,
   h2,
   h3 {
     font-family: var(--font-display);
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
+    line-height: 1.12;
     text-wrap: balance;
   }
 
-  /* Figures, citations and any other numbers line up in columns. */
-  code,
-  kbd,
-  samp,
-  pre,
+  h1 {
+    font-size: clamp(2rem, 1.3rem + 3.2vw, 3.5rem);
+  }
+
+  h2 {
+    font-size: clamp(1.5rem, 1.15rem + 1.6vw, 2.25rem);
+  }
+
+  h3 {
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  }
+
+  /* Figures, dates and citations line up in columns. */
   time,
   data {
-    font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum' 1;
   }
@@ -135,7 +174,7 @@
   :focus-visible {
     outline: 2px solid var(--focus);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: 4px;
   }
 
   ::selection {
@@ -183,7 +222,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   .marquee-track {
-    animation: marquee-drift 48s linear infinite;
+    animation: marquee-drift 60s linear infinite;
   }
 
   .marquee:hover .marquee-track,
@@ -212,9 +251,33 @@
   }
 }
 
-/* Any rendered figure, date or citation. */
+/** Any rendered figure, date or citation. */
 @utility num {
-  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
+}
+
+/** The one page width, and the gutter that holds at 360px. */
+@utility shell {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1200px;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .shell {
+    padding-inline: 1.5rem;
+  }
+}
+
+/** The vertical rhythm every band shares. */
+@utility band {
+  padding-block: 4rem;
+}
+
+@media (min-width: 768px) {
+  .band {
+    padding-block: 6.5rem;
+  }
 }

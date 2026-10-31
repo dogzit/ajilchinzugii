@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { ThemeSwitch } from '../../src/components/theme-switch';
+import { ThemeSwitch, ThemeToggle } from '../../src/components/theme-switch';
 
 const labels = { auto: 'Авто', light: 'Гэрэлтэй', dark: 'Харанхуй' };
 
@@ -58,5 +58,59 @@ describe('choosing a theme', () => {
   it('is one labelled group, not three loose buttons', () => {
     draw();
     expect(screen.getByRole('group', { name: 'Харагдац' })).toBeInTheDocument();
+  });
+});
+
+describe('the header toggle', () => {
+  const actions = {
+    auto: 'Харагдац: Авто. Дарвал Гэрэлтэй болно.',
+    light: 'Харагдац: Гэрэлтэй. Дарвал Харанхуй болно.',
+    dark: 'Харагдац: Харанхуй. Дарвал Авто болно.',
+  };
+
+  const drawToggle = () => render(<ThemeToggle actions={actions} />);
+
+  it('says where it stands and what pressing it does', () => {
+    drawToggle();
+    expect(
+      screen.getByRole('button', { name: 'Харагдац: Авто. Дарвал Гэрэлтэй болно.' }),
+    ).toBeInTheDocument();
+  });
+
+  it('steps auto → light → dark → auto', async () => {
+    const user = userEvent.setup();
+    drawToggle();
+
+    await user.click(screen.getByRole('button'));
+    expect(document.documentElement).toHaveAttribute('data-theme', 'light');
+
+    await user.click(screen.getByRole('button'));
+    expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
+
+    await user.click(screen.getByRole('button'));
+    expect(document.documentElement.hasAttribute('data-theme')).toBe(false);
+  });
+
+  it('agrees with the footer control, because both read the document', async () => {
+    const user = userEvent.setup();
+    render(
+      <>
+        <ThemeToggle actions={actions} />
+        <ThemeSwitch legend="Харагдац" labels={labels} />
+      </>,
+    );
+
+    // Press "dark" in the footer; the header button must follow, and now
+    // offer the step after dark rather than the one after auto.
+    await user.click(
+      within(screen.getByRole('group')).getByRole('button', {
+        name: 'Харанхуй',
+      }),
+    );
+
+    expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
+    expect(
+      screen.getByRole('button', { name: 'Харагдац: Харанхуй. Дарвал Авто болно.' }),
+    ).toBeInTheDocument();
   });
 });

@@ -16,7 +16,15 @@ test.describe('the home page', () => {
   test('every section is named for a screen reader', async ({ page }) => {
     await page.goto('/mn');
 
-    for (const id of ['who-we-are', 'pillars', 'figures', 'collaborate', 'partners']) {
+    for (const id of [
+      'hero',
+      'trust',
+      'what-we-do',
+      'figures',
+      'story',
+      'cta',
+      'partners',
+    ]) {
       const section = page.locator(`section[aria-labelledby="${id}"]`);
       await expect(section, id).toHaveCount(1);
       await expect(page.locator(`#${id}`), id).not.toBeEmpty();
@@ -26,7 +34,7 @@ test.describe('the home page', () => {
   test('the call to action reaches the contact address', async ({ page }) => {
     await page.goto('/mn');
 
-    const cta = page.locator('section[aria-labelledby="collaborate"] a').first();
+    const cta = page.locator('section[aria-labelledby="cta"] a').first();
     await expect(cta).toHaveAttribute('href', '/mn/about#contact');
 
     await cta.click();

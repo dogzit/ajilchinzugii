@@ -38,7 +38,7 @@ export function RichText({
         '[&_h2]:text-ink [&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:scroll-mt-24',
         '[&_h3]:text-ink [&_h3]:mt-8 [&_h3]:mb-2 [&_h3]:scroll-mt-24',
         '[&_h4]:text-ink [&_h4]:mt-6 [&_h4]:mb-2 [&_h4]:font-semibold',
-        '[&_a]:text-accent [&_a]:underline [&_a]:underline-offset-4',
+        '[&_a]:text-accent-text [&_a]:underline [&_a]:underline-offset-4',
         '[&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:ps-5',
         '[&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:ps-5',
         '[&_blockquote]:border-accent-mark [&_blockquote]:text-ink-muted [&_blockquote]:border-s-2 [&_blockquote]:ps-4',

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { MetricTile } from '@/components/metric-tile';
+import { StatCard } from '@/components/ui/stat-card';
 import { MonthlyChart } from '@/components/monthly-chart';
 import { PageHeader } from '@/components/page-header';
 import { StaleNotice } from '@/components/stale-notice';
@@ -36,6 +36,13 @@ export default async function ImpactPage({ params }: Props) {
     getImpact(locale),
     getMethodology(locale),
   ]);
+
+  const statLabels = {
+    suppressed: t('impact.suppressed'),
+    asOf: (date: string) => t('common.asOf', { date }),
+    basedOnCases: (count: number) => t('impact.basedOnCases', { count }),
+    howCounted: t('impact.howCounted'),
+  };
   const updated = formatDateTime(impact.fetchedAt, locale);
 
   // A metric gets a chart only if the sheet carries months for it.
@@ -43,7 +50,7 @@ export default async function ImpactPage({ params }: Props) {
     impact.monthly.filter((point) => point.metricId === metricId);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <div className="shell max-w-[62rem] py-14 md:py-20">
       <JsonLd
         data={[
           datasetJsonLd({
@@ -83,9 +90,17 @@ export default async function ImpactPage({ params }: Props) {
             <h2 id="figures" className="sr-only">
               {t('home.metricsHeading')}
             </h2>
-            <div className="grid gap-x-8 gap-y-10 sm:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {impact.metrics.map((metric) => (
-                <MetricTile key={metric.metricId} metric={metric} locale={locale} />
+                <StatCard
+                  key={metric.metricId}
+                  metric={metric}
+                  locale={locale}
+                  // The impact page is where the exact figure belongs; only
+                  // the home page shortens.
+                  compact={false}
+                  labels={statLabels}
+                />
               ))}
             </div>
             <p className="text-ink-muted mt-8 max-w-[65ch] text-sm">

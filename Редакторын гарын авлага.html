@@ -1,0 +1,606 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Редакторын гарын авлага</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600&family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #fbfaf8;
+    --surface: #ffffff;
+    --surface-muted: #f2efe9;
+    --border: #e0d9cc;
+    --border-strong: #8c857a;
+    --ink: #14120f;
+    --ink-soft: #3a352d;
+    --ink-muted: #5c564b;
+    --accent: #8a5505;
+    --accent-mark: #b06e07;
+    --accent-surface: #fdf3df;
+    --stop: #8c2f1e;
+    --stop-surface: #fbeeea;
+
+    --font-display: 'Unbounded', system-ui, sans-serif;
+    --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121110;
+      --surface: #1a1917;
+      --surface-muted: #232120;
+      --border: #35322e;
+      --border-strong: #7d766c;
+      --ink: #f6f3ed;
+      --ink-soft: #d8d2c7;
+      --ink-muted: #aba49a;
+      --accent: #e9ae43;
+      --accent-mark: #e9ae43;
+      --accent-surface: #2a2217;
+      --stop: #ef9b85;
+      --stop-surface: #2b1a16;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #121110;
+    --surface: #1a1917;
+    --surface-muted: #232120;
+    --border: #35322e;
+    --border-strong: #7d766c;
+    --ink: #f6f3ed;
+    --ink-soft: #d8d2c7;
+    --ink-muted: #aba49a;
+    --accent: #e9ae43;
+    --accent-mark: #e9ae43;
+    --accent-surface: #2a2217;
+    --stop: #ef9b85;
+    --stop-surface: #2b1a16;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 78rem;
+    margin: 0 auto;
+    padding-inline: 16px;
+    padding-block: 0 4rem;
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 60rem) {
+    .wrap { grid-template-columns: 15rem minmax(0, 1fr); gap: 3.5rem; }
+  }
+
+  /* ── Masthead ───────────────────────────────────────────── */
+  .masthead {
+    grid-column: 1 / -1;
+    border-bottom: 1px solid var(--border);
+    padding-block: 3rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .eyebrow .dot { color: var(--accent-mark); font-size: 1rem; line-height: 1; }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.9rem, 5vw, 2.9rem);
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .lede {
+    margin: 0;
+    max-width: 58ch;
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+  }
+
+  /* ── Table of contents ──────────────────────────────────── */
+  .toc {
+    align-self: start;
+    border-top: 2px solid var(--accent-mark);
+    padding-top: 1rem;
+  }
+
+  @media (min-width: 60rem) {
+    .toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 1.5rem); }
+  }
+
+  .toc h2 {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin: 0 0 0.75rem;
+    font-weight: 500;
+  }
+
+  .toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+
+  .toc a {
+    display: flex;
+    gap: 0.6rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.92rem;
+    padding-block: 0.1rem;
+  }
+
+  .toc a:hover { color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent-mark); }
+  .toc .n { font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* ── Sections ───────────────────────────────────────────── */
+  main { display: grid; gap: 3.25rem; min-width: 0; }
+
+  section { scroll-margin-top: 1.5rem; }
+
+  .sec-head { display: flex; align-items: baseline; gap: 0.85rem; margin-bottom: 1rem; }
+
+  .sec-num {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent-mark);
+    padding-bottom: 0.1rem;
+  }
+
+  h2.sec-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 3vw, 1.6rem);
+    line-height: 1.25;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-family: var(--font-sans);
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 1.75rem 0 0.5rem;
+  }
+
+  p { max-width: 65ch; margin: 0 0 1rem; }
+  section > p:last-child, li > p:last-child { margin-bottom: 0; }
+
+  ol.steps { counter-reset: step; list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.85rem; }
+
+  /* The marker is positioned, not a grid column: a grid <li> would turn every
+     inline chip inside it into its own grid cell. */
+  ol.steps > li {
+    counter-increment: step;
+    position: relative;
+    padding-left: 2.35rem;
+    max-width: 68ch;
+  }
+
+  ol.steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.6rem;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.75;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-muted);
+  }
+
+  ul.plain { margin: 0 0 1rem; padding-left: 1.1rem; max-width: 65ch; display: grid; gap: 0.4rem; }
+  ul.plain li::marker { color: var(--accent-mark); }
+
+  code, .field {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Chips sit in running text: inline-block so their padded box never
+     overlaps the line above or below. */
+  .field, .btn {
+    display: inline-block;
+    line-height: 1.45;
+    vertical-align: baseline;
+    border-radius: 3px;
+  }
+
+  .field {
+    background: var(--surface-muted);
+    border: 1px solid var(--border);
+    padding: 0.05em 0.4em;
+    color: var(--ink);
+  }
+
+  .btn {
+    font-family: var(--font-mono);
+    font-size: 0.82em;
+    background: var(--ink);
+    color: var(--bg);
+    padding: 0.1em 0.5em;
+    white-space: nowrap;
+  }
+
+  a { color: var(--accent); text-underline-offset: 0.2em; }
+
+  /* ── Callouts ───────────────────────────────────────────── */
+  .note, .gate {
+    border-left: 3px solid var(--accent-mark);
+    background: var(--accent-surface);
+    padding: 0.9rem 1.1rem;
+    margin: 1.25rem 0;
+    max-width: 65ch;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .note p, .gate p { margin-bottom: 0.5rem; }
+  .note p:last-child, .gate p:last-child { margin-bottom: 0; }
+
+  .gate { border-left-color: var(--stop); background: var(--stop-surface); }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    display: block;
+    margin-bottom: 0.35rem;
+  }
+
+  .gate .label { color: var(--stop); }
+
+  /* ── Tables ─────────────────────────────────────────────── */
+  .table-scroll { overflow-x: auto; margin: 0 0 1rem; }
+
+  table { border-collapse: collapse; width: 100%; min-width: 24rem; font-size: 0.95rem; }
+
+  th, td {
+    text-align: left;
+    padding: 0.6rem 0.8rem 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  th {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 0.74rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  /* ── Consent checklist ──────────────────────────────────── */
+  .consent { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; gap: 0.5rem; }
+
+  .consent li {
+    position: relative;
+    padding-left: 1.75rem;
+  }
+
+  .consent + p { margin-top: 1rem; }
+
+  .consent li::before {
+    content: "☐";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--stop);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  footer {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+    color: var(--ink-muted);
+    font-size: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+
+  footer .file { font-family: var(--font-mono); font-size: 0.85rem; }
+
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="masthead">
+    <span class="eyebrow"><span class="dot">●</span> Ажилчин Зөгий · агуулгын удирдлага</span>
+    <h1>Редакторын гарын авлага</h1>
+    <p class="lede">
+      Програмчлал мэддэггүй хүнд зориулав. Дарааллаар дагаад хийвэл болно. Юм эвдэх гэж айх
+      шаардлагагүй: бүх өөрчлөлт хувилбараар хадгалагддаг, нийтлэхээс өмнө ноорог хэвээр байна.
+    </p>
+    <div class="note">
+      <span class="label">Эхлэхийн өмнө</span>
+      <p>
+        Удирдлагын хэсгийн <strong>цэс, товчнууд англиар</strong> байна — Payload CMS-д монгол
+        хувилбар байхгүй. Харин <strong>талбарын нэр, тайлбар бүр монгол дээр</strong> байгаа
+        (жишээ: «Гарчиг / Title»). Товчны англи нэрийг доор хаалтанд бичсэн.
+      </p>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Гарчгууд">
+    <h2>Агуулга</h2>
+    <ol>
+      <li><a href="#s1"><span class="n">01</span> Нэвтрэх</a></li>
+      <li><a href="#s2"><span class="n">02</span> Хэсгийн бүтэц</a></li>
+      <li><a href="#s3"><span class="n">03</span> Хоёр хэл</a></li>
+      <li><a href="#s4"><span class="n">04</span> Сайтын текст</a></li>
+      <li><a href="#s5"><span class="n">05</span> Судалгаа нэмэх</a></li>
+      <li><a href="#s6"><span class="n">06</span> Бодлогын төлөв</a></li>
+      <li><a href="#s7"><span class="n">07</span> Аргачлалын бүртгэл</a></li>
+      <li><a href="#s8"><span class="n">08</span> Зураг ба зөвшөөрөл</a></li>
+      <li><a href="#s9"><span class="n">09</span> Хамт олон, хамтрагчид</a></li>
+      <li><a href="#s10"><span class="n">10</span> Хийж болохгүй зүйлс</a></li>
+      <li><a href="#s11"><span class="n">11</span> Асуудал гарвал</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="s1">
+      <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">Нэвтрэх</h2></div>
+      <ol class="steps">
+        <li>Хөтөч дээр сайтын хаягийн сүүлд <code>/admin</code> гэж бич. Жишээ: <code>https://&lt;сайтын-хаяг&gt;/admin</code></li>
+        <li>И-мэйл, нэвтрэх үгээ бичээд <span class="btn">Login</span>.</li>
+      </ol>
+      <p>
+        <strong>Хамгийн анх удаа бол:</strong> систем өөрөө «Create first user» хуудас гаргана.
+        Байгууллагын и-мэйл, хүчтэй нэвтрэх үг (12-оос дээш тэмдэгт) оруул. Энэ эхний хүн
+        <strong>Админ</strong> болно. Мартвал <span class="btn">Forgot password</span>.
+      </p>
+      <h3>Хоёр төрлийн эрх</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Эрх</th><th>Юу хийж чадах</th></tr></thead>
+          <tbody>
+            <tr><td>Админ (Admin)</td><td>Бүх агуулга, нэмээд хэрэглэгч нэмэх, эрх солих</td></tr>
+            <tr><td>Редактор (Editor)</td><td>Бүх агуулга бичих, нийтлэх. Хэрэглэгч нэмж чадахгүй</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Шинэ хүн нэмэхийг зөвхөн админ хийнэ: <span class="field">Users</span> →
+        <span class="btn">Create new</span>. Сайт дээр гаднаас хүн <strong>өөрөө бүртгүүлэх
+        боломжгүй</strong> — зориуд хаасан.
+      </p>
+    </section>
+
+    <section id="s2">
+      <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">Удирдлагын хэсгийн бүтэц</h2></div>
+      <p>Зүүн талын цэс гурван хэсэгт хуваагдана:</p>
+      <ul class="plain">
+        <li><strong>Агуулга / Content</strong> — Судалгаа (Papers), Хамт олон (Team), Хамтрагчид (Partners), Зураг, файл (Media), Аргачлал (Methodology), Бодлого (Policy)</li>
+        <li><strong>Өгөгдөл / Data</strong> — Нөлөөллийн тоо (Impact snapshot). Зөвхөн <strong>харах</strong>.</li>
+        <li><strong>Тохиргоо / Settings</strong> — Сайтын тохиргоо (Site), Хэрэглэгчид (Users)</li>
+      </ul>
+    </section>
+
+    <section id="s3">
+      <div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">Хоёр хэл дээр бичих</h2></div>
+      <p>
+        Сайт монгол (үндсэн) ба англи хэлтэй. Засварлах хуудасны <strong>баруун дээд талд хэлний
+        сонголт (Locale)</strong> байна: <span class="field">Монгол</span> /
+        <span class="field">English</span>.
+      </p>
+      <ol class="steps">
+        <li>Монгол дээрээ текстээ бич → <span class="btn">Save</span>.</li>
+        <li>Locale-ийг <span class="field">English</span> болго → ижил талбаруудыг англиар бич → <span class="btn">Save</span>.</li>
+      </ol>
+      <div class="note">
+        <p>
+          Англи нь хоосон бол сайт дээр <strong>монгол текст</strong> харагдана. Тийм учраас
+          англиа дүүргэх хүртэл хуудас хоосон харагдахгүй. Гэхдээ зургийн alt текст
+          <strong>хоёр хэл дээр хоёуланг шаарддаг</strong> — хоосон бол хадгалахгүй.
+        </p>
+        <p>
+          Эхний удаад баруун дээр <span class="field">Locale: undefined</span> гэж гарч болзошгүй.
+          Энэ нь алдаа биш — дарж <span class="field">Монгол</span>-ыг сонгоход тогтоно.
+        </p>
+      </div>
+    </section>
+
+    <section id="s4">
+      <div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">Сайтын үндсэн текст (Site)</h2></div>
+      <p><span class="field">Тохиргоо / Settings</span> → <span class="field">Сайтын тохиргоо / Site</span></p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Талбар</th><th>Юу бичих</th></tr></thead>
+          <tbody>
+            <tr><td>Эрхэм зорилгын мөр</td><td>Нэг өгүүлбэр. Нүүр хуудсан дээр гарна.</td></tr>
+            <tr><td>Холбоо барих и-мэйл</td><td>Нэг и-мэйл хаяг. Сайт дээр текстээр харагдана.</td></tr>
+            <tr><td>Сошиал хаягууд</td><td><span class="btn">Add row</span> → платформын нэр + <code>https://</code>-ээр бүтэн хаяг</td></tr>
+            <tr><td>Байгууллага</td><td>Хуулийн нэр, байгуулагдсан өдөр, хот</td></tr>
+            <tr><td>SEO</td><td>Хайлтын гарчиг (60 тэмдэгт), тайлбар (160 тэмдэгт)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Дараа нь <span class="btn">Save</span>.</p>
+      <div class="note">
+        <span class="label">Тэмдэгтийн тоолуур</span>
+        <p>
+          SEO талбаруудын доор <span class="field">21/60 тэмдэгт / characters</span> гэж гарна.
+          Хэтэрвэл <strong>улаан</strong> болж «хэт урт / too long» гэж сануулна — хэтэрсэн
+          тохиолдолд хадгалахгүй.
+        </p>
+      </div>
+    </section>
+
+    <section id="s5">
+      <div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">Судалгаа нэмэх, PDF хавсаргах</h2></div>
+      <p><span class="field">Агуулга / Content</span> → <span class="field">Судалгаанууд / Papers</span> → <span class="btn">Create new</span></p>
+      <ol class="steps">
+        <li><strong>Гарчиг / Title</strong> — судалгааны нэр (монголоор).</li>
+        <li><strong>Slug (URL)</strong> — баруун талд, гарчгаас автоматаар гарна. Зөвхөн жижиг латин үсэг, тоо, зураас. <strong>Нийтэлсний дараа солихгүй</strong> — хуучин линк эвдэрнэ.</li>
+        <li><strong>Хураангуй / Abstract</strong> — текст засварлагчид бич.</li>
+        <li><strong>Зохиогчид / Authors</strong> — <span class="btn">Add row</span> дээр дарж нэг нэгээр нэм. Нэрийг <strong>эшлэлд байх ёстой хэлбэрээр</strong> бич (жишээ: <code>Б. Болормаа</code>). Систем нэрийг өөрчлөх, товчлохгүй.</li>
+        <li><strong>Он / Year</strong>, <strong>Нийтлэлийн төлөв</strong> — баруун талд.</li>
+        <li><strong>Хэвлэл / Venue</strong>, <strong>DOI</strong> — байвал бич. DOI жишээ: <code>10.1234/abcd.2026</code>.</li>
+        <li><strong>PDF файл</strong> — <span class="btn">Upload new</span> → файлаа сонго → alt текстийг хоёр хэл дээр бич → <strong>Файлд хэн байна</strong> = «Хүн байхгүй» → <span class="btn">Save</span>.</li>
+        <li><strong>Кодын хаяг / Өгөгдлийн хаяг</strong> — байвал <code>https://</code>-ээр бүтэн бич.</li>
+        <li><strong>Эшлэл (автоматаар)</strong> — APA ба BibTeX өөрөө бүрдэнэ. Гараар бичих шаардлагагүй, засах ч боломжгүй.</li>
+        <li>Locale → <span class="field">English</span> болгоод гарчиг, хураангуйг англиар бич → <span class="btn">Save</span>.</li>
+        <li>Бэлэн болмогц <span class="btn">Publish changes</span>.</li>
+      </ol>
+      <div class="note">
+        <span class="label">Ноорог ба нийтлэх</span>
+        <p>
+          <span class="btn">Save draft</span> дарвал зөвхөн та харна, сайт дээр гарахгүй.
+          <span class="btn">Publish changes</span> дарсны дараа л гадны хүн харна. Буцаахыг
+          хүсвэл <span class="field">Versions</span> таб → хуучин хувилбар →
+          <span class="btn">Restore</span>.
+        </p>
+      </div>
+    </section>
+
+    <section id="s6">
+      <div class="sec-head"><span class="sec-num">06</span><h2 class="sec-title">Бодлогын төлөв шинэчлэх</h2></div>
+      <p><span class="field">Агуулга / Content</span> → <span class="field">Бодлого / Policy</span></p>
+      <p>Төлөв өөрчлөгдөх бүрт <strong>хоёр</strong> зүйл хийнэ:</p>
+      <ol class="steps">
+        <li>Баруун талын <strong>Төлөв / Status</strong>-ыг шинэ төлөв болго (Боловсруулсан → Хүргүүлсэн → Хэлэлцэгдэж байна → Батлагдсан / Татгалзсан), мөн <strong>Төлвийн огноо</strong>-г тэр өдрөөр тавь.</li>
+        <li><strong>Явцын бүртгэл / History</strong> → <span class="btn">Add row</span> → огноо, төлөв, тэмдэглэл нэм. <strong>Хуучин мөрийг дарж бичихгүй</strong> — түүх бүтнээрээ харагдах ёстой.</li>
+      </ol>
+      <p>Дараа нь <span class="btn">Publish changes</span>.</p>
+    </section>
+
+    <section id="s7">
+      <div class="sec-head"><span class="sec-num">07</span><h2 class="sec-title">Аргачлалын өөрчлөлтийн бүртгэл</h2></div>
+      <p><span class="field">Агуулга / Content</span> → <span class="field">Аргачлал / Methodology</span></p>
+      <p>Тодорхойлолт эсвэл тоолох журмыг <strong>өчүүхэн ч өөрчилвөл</strong> доорх бүртгэлд нэг мөр нэмнэ:</p>
+      <ol class="steps">
+        <li><strong>Өөрчлөлтийн бүртгэл / Change log</strong> → <span class="btn">Add row</span></li>
+        <li><strong>Огноо</strong> = өнөөдөр</li>
+        <li><strong>Юу өөрчлөгдсөн</strong> — жишээ: «"Шийдвэрлэсэн хэрэг"-ийн тодорхойлолтод зуучлалаар эцэслэсэн тохиолдлыг нэмж тооцохоор болов.»</li>
+        <li><span class="btn">Publish changes</span></li>
+      </ol>
+      <div class="gate">
+        <span class="label">Хэзээ ч солихгүй</span>
+        <p>
+          Тодорхойлолт, журам бүрт <span class="field">anchorId</span> (жишээ:
+          <code>counting-cases</code>) байна. Сайт дээрх тоонууд шууд түүн рүү холбогддог.
+          Солих шаардлага гарвал програмистад хэлнэ.
+        </p>
+      </div>
+    </section>
+
+    <section id="s8">
+      <div class="sec-head"><span class="sec-num">08</span><h2 class="sec-title">Зураг оруулах — зөвшөөрөлтэйгөөр</h2></div>
+      <p><span class="field">Агуулга / Content</span> → <span class="field">Зураг, файл / Media</span> → <span class="btn">Create new</span></p>
+      <ol class="steps">
+        <li>
+          <strong>Upload</strong> — зургаа сонго. Систем файлын нэрийг <strong>өөрөө санамсаргүй
+          болгоно</strong> (жишээ <code>9f2a71c4.webp</code>), мөн зургийн
+          <strong>EXIF/GPS мэдээллийг бүрэн хасна</strong> — хаана авсан нь мэдэгдэхгүй.
+        </li>
+        <li><strong>Alt текст (монгол)</strong> + <strong>(англи)</strong> — хоёуланг бич. Харж чадахгүй хүнд юу байгааг тайлбарла.</li>
+        <li>
+          <strong>Файлд хэн байна</strong>: «Хүн байхгүй» (лого, баримт), «Насанд хүрсэн гишүүн»
+          (18+), эсвэл «Хүүхэд, залуу гишүүн» (18 хүрээгүй).
+        </li>
+      </ol>
+      <div class="gate">
+        <span class="label">Хүүхэд, залуу гишүүн сонговол — дөрвүүлээ заавал</span>
+        <p>Дараах дөрвөн нөхцөл бүрэн биелээгүй бол систем <strong>хадгалахгүй</strong>:</p>
+        <ul class="consent">
+          <li>Хүүхдийн бичгээр зөвшөөрөл байна</li>
+          <li>Эцэг эх, хуулийн ээлжит хүний бичгээр зөвшөөрөл байна</li>
+          <li>Зөвшөөрлийн огноо</li>
+          <li>Бичгийн баримтын дугаар — <strong>хүүхдийн нэрийг энд бичихгүй</strong>, зөвхөн «Зөвшөөрөл A-12, 2026 оны хавтас» гэх мэт хаана байгааг заа</li>
+        </ul>
+        <p>
+          Дутуу бол «Хүүхэд, залуу гишүүний зураг хадгалахын тулд дараах нь шаардлагатай: …»
+          гэсэн алдаа гарна. Энэ нь зөв ажиллаж байгаа гэсэн үг.
+        </p>
+      </div>
+    </section>
+
+    <section id="s9">
+      <div class="sec-head"><span class="sec-num">09</span><h2 class="sec-title">Хамт олон, хамтрагчид</h2></div>
+      <p>
+        <strong>Хамт олон (Team)</strong> — зөвхөн <strong>насанд хүрсэн</strong> хүн. Баруун талын
+        ☑ «Энэ хүн 18 нас хүрсэн гэдгийг баталж байна»-г тавих ёстой, үгүй бол хадгалахгүй.
+        18 хүрээгүй хүнийг <strong>нэрээр ч, зургаар ч</strong> оруулахыг хориглоно.
+      </p>
+      <p>
+        <strong>Хамтрагчид (Partners)</strong> — нэр, лого, <code>https://</code>-тэй хаяг.
+        Зөвшөөрөлгүй байгууллагын лого тавихгүй.
+      </p>
+    </section>
+
+    <section id="s10">
+      <div class="sec-head"><span class="sec-num">10</span><h2 class="sec-title">Хийж болохгүй зүйлс</h2></div>
+      <ol class="steps">
+        <li><strong>Тоо гараар бичихгүй.</strong> Нөлөөллийн тоо зөвхөн Google Sheet-ээс автоматаар орж ирнэ. «Нөлөөллийн тоо» хэсэг зөвхөн харах зориулалттай.</li>
+        <li><strong>5-аас цөөн хэрэг дээр тулгуурласан тоог тоогоор харуулахгүй.</strong> Систем өөрөө «5-аас цөөн / Fewer than 5» гэж харуулна.</li>
+        <li><strong>Хүүхдийн нэр, сургууль, ажлын газар, зураг</strong> — агуулгад, alt текстэд, файлын нэрэнд, хаягт хаана ч бичихгүй.</li>
+        <li><strong>Хувийн мэдээлэл цуглуулах форм нэмэхгүй.</strong> Холбоо барих нь зөвхөн и-мэйл хаяг.</li>
+        <li><strong>Байхгүй зүйлийг зохиохгүй.</strong> Тоо, нэр, хамтрагч, эшлэл олдоогүй бол <code>[ХҮЛЭЭГДЭЖ БУЙ / TBD]</code> гэж тэмдэглээд орхи.</li>
+      </ol>
+    </section>
+
+    <section id="s11">
+      <div class="sec-head"><span class="sec-num">11</span><h2 class="sec-title">Асуудал гарвал</h2></div>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Юу болов</th><th>Яах вэ</th></tr></thead>
+          <tbody>
+            <tr><td>Save дарахад алдаа гарна</td><td>Алдааны текстийг унш (монголоор бичсэн байгаа), дутуу талбарыг нөх.</td></tr>
+            <tr><td>Нийтэлсэн ч сайт дээр гарахгүй</td><td><span class="btn">Publish changes</span> дарсан эсэх, зөв хэл дээр бичсэн эсэхээ шалга. 1–2 минут хүлээ.</td></tr>
+            <tr><td>Хуучин хувилбар руу буцмаар байна</td><td><span class="field">Versions</span> таб → хувилбар сонго → <span class="btn">Restore</span>.</td></tr>
+            <tr><td>Хуудас хоосон, эсвэл гэнэт Login руу шидэв</td><td>Хөтчөө дахин ачаал (Cmd+R). Хөгжүүлэлтийн горимд түр ийм болдог.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Бусад тохиолдолд програмистад: ямар хуудсан дээр, ямар товч дарсан, ямар алдаа гарсныг
+        (дэлгэцийн зургаар) хамт хэлнэ.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <span class="file">docs/README-editor.md</span>
+    <span>Энэ хуудас нь төслийн репо доторх гарын авлагын уншихад зориулсан хувилбар.</span>
+  </footer>
+</div>
+
+</body></html>

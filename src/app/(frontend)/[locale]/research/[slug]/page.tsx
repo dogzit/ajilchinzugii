@@ -56,7 +56,7 @@ function ResourceLink({
     <a
       href={href}
       {...(download ? {} : { rel: 'noreferrer' })}
-      className="border-border-strong text-ink-soft hover:bg-surface-muted hover:text-ink inline-flex items-center gap-2 rounded-sm border px-3 py-1.5 text-sm"
+      className="border-border-strong text-ink-soft hover:bg-surface-tint hover:text-ink inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font-medium"
     >
       <span aria-hidden="true" className="text-accent-mark">
         ↓
@@ -77,7 +77,7 @@ export default async function PaperPage({ params }: Props) {
   const abstract = lexicalText(paper.abstract?.root as never).trim();
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <div className="shell max-w-[62rem] py-14 md:py-20">
       <JsonLd
         data={[
           scholarlyArticleJsonLd(paper, locale, abstract),
@@ -94,7 +94,7 @@ export default async function PaperPage({ params }: Props) {
       <p className="mb-8">
         <Link
           href={localeHref(locale, '/research')}
-          className="text-accent decoration-accent-mark hover:text-ink text-sm underline underline-offset-4"
+          className="text-accent-text decoration-accent-mark hover:text-ink text-sm underline underline-offset-4"
         >
           ← {t('research.backToList')}
         </Link>

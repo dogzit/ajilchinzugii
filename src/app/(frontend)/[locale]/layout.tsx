@@ -45,7 +45,7 @@ export default async function LocaleLayout({
   }
   setRequestLocale(locale);
 
-  const site = await getSite(locale);
+  const [site, t] = await Promise.all([getSite(locale), getTranslations({ locale })]);
 
   return (
     <html lang={htmlLang[locale]} className={fontVariables} suppressHydrationWarning>
@@ -56,7 +56,11 @@ export default async function LocaleLayout({
       <body className="flex min-h-dvh flex-col font-sans antialiased">
         <JsonLd data={[ngoJsonLd(site, locale), webSiteJsonLd(site, locale)]} />
         <SkipLink />
-        <DemoBanner missionLine={site.missionLine} />
+        <DemoBanner
+          missionLine={site.missionLine}
+          line={t('demo.banner')}
+          secondaryLine={t('demo.bannerEn')}
+        />
         <SiteHeader locale={locale} />
         <main id="main" tabIndex={-1} className="flex-1">
           {children}

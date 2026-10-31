@@ -57,7 +57,10 @@ export async function buildPageMetadata(input: PageSeoInput): Promise<Metadata> 
 
   return {
     metadataBase: new URL(siteUrl),
-    title,
+    // The front page is the site: letting the template append the site name
+    // to it would publish "Ажилчин Зөгий | Ажилчин Зөгий". `absolute` keeps
+    // the one descriptive line the search result should carry.
+    title: input.path === '/' ? { absolute: title } : title,
     description,
     alternates: {
       canonical,

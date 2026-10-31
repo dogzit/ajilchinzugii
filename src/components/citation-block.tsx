@@ -35,7 +35,7 @@ export function CitationBlock({
                 failedLabel={t('common.copyFailed')}
               />
             </div>
-            <p className="num border-border bg-surface-muted text-ink max-w-[65ch] rounded-sm border px-4 py-3 text-sm break-words select-all">
+            <p className="num border-border bg-surface-tint text-ink max-w-[65ch] rounded-2xl border px-4 py-3 text-sm break-words select-all">
               {apa}
             </p>
           </div>
@@ -54,7 +54,7 @@ export function CitationBlock({
                 failedLabel={t('common.copyFailed')}
               />
             </div>
-            <pre className="num border-border bg-surface-muted text-ink max-w-full overflow-x-auto rounded-sm border px-4 py-3 text-sm select-all">
+            <pre className="num border-border bg-surface-tint text-ink max-w-full overflow-x-auto rounded-2xl border px-4 py-3 text-sm select-all">
               <code>{bibtex}</code>
             </pre>
           </div>

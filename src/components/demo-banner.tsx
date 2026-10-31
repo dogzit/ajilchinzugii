@@ -7,24 +7,30 @@ import { isPlaceholder } from '@/lib/placeholder';
  * ЖИШЭЭ / SAMPLE, so if the mission line carries that prefix, the site is in
  * a walkthrough state and says so. Real content makes the strip disappear
  * with no setting to remember.
+ *
+ * One quiet line on the tint, both languages — a visitor who landed on the
+ * English page should still understand why the figures are not real.
  */
 export function isDemoContent(missionLine?: string | null): boolean {
   const text = missionLine?.trim() ?? '';
   return text.startsWith('ЖИШЭЭ:') || text.startsWith('SAMPLE:') || isPlaceholder(text);
 }
 
-export function DemoBanner({ missionLine }: { missionLine?: string | null }) {
+export function DemoBanner({
+  missionLine,
+  line,
+  secondaryLine,
+}: {
+  missionLine?: string | null;
+  line: string;
+  secondaryLine: string;
+}) {
   if (!isDemoContent(missionLine)) return null;
 
   return (
-    <div className="border-accent-mark bg-accent-surface text-ink border-b px-4 py-2 text-center text-sm">
-      <span aria-hidden="true" className="text-accent me-2">
-        ●
-      </span>
-      <strong>Жишээ агуулга</strong> — энд байгаа тоо, нэр, судалгаа бүгд туршилтынх.
-      <span className="text-ink-muted ms-2">
-        Sample content: every figure and name on this site is a placeholder.
-      </span>
+    <div className="bg-surface-tint text-ink-muted px-6 py-2 text-center text-xs">
+      <span className="text-ink font-medium">{line}</span>
+      <span className="ms-2">{secondaryLine}</span>
     </div>
   );
 }

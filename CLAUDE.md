@@ -109,12 +109,33 @@ Rules in code:
 
 ## Design direction
 
-Calm, evidentiary, institutional — closer to a statistics office or research
-lab than a charity campaign. Honey/amber accent used sparingly (the bee),
-deep ink neutrals, generous whitespace, tabular numerals for every figure.
-Fonts with full Cyrillic support (e.g. Unbounded for display headings only,
-IBM Plex Sans for body, IBM Plex Mono for data/citations) via `next/font`.
-No stock photos of children. Light and dark themes.
+Warm, clean and trustworthy — an organisation you would hand a case to, not
+a charity campaign and not a statistics office. A cream ground, warm brown
+text, one honey accent (the bee), generous whitespace, tabular numerals for
+every figure.
+
+Tokens live in `src/app/globals.css` and nowhere else; components never
+carry a hex. Light is the default; dark is a warm brown (#1E1712), never
+near-black. Contrast is enforced by `tests/unit/tokens.test.ts`.
+
+Two honeys, and they are not interchangeable: `accent` is the fill (honey
+behind `accent-ink`, which stays dark in both themes), `accent-text` is for
+honey-coloured words and links, `accent-mark` is for rules, edges and marks
+that only need 3:1.
+
+Fonts with full Cyrillic support via `next/font`: **Literata 600** for
+headings, **Onest 400/500/600** for everything else. Headings use `clamp()`.
+
+Shapes: rounded-full controls (44px minimum, 52px for a primary call to
+action), `rounded-3xl` cards with a 1px border, shadows only on elements
+that genuinely float. Sections share the `band` and `shell` utilities.
+
+Icons are inline stroke SVGs in `src/components/ui/icon.tsx` — no icon
+package, no emoji. No gradients. No stock photos of children.
+
+Reusable pieces live in `src/components/ui/`: `Button`/`ButtonLink`, `Card`,
+`SectionHeader`, `StatCard`, `Pill`, `IconTile`, `Icon`. Reach for one of
+those before writing a new set of classes.
 
 ## Working agreements
 

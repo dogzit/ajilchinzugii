@@ -1,3 +1,4 @@
+import type { IconName } from '@/components/ui/icon';
 import type { PageKey } from '@/lib/nav';
 
 /**
@@ -8,9 +9,9 @@ import type { PageKey } from '@/lib/nav';
  * come from `pages.<key>` so there is one place to edit them.
  */
 export const pillars = [
-  { key: 'methodology', index: '01' },
-  { key: 'research', index: '02' },
-  { key: 'policy', index: '03' },
-] as const satisfies readonly { key: PageKey; index: string }[];
+  { key: 'methodology', index: '01', icon: 'compass' },
+  { key: 'research', index: '02', icon: 'document' },
+  { key: 'policy', index: '03', icon: 'gavel' },
+] as const satisfies readonly { key: PageKey; index: string; icon: IconName }[];
 
 export type Pillar = (typeof pillars)[number];

@@ -15,6 +15,29 @@ export function formatNumber(value: number, locale: Locale): string {
   }).format(value);
 }
 
+/**
+ * A long figure, shortened for a headline tile: 48,600,000 → "48.6 сая" /
+ * "48.6M". Only millions and above are shortened — a four-figure number is
+ * already readable, and rounding it would lose real precision for nothing.
+ *
+ * The exact value never disappears: the tile carries it as the figure's
+ * accessible name, and the impact page prints it in full.
+ */
+export function formatCompact(value: number, locale: Locale): string {
+  const magnitude = Math.abs(value);
+  if (magnitude < 1_000_000) return formatNumber(value, locale);
+
+  const [divisor, suffix] =
+    magnitude >= 1_000_000_000
+      ? [1_000_000_000, locale === 'mn' ? ' тэрбум' : 'B']
+      : [1_000_000, locale === 'mn' ? ' сая' : 'M'];
+
+  const short = value / divisor;
+  // One decimal, and no trailing ".0" — "48.6 сая", but "50 сая".
+  const rounded = Math.round(short * 10) / 10;
+  return `${formatNumber(rounded, locale)}${suffix}`;
+}
+
 /** 2026-09-30 → "2026 оны 9 сарын 30" / "30 September 2026". */
 export function formatDate(
   value: string | null | undefined,

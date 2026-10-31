@@ -1,42 +1,31 @@
-import { IBM_Plex_Mono, IBM_Plex_Sans, Unbounded } from 'next/font/google';
+import { Literata, Onest } from 'next/font/google';
 
 // `next/font` requires literal option values, so the Cyrillic + Latin subsets
 // are repeated per family rather than shared through a constant.
 
-/** Display face — headings only. One weight, to keep the payload small. */
-export const unbounded = Unbounded({
+/**
+ * Headings. A serif with real Cyrillic drawing — Ө and Ү included — set at
+ * one weight, because a second weight buys nothing a size change cannot.
+ */
+export const literata = Literata({
   subsets: ['cyrillic', 'latin'],
   weight: ['600'],
-  variable: '--font-unbounded',
-  display: 'swap',
-});
-
-/** Body copy. */
-export const plexSans = IBM_Plex_Sans({
-  subsets: ['cyrillic', 'latin'],
-  weight: ['400', '600'],
-  variable: '--font-plex-sans',
+  variable: '--font-literata',
   display: 'swap',
 });
 
 /**
- * Figures, dates and citations (tabular numerals).
+ * Everything else: body copy, labels, navigation and figures.
  *
- * One weight — 500 was never used — and no preload: the mono face sets small
- * print and the figures below the lead, so it should not compete with the
- * heading and body faces for the first seconds of a 4G connection. `swap`
- * paints the text in the fallback face meanwhile.
+ * Figures used to be set in a monospace face for tabular numerals. Onest has
+ * them too (`font-variant-numeric: tabular-nums`), so a column of numbers
+ * still lines up without carrying a third family over the wire.
  */
-export const plexMono = IBM_Plex_Mono({
+export const onest = Onest({
   subsets: ['cyrillic', 'latin'],
-  weight: ['400'],
-  variable: '--font-plex-mono',
+  weight: ['400', '500', '600'],
+  variable: '--font-onest',
   display: 'swap',
-  preload: false,
 });
 
-export const fontVariables = [
-  unbounded.variable,
-  plexSans.variable,
-  plexMono.variable,
-].join(' ');
+export const fontVariables = [literata.variable, onest.variable].join(' ');

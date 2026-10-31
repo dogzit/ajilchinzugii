@@ -21,7 +21,7 @@ export function StatusBadge({
   return (
     <span className="inline-flex flex-wrap items-baseline gap-x-2 gap-y-1">
       <span
-        className={`rounded-sm border px-2.5 py-1 text-sm ${
+        className={`rounded-2xl border px-2.5 py-1 text-sm ${
           tone === 'accent'
             ? 'border-accent bg-accent-surface text-ink'
             : 'border-border-strong text-ink-soft'

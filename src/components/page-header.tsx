@@ -9,14 +9,16 @@ export function PageHeader({
   lead?: string | null;
 }) {
   return (
-    <header className="border-border border-b pb-8">
+    <header className="border-border border-b pb-10">
       {eyebrow ? (
-        <p className="num text-ink-muted mb-3 text-xs tracking-[0.14em] uppercase">
+        <p className="text-ink-muted mb-3 text-xs font-semibold tracking-[0.16em] uppercase">
           {eyebrow}
         </p>
       ) : null}
-      <h1 className="text-3xl sm:text-4xl">{title}</h1>
-      {lead ? <p className="text-ink-soft mt-4 max-w-[65ch] text-lg">{lead}</p> : null}
+      <h1 className="text-ink">{title}</h1>
+      {lead ? (
+        <p className="text-ink-muted mt-5 max-w-[60ch] text-lg leading-relaxed">{lead}</p>
+      ) : null}
     </header>
   );
 }

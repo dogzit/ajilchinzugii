@@ -26,7 +26,7 @@ export function NavLinks({
         <li key={item.key}>
           <Link
             href={localeHref(locale, item.path)}
-            className={`text-ink-soft hover:text-ink hover:decoration-accent-mark block rounded-sm py-1 underline-offset-4 hover:underline ${linkClassName ?? ''}`}
+            className={`text-ink-soft hover:text-ink block rounded-full py-1 transition-colors ${linkClassName ?? ''}`}
           >
             {t(item.key)}
           </Link>

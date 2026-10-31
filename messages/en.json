@@ -19,7 +19,8 @@
     "research": "Research",
     "policy": "Policy",
     "about": "About",
-    "cta": "Get in touch"
+    "cta": "Get in touch",
+    "pages": "Pages"
   },
   "language": {
     "label": "Language / Хэл",
@@ -80,7 +81,13 @@
     "copied": "Copied",
     "copyFailed": "Could not copy",
     "nothingYet": "Nothing here yet.",
-    "openInNewTab": "(opens in a new tab)"
+    "openInNewTab": "(opens in a new tab)",
+    "readAbout": "Read about our {page}",
+    "readAboutLower": {
+      "methodology": "methodology",
+      "research": "research",
+      "policy": "policy work"
+    }
   },
   "impact": {
     "suppressed": "Fewer than 5",
@@ -114,7 +121,31 @@
       "methodology": "For every figure we publish the definition behind it, how many cases it rests on, and the date it was true. The <b>fewer-than-five rule</b>: a figure based on fewer than five cases is never shown as a number, because small numbers can identify a person.",
       "research": "Reports are published with their data and their code. Citations are ready in APA and BibTeX, so using the work does not mean retyping it.",
       "policy": "Submissions and legislative changes are laid out in order, with dates and sources — separating what was proposed from what was actually adopted."
-    }
+    },
+    "heroEyebrow": "Labour rights for working teens in Mongolia",
+    "heroHeadline": "Every young worker deserves fair and safe work.",
+    "heroPrimaryCta": "See our impact",
+    "heroSecondaryCta": "Work with us",
+    "heroTrust": "No personal data collected · Every figure links to its method",
+    "heroImageNote": "[PLACEHOLDER: a consented, non-identifiable photograph or illustration]",
+    "trustHeading": "Why these figures can be trusted",
+    "trustProtectedTitle": "Identities stay protected",
+    "trustProtectedBody": "A figure resting on fewer than five cases is never shown as a number — small numbers can identify a person.",
+    "trustCheckableTitle": "Every number can be checked",
+    "trustCheckableBody": "Each figure carries its definition, how many cases it rests on, and the date it was true.",
+    "trustHonestTitle": "Honest about results",
+    "trustHonestBody": "What was proposed and what was adopted are kept apart. What did not work is published too.",
+    "workEyebrow": "WHAT WE DO",
+    "storyEyebrow": "ONE STORY",
+    "storyHeading": "In a young worker’s own words",
+    "storyQuote": "[PLACEHOLDER: a quote given with recorded consent. This section stays empty until the real words are supplied.]",
+    "storyCaption": "[PLACEHOLDER: a young worker, 2026]",
+    "storyLink": "Read their story",
+    "storyImageNote": "[PLACEHOLDER: a consented photograph]",
+    "ctaHeading": "Let’s protect young workers together.",
+    "ctaBody": "Researchers, organisations, funders, journalists — we are ready to work with any of them.",
+    "ctaPrimary": "Get in touch",
+    "ctaSecondary": "See the data and code"
   },
   "methodology": {
     "sourcesHeading": "Sources",
@@ -172,6 +203,12 @@
     "label": "Appearance",
     "auto": "Auto",
     "light": "Light",
-    "dark": "Dark"
+    "dark": "Dark",
+    "action": "Appearance: {current}. Press to switch to {next}."
+  },
+  "demo": {
+    "tag": "Sample",
+    "banner": "Sample content: every figure and name on this site is a placeholder.",
+    "bannerEn": "Жишээ агуулга — энд байгаа тоо, нэр, судалгаа бүгд туршилтынх."
   }
 }

@@ -176,7 +176,7 @@ export function MonthlyChart({
         </p>
       ) : null}
 
-      <details className="border-border bg-surface-muted max-w-[65ch] rounded-sm border">
+      <details className="border-border bg-surface-tint max-w-[65ch] rounded-2xl border">
         <summary className="text-ink-soft cursor-pointer list-none px-4 py-2 text-sm [&::-webkit-details-marker]:hidden">
           <span aria-hidden="true" className="text-accent-mark me-2">
             ▸

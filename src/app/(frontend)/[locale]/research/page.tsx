@@ -30,7 +30,7 @@ export default async function ResearchPage({ params }: Props) {
   const [t, papers] = await Promise.all([getTranslations(), getPapers(locale)]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <div className="shell max-w-[62rem] py-14 md:py-20">
       <JsonLd
         data={breadcrumbJsonLd(
           [
@@ -50,7 +50,7 @@ export default async function ResearchPage({ params }: Props) {
           {papers.map((paper) => (
             <li
               key={paper.id}
-              className="border-border bg-surface mb-4 rounded-sm border p-5"
+              className="border-border bg-surface mb-5 rounded-3xl border p-6 sm:p-7"
             >
               <article className="flex flex-col gap-2">
                 <div className="num text-ink-muted flex flex-wrap items-baseline gap-x-3 text-xs">
@@ -89,7 +89,7 @@ export default async function ResearchPage({ params }: Props) {
                     .map((chip) => (
                       <li
                         key={chip.key}
-                        className="border-border text-ink-muted rounded-sm border px-2 py-0.5 text-xs"
+                        className="border-border text-ink-muted rounded-full border px-3 py-1 text-xs"
                       >
                         {chip.label}
                       </li>

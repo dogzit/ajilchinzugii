@@ -62,10 +62,23 @@ export function ngoJsonLd(site: Site, locale: Locale): WithContext<NGO> {
       : {}),
     ...(city ? { address: { '@type': 'PostalAddress', addressLocality: city } } : {}),
     ...(sameAs.length > 0 ? { sameAs } : {}),
-    // A real, fetchable file in public/ — a logo URL that 404s is an error in
-    // Google's Rich Results Test, not a warning.
-    logo: `${siteUrl}/logo.png`,
+    // The uploaded logo when there is one, otherwise the file shipped in
+    // public/. Either way it must be fetchable: a logo URL that 404s is an
+    // error in Google's Rich Results Test, not a warning.
+    logo: organizationLogo(site),
   };
+}
+
+/**
+ * Structured data wants an absolute URL. An uploaded logo may come back as a
+ * path (when R2 has no public URL and Payload serves the file itself), so a
+ * relative one is resolved against the site.
+ */
+function organizationLogo(site: Site): string {
+  const logo = (site as { logo?: { url?: string | null } | number | null }).logo;
+  const uploaded = typeof logo === 'object' ? logo?.url?.trim() : undefined;
+  if (!uploaded) return `${siteUrl}/logo.png`;
+  return uploaded.startsWith('http') ? uploaded : `${siteUrl}${uploaded}`;
 }
 
 export function webSiteJsonLd(site: Site, locale: Locale): WithContext<WebSite> {

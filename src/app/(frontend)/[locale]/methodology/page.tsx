@@ -42,7 +42,7 @@ export default async function MethodologyPage({ params }: Props) {
   );
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <div className="shell max-w-[62rem] py-14 md:py-20">
       <JsonLd
         data={breadcrumbJsonLd(
           [
@@ -70,7 +70,7 @@ export default async function MethodologyPage({ params }: Props) {
                   {source.url ? (
                     <a
                       href={source.url}
-                      className="text-accent decoration-accent-mark hover:text-ink underline underline-offset-4"
+                      className="text-accent-text decoration-accent-mark hover:text-ink underline underline-offset-4"
                       rel="noreferrer"
                     >
                       {source.title}
@@ -107,7 +107,7 @@ export default async function MethodologyPage({ params }: Props) {
                   <a
                     href={`#${definition.anchorId}`}
                     aria-label={t('methodology.anchorLabel')}
-                    className="num text-ink-muted hover:text-accent text-xs"
+                    className="num text-ink-muted hover:text-accent-text text-xs"
                   >
                     #
                   </a>
@@ -136,7 +136,7 @@ export default async function MethodologyPage({ params }: Props) {
                   <a
                     href={`#${rule.anchorId}`}
                     aria-label={t('methodology.anchorLabel')}
-                    className="num text-ink-muted hover:text-accent text-xs"
+                    className="num text-ink-muted hover:text-accent-text text-xs"
                   >
                     #
                   </a>
