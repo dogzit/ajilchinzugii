@@ -19,7 +19,7 @@ const parsed = (value: unknown) => JSON.parse(JSON.stringify(value));
 const site = {
   id: 1,
   missionLine: 'Хөдөлмөр эрхэлж байгаа хүүхдийн эрхийг хамгаална.',
-  contactEmail: 'info@example.org',
+  contactEmail: 'info@zugii.test',
   socialLinks: [{ id: 'a', platform: 'Facebook', url: 'https://facebook.com/example' }],
   organization: {
     legalName: 'Ажилчин Зөгий ТББ',
@@ -59,7 +59,7 @@ describe('the organisation', () => {
   });
 
   it('carries the contact details the Site global holds', () => {
-    expect(ngo.email).toBe('info@example.org');
+    expect(ngo.email).toBe('info@zugii.test');
     expect(ngo.foundingDate).toBe('2021-04-15');
     expect(ngo.address).toEqual({
       '@type': 'PostalAddress',
@@ -170,7 +170,7 @@ describe('the figures as a dataset', () => {
   const methodology = {
     id: 1,
     sources: [
-      { id: 'a', title: 'Child Labour Survey 2021–22', url: 'https://example.org/cls' },
+      { id: 'a', title: 'Child Labour Survey 2021–22', url: 'https://sources.test/cls' },
       { id: 'b', title: "The organisation's own case log" },
     ],
     updatedAt: '',
@@ -224,7 +224,7 @@ describe('the figures as a dataset', () => {
       {
         '@type': 'CreativeWork',
         name: 'Child Labour Survey 2021–22',
-        url: 'https://example.org/cls',
+        url: 'https://sources.test/cls',
       },
       { '@type': 'CreativeWork', name: "The organisation's own case log" },
     ]);

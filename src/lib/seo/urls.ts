@@ -16,16 +16,18 @@ export function absoluteUrl(locale: Locale, path = '/'): string {
 /**
  * The same page in every language, plus `x-default`.
  *
- * x-default points at English: a reader whose browser asks for neither
- * Mongolian nor English is more likely to read English than Cyrillic, and the
- * site redirects them to their own language anyway on arrival.
+ * x-default points at Mongolian, the default locale (CLAUDE.md rule 6): it is
+ * the language of the organisation, of the ministry it works with and of most
+ * of its readers, and it is where `/` sends a browser that asks for neither
+ * language. Pointing it anywhere else would tell a crawler the site's main
+ * version is the translation.
  */
 export function languageAlternates(path = '/'): Record<string, string> {
   return {
     ...Object.fromEntries(
       routing.locales.map((locale) => [locale, absoluteUrl(locale, path)]),
     ),
-    'x-default': absoluteUrl('en', path),
+    'x-default': absoluteUrl(routing.defaultLocale, path),
   };
 }
 

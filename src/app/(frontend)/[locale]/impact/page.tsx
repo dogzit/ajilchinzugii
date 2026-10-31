@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     locale,
     path: '/impact',
     title: t('pages.impact.title'),
-    description: t('pages.impact.lead'),
+    description: t('pages.impact.description'),
     kind: 'figures',
   });
 }

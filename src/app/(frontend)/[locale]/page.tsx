@@ -14,7 +14,7 @@ import type { Locale } from '@/i18n/routing';
 import { getPartners, getSite } from '@/lib/cms';
 import { pillars } from '@/lib/home-content';
 import { localeHref } from '@/lib/locale-href';
-import { filledIn } from '@/lib/placeholder';
+import { publishable } from '@/lib/placeholder';
 import { formatDateTime } from '@/lib/format';
 import { getImpact } from '@/lib/impact';
 import { buildPageMetadata } from '@/lib/seo/metadata';
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${t('site.name')} — ${t('site.tagline')}`,
     // Until the mission line is written, the catalogue's own description is a
     // better answer than repeating the site's name.
-    description: filledIn(site.missionLine) ?? t('site.description'),
+    description: publishable(site.missionLine) ?? t('pages.home.description'),
     seo: site.seo,
   });
 }

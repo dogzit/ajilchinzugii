@@ -10,7 +10,7 @@ import type {
 import type { Locale } from '@/i18n/routing';
 import type { Methodology, Paper, Site, Team } from '@/payload-types';
 import type { ImpactMonthlyPoint, LocalizedMetric } from '@/lib/impact';
-import { filledIn } from '@/lib/placeholder';
+import { publishable } from '@/lib/placeholder';
 import { absoluteUrl } from './urls';
 import { siteUrl } from '@/lib/site';
 
@@ -29,8 +29,9 @@ export const ngoId = `${siteUrl}/#organisation`;
 export const websiteId = `${siteUrl}/#website`;
 
 // Structured data never carries a placeholder: "TBD" published as the
-// organisation's name is worse than the property being absent.
-const clean = filledIn;
+// organisation's name — or info@example.org as its address — is worse than
+// the property being absent.
+const clean = publishable;
 
 const dateOnly = (value?: string | null): string | undefined => {
   const text = clean(value);

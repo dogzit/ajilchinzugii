@@ -50,27 +50,33 @@
   "pages": {
     "home": {
       "title": "Ajilchin Zögii",
-      "lead": "Protecting the labour rights of working children and teens through collective bargaining, negotiation and policy work."
+      "lead": "Protecting the labour rights of working children and teens through collective bargaining, negotiation and policy work.",
+      "description": "An organisation protecting the labour rights of working children and teens through collective bargaining, negotiation and policy work."
     },
     "impact": {
       "title": "Impact",
-      "lead": "Measured results and the evidence behind them."
+      "lead": "Measured results and the evidence behind them.",
+      "description": "Measured results, each figure shown with its date, the number of cases behind it and a link to how it was counted."
     },
     "methodology": {
       "title": "Methodology",
-      "lead": "How each figure is produced and how it can be checked."
+      "lead": "How each figure is produced and how it can be checked.",
+      "description": "How every published figure is produced and checked: sources, definitions, counting rules, limitations and a change log."
     },
     "research": {
       "title": "Research",
-      "lead": "Research reports and papers."
+      "lead": "Research reports and papers.",
+      "description": "Research reports and papers on the labour rights of working children and teens, with citations and PDFs to download."
     },
     "policy": {
       "title": "Policy",
-      "lead": "Policy proposals and legislative work."
+      "lead": "Policy proposals and legislative work.",
+      "description": "Policy proposals and legislative work: what stage each one has reached and the documents it rests on."
     },
     "about": {
       "title": "About",
-      "lead": "The organisation, the team and our partners."
+      "lead": "The organisation, the team and our partners.",
+      "description": "The organisation, the team and our partners, and how to reach us. This site collects nothing from its readers."
     }
   },
   "common": {

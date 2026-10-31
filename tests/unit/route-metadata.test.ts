@@ -13,6 +13,14 @@ import type { Locale } from '../../src/i18n/routing';
 
 const catalogues: Record<string, Record<string, unknown>> = { mn, en };
 
+/**
+ * The live domain, set before any page module — and with it src/lib/site —
+ * is imported. Every address a page publishes has to be built from it, which
+ * is what the canonical assertions below check.
+ */
+const SITE = 'https://ajilchinzugii.com';
+process.env.NEXT_PUBLIC_SITE_URL = SITE;
+
 /** A stand-in for next-intl's server API, reading the real catalogues. */
 vi.mock('next-intl/server', () => ({
   setRequestLocale: () => {},
@@ -27,7 +35,7 @@ vi.mock('next-intl/server', () => ({
 const site = {
   id: 1,
   missionLine: 'Хөдөлмөр эрхэлж байгаа хүүхдийн эрхийг хамгаална.',
-  contactEmail: 'info@example.org',
+  contactEmail: 'info@zugii.test',
   organization: { legalName: 'Ажилчин Зөгий ТББ' },
   seo: { metaTitle: null, metaDescription: null },
 };
@@ -151,9 +159,9 @@ describe.each(routes)('$name', (route) => {
     expect(meta.alternates?.canonical).toMatch(new RegExp(`/mn${clean}$`));
     expect(meta.alternates?.languages?.mn).toMatch(new RegExp(`/mn${clean}$`));
     expect(meta.alternates?.languages?.en).toMatch(new RegExp(`/en${clean}$`));
-    // x-default sends an unmatched reader to English.
+    // x-default sends an unmatched reader to Mongolian, the default locale.
     expect(meta.alternates?.languages?.['x-default']).toBe(
-      meta.alternates?.languages?.en,
+      meta.alternates?.languages?.mn,
     );
   });
 
@@ -170,14 +178,24 @@ describe.each(routes)('$name', (route) => {
   });
 
   it('builds every URL from NEXT_PUBLIC_SITE_URL', async () => {
-    const base = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(
-      /\/$/,
-      '',
-    );
     const meta = (await metadataFor(route, 'mn')) as {
-      alternates?: { canonical?: string };
+      alternates?: { canonical?: string; languages?: Record<string, string> };
+      openGraph?: { url?: string; images?: { url: string }[] };
+      twitter?: { images?: string[] };
     };
-    expect(meta.alternates?.canonical?.startsWith(base)).toBe(true);
+
+    const published = [
+      meta.alternates?.canonical,
+      ...Object.values(meta.alternates?.languages ?? {}),
+      meta.openGraph?.url,
+      meta.openGraph?.images?.[0]?.url,
+      meta.twitter?.images?.[0],
+    ];
+
+    for (const url of published) {
+      expect(url, route.name).toBeTruthy();
+      expect(url?.startsWith(`${SITE}/`), `${route.name}: ${url}`).toBe(true);
+    }
   });
 });
 

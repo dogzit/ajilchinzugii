@@ -17,5 +17,9 @@ test('the handbook is kept out of search results', async ({ request }) => {
   expect(response.headers()['x-robots-tag']).toContain('noindex');
 
   const robots = await (await request.get('/robots.txt')).text();
-  expect(robots).toContain('Disallow: /guide');
+  // Two regimes, and the handbook is out of both: while indexing is closed
+  // nothing at all is crawlable, and once it opens /guide is named. Which
+  // rules robots.txt carries when is covered in tests/unit/seo-launch.
+  const everything = /^Disallow: \/$/m.test(robots);
+  expect(everything || robots.includes('Disallow: /guide')).toBe(true);
 });

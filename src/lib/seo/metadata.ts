@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import type { Locale } from '@/i18n/routing';
 import { getSite } from '@/lib/cms';
-import { filledIn } from '@/lib/placeholder';
+import { indexingAllowed } from '@/lib/indexing';
+import { publishable } from '@/lib/placeholder';
 import { siteUrl } from '@/lib/site';
 import { absoluteUrl, languageAlternates, ogImageUrl, ogLocale } from './urls';
 
@@ -32,20 +33,38 @@ export type PageSeoInput = {
   kind?: 'page' | 'paper' | 'figures';
 };
 
-// A field still holding the TBD marker counts as empty here, so the marker
-// never reaches a <title>, a share card or a search result.
-const trim = filledIn;
+// A field still holding the TBD marker — or a line of the demo seed, or an
+// example.org address — counts as empty here, so none of it reaches a
+// <title>, a share card or a search result.
+const trim = publishable;
+
+/**
+ * A search result shows about 160 characters and a share card rather fewer,
+ * so a description longer than that is cut — in the middle of a word, by
+ * whoever is displaying it. An abstract pulled straight off a paper is often
+ * longer, so it is cut here instead, at a word, with an ellipsis that says a
+ * sentence was interrupted.
+ */
+const MAX_DESCRIPTION = 158;
+
+function clamp(text: string): string {
+  if (text.length <= MAX_DESCRIPTION) return text;
+  const cut = text.slice(0, MAX_DESCRIPTION - 1);
+  const lastSpace = cut.lastIndexOf(' ');
+  return `${(lastSpace > MAX_DESCRIPTION / 2 ? cut.slice(0, lastSpace) : cut).replace(/[\s,.;:—-]+$/, '')}…`;
+}
 
 export async function buildPageMetadata(input: PageSeoInput): Promise<Metadata> {
   const site = await getSite(input.locale);
 
   const title = trim(input.seo?.metaTitle) ?? input.title;
-  const description =
+  const description = clamp(
     trim(input.seo?.metaDescription) ??
-    trim(input.description) ??
-    trim(site.seo?.metaDescription) ??
-    trim(site.missionLine) ??
-    title;
+      trim(input.description) ??
+      trim(site.seo?.metaDescription) ??
+      trim(site.missionLine) ??
+      title,
+  );
 
   const canonical = absoluteUrl(input.locale, input.path);
   const image = ogImageUrl({
@@ -95,8 +114,9 @@ export async function buildRootMetadata(
   tagline: string,
 ): Promise<Metadata> {
   const site = await getSite(locale);
-  const description =
-    trim(site.seo?.metaDescription) ?? trim(site.missionLine) ?? tagline;
+  const description = clamp(
+    trim(site.seo?.metaDescription) ?? trim(site.missionLine) ?? tagline,
+  );
   const verification = trim(process.env.NEXT_PUBLIC_GSC_VERIFICATION);
 
   return {
@@ -115,11 +135,14 @@ export async function buildRootMetadata(
       locale: ogLocale[locale],
       url: absoluteUrl(locale, '/'),
     },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
-    },
+    // Off until the content is the client's own; see src/lib/indexing.ts.
+    robots: indexingAllowed
+      ? {
+          index: true,
+          follow: true,
+          googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+        }
+      : { index: false, follow: false, nocache: true },
     ...(verification ? { verification: { google: verification } } : {}),
   };
 }

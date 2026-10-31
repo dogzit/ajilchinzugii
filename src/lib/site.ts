@@ -21,4 +21,12 @@ if (!configured && process.env.NODE_ENV === 'production') {
 
 export const siteUrl = (configured || 'http://localhost:3000').replace(/\/$/, '');
 
+/**
+ * Just the host, lowercased — the one NEXT_PUBLIC_SITE_URL names.
+ *
+ * The middleware compares it with the host a request arrived on, which is how
+ * a preview deployment knows it is not the real site.
+ */
+export const siteHost = new URL(siteUrl).hostname.toLowerCase();
+
 export const contactEmail = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? '';

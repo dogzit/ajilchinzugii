@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     locale,
     path: '/about',
     title: t('pages.about.title'),
-    description: t('pages.about.lead'),
+    description: t('pages.about.description'),
     seo: doc.seo,
   });
 }
