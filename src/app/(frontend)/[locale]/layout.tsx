@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
 import { hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -10,6 +10,7 @@ import { JsonLd } from '@/components/json-ld';
 import { SiteFooter } from '@/components/site-footer';
 import { SiteHeader } from '@/components/site-header';
 import { SkipLink } from '@/components/skip-link';
+import { ThemeKeeper } from '@/components/theme-keeper';
 import { ThemeScript } from '@/components/theme-script';
 import { htmlLang, routing, type Locale } from '@/i18n/routing';
 import { getSite } from '@/lib/cms';
@@ -19,6 +20,24 @@ import { buildRootMetadata } from '@/lib/seo/metadata';
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
+
+/**
+ * The colours the browser itself paints with: the address bar on a phone,
+ * and the scrollbars and form controls a stylesheet does not reach.
+ *
+ * `themeColor` can only follow the system setting, not the reader's choice —
+ * a meta tag cannot read localStorage — so it answers for the two systems.
+ * The two values are the `--bg` of each palette; tests/unit/tokens.test.ts
+ * holds them to that, which is how globals.css stays the only place a colour
+ * is written down.
+ */
+export const viewport: Viewport = {
+  colorScheme: 'light dark',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fbf7ef' },
+    { media: '(prefers-color-scheme: dark)', color: '#1e1712' },
+  ],
+};
 
 export async function generateMetadata({
   params,
@@ -54,6 +73,11 @@ export default async function LocaleLayout({
         <ThemeScript />
       </head>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
+        {/*
+          Switching language re-mounts <html>, which costs it the theme mark;
+          this puts it back before the next paint.
+        */}
+        <ThemeKeeper />
         <JsonLd data={[ngoJsonLd(site, locale), webSiteJsonLd(site, locale)]} />
         <SkipLink />
         <DemoBanner

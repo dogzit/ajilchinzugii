@@ -98,10 +98,10 @@ describe.each(['light', 'dark'] as const)('%s theme tokens', (theme) => {
 });
 
 /**
- * The dark palette is written twice — once for the system setting, once for
- * an explicit choice — because CSS cannot combine a media query and a plain
- * selector in one rule. If the two ever drift, the switch and the system
- * setting start producing different colours.
+ * The dark palette is written twice — once for "auto", which defers to the
+ * system setting, once for dark chosen outright — because CSS cannot combine
+ * a media query and a plain selector in one rule. If the two ever drift,
+ * "auto" and "dark" start producing different colours.
  */
 describe('the two dark blocks', () => {
   const declarations = (selector: string): string[] => {
@@ -114,10 +114,60 @@ describe('the two dark blocks', () => {
   };
 
   it('declare exactly the same values', () => {
-    const fromSystem = declarations(":root:not([data-theme='light'])");
+    const fromSystem = declarations(":root[data-theme='auto']");
     const fromChoice = declarations(":root[data-theme='dark']");
 
     expect(fromSystem.length).toBeGreaterThan(10);
     expect(fromChoice).toEqual(fromSystem);
+  });
+});
+
+/**
+ * Light is the default, and the stylesheet says so with the absence of a
+ * mark: `:root` is the light palette, and dark needs either `data-theme=dark`
+ * or `data-theme=auto` on a system asking for it. A reader who has never
+ * touched the switch must get light, which is only true while no rule paints
+ * dark without a mark.
+ */
+describe('the default theme', () => {
+  it('is light: nothing paints dark without a data-theme', () => {
+    const dark = css.slice(css.indexOf('/* tokens:dark */'), css.indexOf('/* tokens:end */'));
+    const selectors = [...dark.matchAll(/^\s*(:root[^{]*)\{/gm)].map((match) =>
+      (match[1] as string).trim(),
+    );
+
+    expect(selectors.length).toBeGreaterThan(0);
+    for (const selector of selectors) {
+      expect(selector, selector).toMatch(/\[data-theme='(dark|auto)'\]/);
+    }
+  });
+
+  it('tells native controls the same thing', () => {
+    expect(css).toMatch(/:root \{\s*color-scheme: light;/);
+    expect(css).toMatch(/:root\[data-theme='auto'\] \{\s*color-scheme: light dark;/);
+    expect(css).toMatch(/:root\[data-theme='dark'\] \{\s*color-scheme: dark;/);
+  });
+});
+
+/**
+ * `themeColor` in the layout's viewport export is the one colour written
+ * outside globals.css — a meta tag cannot read a CSS variable. It must be the
+ * `--bg` of each palette, or the phone's address bar and the page disagree.
+ */
+describe('the browser-painted colours', () => {
+  const layout = readFileSync(
+    resolve(process.cwd(), 'src/app/(frontend)/[locale]/layout.tsx'),
+    'utf8',
+  );
+
+  const declared = (scheme: 'light' | 'dark'): string | undefined => {
+    const match = layout.match(
+      new RegExp(`prefers-color-scheme: ${scheme}\\)',\\s*color: '(#[0-9a-f]{6})'`),
+    );
+    return match?.[1];
+  };
+
+  it.each(['light', 'dark'] as const)('%s matches --bg', (scheme) => {
+    expect(declared(scheme)).toBe(tokens(scheme).bg);
   });
 });

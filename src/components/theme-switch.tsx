@@ -1,17 +1,24 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
-import { THEME_STORAGE_KEY } from '@/components/theme-script';
 import { Icon, type IconName } from '@/components/ui/icon';
+import {
+  chooseTheme,
+  currentTheme,
+  DEFAULT_THEME,
+  subscribeToTheme,
+  THEMES,
+  type Theme,
+} from '@/lib/theme';
 
 /**
- * Auto / Light / Dark, in two shapes: a labelled group for the footer, and a
+ * Light / Dark / Auto, in two shapes: a labelled group for the footer, and a
  * single round button for the header, where there is room for one control
  * beside the language pill and no room for three.
  *
- * "Auto" is the absence of a choice: it removes the attribute and lets
- * `prefers-color-scheme` decide, which is what the stylesheet does on its
- * own. The other two write an attribute the tokens override on.
+ * Light comes first because it is the default: a reader who has never
+ * touched this is on light, whatever their system is set to. "Auto" is the
+ * one setting that hands the decision to `prefers-color-scheme`.
  *
  * The current theme is read from the document rather than held in state: the
  * inline script in <head> has already set it before React runs, and reading
@@ -24,60 +31,26 @@ import { Icon, type IconName } from '@/components/ui/icon';
  * this site reads a message catalogue.
  */
 
-export type Theme = 'auto' | 'light' | 'dark';
-
-const THEMES: Theme[] = ['auto', 'light', 'dark'];
+export type { Theme } from '@/lib/theme';
 
 const ICONS: Record<Theme, IconName> = {
-  auto: 'auto-theme',
   light: 'sun',
   dark: 'moon',
+  auto: 'auto-theme',
 };
 
-const listeners = new Set<() => void>();
-
-function subscribe(onChange: () => void) {
-  listeners.add(onChange);
-  // Another tab of the same site changed the choice.
-  window.addEventListener('storage', onChange);
-  return () => {
-    listeners.delete(onChange);
-    window.removeEventListener('storage', onChange);
-  };
-}
-
-function current(): Theme {
-  const value = document.documentElement.getAttribute('data-theme');
-  return value === 'light' || value === 'dark' ? value : 'auto';
-}
-
-/** The server cannot know the reader's choice; it renders "auto". */
-const onServer = (): Theme => 'auto';
-
-function choose(theme: Theme) {
-  const root = document.documentElement;
-  if (theme === 'auto') root.removeAttribute('data-theme');
-  else root.setAttribute('data-theme', theme);
-
-  try {
-    if (theme === 'auto') localStorage.removeItem(THEME_STORAGE_KEY);
-    else localStorage.setItem(THEME_STORAGE_KEY, theme);
-  } catch {
-    // Private window, blocked site data: the choice holds for this page only.
-  }
-
-  listeners.forEach((notify) => notify());
-}
+/** The server cannot know the reader's choice; it renders the default. */
+const onServer = (): Theme => DEFAULT_THEME;
 
 function useTheme(): Theme {
-  return useSyncExternalStore(subscribe, current, onServer);
+  return useSyncExternalStore(subscribeToTheme, currentTheme, onServer);
 }
 
 /**
  * The header control: one button that steps through the three settings.
  *
  * Its accessible name says where it stands and what pressing it does, so it
- * is never a mystery icon — "Харагдац: Авто. Дарвал Гэрэлтэй болно."
+ * is never a mystery icon — "Харагдац: Гэрэлтэй. Дарвал Харанхуй болно."
  */
 export function ThemeToggle({
   actions,
@@ -97,7 +70,7 @@ export function ThemeToggle({
   return (
     <button
       type="button"
-      onClick={() => choose(next)}
+      onClick={() => chooseTheme(next)}
       aria-label={actions[theme]}
       className={`border-border text-ink-soft hover:bg-surface-tint hover:text-ink inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border transition-colors ${className}`}
     >
@@ -138,7 +111,7 @@ export function ThemeSwitch({
               key={option}
               type="button"
               aria-pressed={active}
-              onClick={() => choose(option)}
+              onClick={() => chooseTheme(option)}
               className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
                 active ? 'bg-accent-surface text-ink' : 'text-ink-muted hover:text-ink'
               }`}

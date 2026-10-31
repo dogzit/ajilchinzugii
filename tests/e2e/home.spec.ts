@@ -2,6 +2,9 @@ import { expect, test } from '@playwright/test';
 
 /**
  * The front page: one h1, the sections in order, and the partner strip.
+ *
+ * The appearance switch that also lives on this page is covered in
+ * tests/e2e/theme.spec.ts.
  */
 test.describe('the home page', () => {
   test('has exactly one h1, and it is the mission line', async ({ page }) => {
@@ -56,30 +59,5 @@ test.describe('the home page', () => {
       await expect(link).toHaveAttribute('target', '_blank');
       await expect(link).toHaveAttribute('rel', /noopener/);
     }
-  });
-});
-
-test.describe('the theme switch', () => {
-  test('survives a reload', async ({ page }) => {
-    await page.goto('/mn');
-
-    const group = page.getByRole('group', { name: /харагдац/i });
-    await group.getByRole('button').nth(2).click();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-
-    await page.reload();
-    // The inline script runs before paint, so the mark is there immediately.
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-  });
-
-  test('auto hands the decision back to the system', async ({ page }) => {
-    await page.goto('/mn');
-
-    const buttons = page.getByRole('group', { name: /харагдац/i }).getByRole('button');
-    await buttons.nth(1).click();
-    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
-
-    await buttons.nth(0).click();
-    await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.*/);
   });
 });

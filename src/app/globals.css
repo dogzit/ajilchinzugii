@@ -41,15 +41,16 @@
 /*
  * The dark palette is declared twice, by design.
  *
- * The first block is the reader who has never touched the switch: their
- * system setting decides, unless they have explicitly chosen light. The
- * second is the explicit choice, which has to beat a light system setting.
- * CSS cannot put a media query and a plain selector in one rule, so the
- * values are repeated — tests/unit/tokens.test.ts asserts the two blocks
- * stay identical.
+ * Light is the default: the reader who has never touched the switch gets the
+ * cream page above, whatever their operating system is set to. Dark is asked
+ * for in one of two ways — "auto", which is the first block here and defers
+ * to `prefers-color-scheme`, or dark itself, which is the second and holds
+ * whatever the system says. CSS cannot put a media query and a plain
+ * selector in one rule, so the values are repeated —
+ * tests/unit/tokens.test.ts asserts the two blocks stay identical.
  */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root[data-theme='auto'] {
     --bg: #1e1712;
     --surface: #271e18;
     --surface-tint: #2f241c;
@@ -118,13 +119,13 @@
 }
 
 @layer base {
+  /* Native controls and scrollbars follow the reader's choice too. */
   :root {
-    color-scheme: light dark;
+    color-scheme: light;
   }
 
-  /* Native controls and scrollbars follow the explicit choice too. */
-  :root[data-theme='light'] {
-    color-scheme: light;
+  :root[data-theme='auto'] {
+    color-scheme: light dark;
   }
 
   :root[data-theme='dark'] {

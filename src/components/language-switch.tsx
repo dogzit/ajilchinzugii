@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { locales, type Locale } from '@/i18n/locales';
 
 /**
@@ -11,6 +11,11 @@ import { locales, type Locale } from '@/i18n/locales';
  * `usePathname`, so this carries no translation runtime into the browser. It
  * renders a real `<a href>`, server-side, which means it works before — and
  * without — JavaScript.
+ *
+ * The hash is kept too. It cannot go in the `href`, which is rendered on the
+ * server and has to be the same string the reader can copy, so a reader who
+ * followed "Хэрхэн тоолсон бэ?" to a counting rule and then switched
+ * language is pushed to the same rule in the other language instead.
  */
 export function LanguageSwitch({
   locale,
@@ -31,6 +36,7 @@ export function LanguageSwitch({
   className?: string;
 }) {
   const pathname = usePathname() ?? `/${locale}`;
+  const router = useRouter();
 
   // Strip the locale segment, then put the other one in its place.
   const rest = locales.reduce(
@@ -39,12 +45,27 @@ export function LanguageSwitch({
     pathname,
   );
 
+  const href = `/${target}${rest}`;
+
   return (
     <div className={className}>
       <span className="sr-only">{currentLabel}</span>
       <Link
-        href={`/${target}${rest}`}
+        href={href}
         hrefLang={target}
+        onClick={(event) => {
+          // Let the browser handle a middle click or a modified one: those
+          // mean "open this somewhere else", and the hash is already in the
+          // address the reader is copying.
+          if (event.defaultPrevented || event.button !== 0) return;
+          if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+          const hash = window.location.hash;
+          if (!hash) return;
+
+          event.preventDefault();
+          router.push(`${href}${hash}`);
+        }}
         data-testid="language-switch"
         className="border-border text-ink-soft hover:bg-surface-tint hover:text-ink inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-colors sm:px-4"
       >
