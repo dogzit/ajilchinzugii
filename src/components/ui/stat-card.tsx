@@ -15,6 +15,13 @@ import type { Locale } from '@/i18n/routing';
  *
  * Long figures are shortened for the eye ("48.6 сая") while the exact value
  * stays the card's accessible name, so nothing is lost to a screen reader.
+ *
+ * The small print under the figure is a definition list, and its terms are
+ * named for what they hold — a date, a number of cases. They were all three
+ * reading "Хэрхэн тоолсон бэ?", so a page of eight cards said that sentence
+ * twenty-four times over. The link keeps the question, and adds which figure
+ * it is asking it about: on the front page four links in a row otherwise
+ * carry the same name and go to four different places.
  */
 export function StatCard({
   metric,
@@ -29,6 +36,10 @@ export function StatCard({
     asOf: (date: string) => string;
     basedOnCases: (count: number) => string;
     howCounted: string;
+    /** The term for the date row, read before it: "Огноо". */
+    asOfTerm: string;
+    /** The term for the case-count row: "Хэргийн тоо". */
+    casesTerm: string;
   };
   compact?: boolean;
 }) {
@@ -62,13 +73,13 @@ export function StatCard({
       <dl className="num border-border text-ink-muted mt-5 flex flex-wrap gap-x-4 gap-y-1 border-t pt-4 text-xs">
         {asOf ? (
           <div className="flex gap-1.5">
-            <dt className="sr-only">{labels.howCounted}</dt>
+            <dt className="sr-only">{labels.asOfTerm}</dt>
             <dd>{labels.asOf(asOf)}</dd>
           </div>
         ) : null}
         {metric.nCases !== null ? (
           <div className="flex gap-1.5">
-            <dt className="sr-only">{labels.howCounted}</dt>
+            <dt className="sr-only">{labels.casesTerm}</dt>
             <dd>{labels.basedOnCases(metric.nCases)}</dd>
           </div>
         ) : null}
@@ -79,6 +90,14 @@ export function StatCard({
         className="text-accent-text hover:text-ink mt-4 inline-flex items-center gap-1.5 self-start text-sm font-medium"
       >
         {labels.howCounted}
+        {/* Which figure the question is about — WCAG 2.4.4, and the visible
+            text stays part of the name (2.5.3). */}
+        {/* A non-breaking space: an ordinary leading space is trimmed when
+            the accessible name is assembled, and the two run together. */}
+        <span className="sr-only">
+          {'\u00a0— '}
+          {metric.label}
+        </span>
         <Icon name="arrow-right" className="h-4 w-4" />
       </Link>
     </article>

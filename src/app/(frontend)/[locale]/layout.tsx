@@ -13,6 +13,7 @@ import { SkipLink } from '@/components/skip-link';
 import { ThemeKeeper } from '@/components/theme-keeper';
 import { ThemeScript } from '@/components/theme-script';
 import { htmlLang, routing, type Locale } from '@/i18n/routing';
+import { pageBackground } from '@/lib/brand-colors';
 import { getSite } from '@/lib/cms';
 import { ngoJsonLd, webSiteJsonLd } from '@/lib/seo/jsonld';
 import { buildRootMetadata } from '@/lib/seo/metadata';
@@ -27,15 +28,14 @@ export function generateStaticParams() {
  *
  * `themeColor` can only follow the system setting, not the reader's choice —
  * a meta tag cannot read localStorage — so it answers for the two systems.
- * The two values are the `--bg` of each palette; tests/unit/tokens.test.ts
- * holds them to that, which is how globals.css stays the only place a colour
- * is written down.
+ * The values come from src/lib/brand-colors.ts, which tests/unit/tokens.test
+ * holds to the `--bg` of each palette.
  */
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#fbf7ef' },
-    { media: '(prefers-color-scheme: dark)', color: '#1e1712' },
+    { media: '(prefers-color-scheme: light)', color: pageBackground.light },
+    { media: '(prefers-color-scheme: dark)', color: pageBackground.dark },
   ],
 };
 

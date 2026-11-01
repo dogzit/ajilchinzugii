@@ -26,6 +26,8 @@ const labels = {
   basedOnCases: (count: number) =>
     messages.impact.basedOnCases.replace('{count}', String(count)),
   howCounted: messages.impact.howCounted,
+  asOfTerm: messages.impact.asOfTerm,
+  casesTerm: messages.impact.casesTerm,
 };
 
 const draw = (value: LocalizedMetric) =>
@@ -43,8 +45,28 @@ describe('every figure carries its date and its rule', () => {
 
   it('links to the counting rule by anchor', () => {
     draw(metric());
-    const link = screen.getByRole('link', { name: 'Хэрхэн тоолсон бэ?' });
+    const link = screen.getByRole('link', { name: /^Хэрхэн тоолсон бэ\?/ });
     expect(link).toHaveAttribute('href', '/mn/methodology#counting-cases');
+  });
+
+  it('names the figure in the link, so four of them are not all alike', () => {
+    draw(metric());
+
+    // Four cards sit side by side on the front page. A screen reader listing
+    // the links has to be able to tell them apart (WCAG 2.4.4).
+    expect(
+      screen.getByRole('link', {
+        name: /^Хэрхэн тоолсон бэ\?.*Шийдвэрлэсэн хэрэг$/,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('names each row of the small print for what it holds', () => {
+    draw(metric());
+
+    // Not "Хэрхэн тоолсон бэ?" three times over.
+    expect(screen.getByText('Огноо')).toBeInTheDocument();
+    expect(screen.getByText('Хэргийн тоо')).toBeInTheDocument();
   });
 
   it('keeps the date and the rule link on a suppressed figure too', () => {
@@ -52,7 +74,7 @@ describe('every figure carries its date and its rule', () => {
 
     expect(screen.getByText('5-аас цөөн')).toBeInTheDocument();
     expect(screen.getByText(/2026 оны 9 сарын 30-ны байдлаар/)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Хэрхэн тоолсон бэ?' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /^Хэрхэн тоолсон бэ\?/ })).toHaveAttribute(
       'href',
       '/mn/methodology#counting-cases',
     );

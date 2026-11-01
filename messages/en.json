@@ -99,6 +99,8 @@
     "suppressed": "Fewer than 5",
     "suppressedExplained": "A figure resting on fewer than five cases is not published, because it could identify someone.",
     "howCounted": "How is this counted?",
+    "asOfTerm": "Date",
+    "casesTerm": "Number of cases",
     "basedOnCases": "Based on {count} cases",
     "noFigures": "No figures have been fetched yet.",
     "stale": "The source spreadsheet could not be read. These are the figures from the last successful fetch.",
@@ -216,5 +218,16 @@
     "tag": "Sample",
     "banner": "Sample content: every figure and name on this site is a placeholder.",
     "bannerEn": "Жишээ агуулга — энд байгаа тоо, нэр, судалгаа бүгд туршилтынх."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "lead": "There is no page at this address. It may have moved, or it may never have existed.",
+    "home": "Go to the home page",
+    "pages": "Or try one of these pages"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "lead": "This page could not be shown. Please try again.",
+    "retry": "Try again"
   }
 }

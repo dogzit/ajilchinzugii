@@ -61,6 +61,8 @@ export default async function HomePage({ params }: Props) {
     asOf: (date: string) => t('common.asOf', { date }),
     basedOnCases: (count: number) => t('impact.basedOnCases', { count }),
     howCounted: t('impact.howCounted'),
+    asOfTerm: t('impact.asOfTerm'),
+    casesTerm: t('impact.casesTerm'),
   };
 
   return (

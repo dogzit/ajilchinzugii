@@ -127,6 +127,7 @@ export async function buildRootMetadata(
     },
     description,
     applicationName: siteName,
+    manifest: '/manifest.webmanifest',
     icons: { icon: '/icon.svg', apple: '/logo.png' },
     alternates: { languages: languageAlternates('/') },
     openGraph: {

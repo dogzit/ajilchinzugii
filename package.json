@@ -25,7 +25,9 @@
     "lhci": "lhci autorun",
     "test:a11y": "playwright test tests/e2e/a11y.spec.ts",
     "seed:demo": "payload run src/payload/seed-demo.ts",
-    "seed:demo:clear": "payload run src/payload/seed-demo.ts -- --clear"
+    "seed:demo:clear": "payload run src/payload/seed-demo.ts -- --clear",
+    "check:placeholders": "payload run scripts/check-placeholders.ts",
+    "prebuild": "if [ \"$NEXT_PUBLIC_ALLOW_INDEXING\" = \"true\" ]; then pnpm check:placeholders; fi"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.92.0",

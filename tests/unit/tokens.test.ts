@@ -155,17 +155,10 @@ describe('the default theme', () => {
  * `--bg` of each palette, or the phone's address bar and the page disagree.
  */
 describe('the browser-painted colours', () => {
-  const layout = readFileSync(
-    resolve(process.cwd(), 'src/app/(frontend)/[locale]/layout.tsx'),
-    'utf8',
-  );
+  const source = readFileSync(resolve(process.cwd(), 'src/lib/brand-colors.ts'), 'utf8');
 
-  const declared = (scheme: 'light' | 'dark'): string | undefined => {
-    const match = layout.match(
-      new RegExp(`prefers-color-scheme: ${scheme}\\)',\\s*color: '(#[0-9a-f]{6})'`),
-    );
-    return match?.[1];
-  };
+  const declared = (scheme: 'light' | 'dark'): string | undefined =>
+    source.match(new RegExp(`${scheme}: '(#[0-9a-f]{6})'`))?.[1];
 
   it.each(['light', 'dark'] as const)('%s matches --bg', (scheme) => {
     expect(declared(scheme)).toBe(tokens(scheme).bg);

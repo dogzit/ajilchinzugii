@@ -102,3 +102,35 @@ test.describe('asked for less motion', () => {
     expect(seconds(duration)).toBeLessThan(0.01);
   });
 });
+
+/**
+ * A page that is not there still has to be this site, in this language.
+ */
+test.describe('a page that does not exist', () => {
+  const cases = [
+    { path: '/mn/no-such-page', heading: 'Хуудас олдсонгүй', lang: 'mn-MN' },
+    { path: '/en/no-such-page', heading: 'Page not found', lang: 'en' },
+    // A paper slug nobody has: the page itself calls notFound().
+    { path: '/mn/research/no-such-paper', heading: 'Хуудас олдсонгүй', lang: 'mn-MN' },
+  ];
+
+  for (const { path, heading, lang } of cases) {
+    test(`answers ${path} with a 404 and a way back`, async ({ page }) => {
+      const response = await page.goto(path);
+
+      expect(response?.status()).toBe(404);
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(heading);
+      await expect(page.locator('html')).toHaveAttribute('lang', lang);
+
+      // The site is still around it: header, footer, language switch.
+      await expect(page.locator('body > header')).toBeVisible();
+      await expect(page.getByTestId('language-switch').first()).toBeVisible();
+
+      // Never indexed, whatever the flag says.
+      await expect(page.locator('meta[name="robots"]').first()).toHaveAttribute(
+        'content',
+        /noindex/,
+      );
+    });
+  }
+});
