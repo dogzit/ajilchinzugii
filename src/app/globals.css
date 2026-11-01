@@ -196,6 +196,74 @@
 }
 
 /*
+ * Moving between pages.
+ *
+ * The header, the footer and the page frame stay where they are — only the
+ * content under <main> changes — so a page arrives rather than appearing: it
+ * rises a few pixels into place as it comes up to full strength. The route is
+ * a new subtree each time, so the animation runs on its own, with no state to
+ * keep and no JavaScript to download.
+ *
+ * It starts part-visible rather than at zero on purpose. A browser does not
+ * count a fully transparent element as painted, so fading in from nothing
+ * would push Largest Contentful Paint out by the length of the animation and
+ * make a fast page measure slow. From 0.4 the first paint is the real one.
+ */
+@keyframes page-enter {
+  from {
+    opacity: 0.4;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+main > * {
+  animation: page-enter 340ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/*
+ * A navigation that reloads the document — the first click before the page
+ * has hydrated, the browser's back button out of a hard load — is crossed
+ * over by the browser itself. The header and the footer are named, so they
+ * hold still through it instead of fading out and back in.
+ */
+@view-transition {
+  navigation: auto;
+}
+
+body > header {
+  view-transition-name: site-header;
+}
+
+body > footer {
+  view-transition-name: site-footer;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/*
+ * A heading linked to by its anchor — "Хэрхэн тоолсон бэ?" lands on one —
+ * must not come to rest underneath the sticky header.
+ */
+main [id] {
+  scroll-margin-top: 5.5rem;
+}
+
+/*
  * The partner strip. One track, duplicated once in the markup, translated by
  * exactly half its width — so the second copy lands where the first began and
  * the loop has no seam. Pauses on hover and on keyboard focus inside it.
