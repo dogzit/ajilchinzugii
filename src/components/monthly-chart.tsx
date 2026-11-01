@@ -82,13 +82,17 @@ export function MonthlyChart({
     <figure className="mt-6 flex flex-col gap-3">
       <figcaption className="text-ink text-sm">{label}</figcaption>
 
+      {/*
+        No width or height attribute: `height="auto"` is not a length, and
+        the browser rejected it with a console error. The viewBox already
+        carries the proportions, so the CSS below is all the sizing needed —
+        full width of the column, height from the ratio.
+      */}
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        width="100%"
-        height="auto"
         role="img"
         aria-label={summary}
-        className="max-w-[560px]"
+        className="h-auto w-full max-w-[560px]"
       >
         {ticks.map((tick, index) => (
           <g key={tick}>
