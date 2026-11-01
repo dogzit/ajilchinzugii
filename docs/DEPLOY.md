@@ -131,11 +131,19 @@ curl -sI https://<домэйн> | grep -i strict-transport   # HSTS байх ё�
 
 1. [search.google.com/search-console](https://search.google.com/search-console)
    → **Add property** → **URL prefix** → `https://<домэйн>`
-2. Баталгаажуулалт: **HTML tag** аргыг сонго, `content="..."` доторх утгыг
-   хуул
-3. Vercel → `NEXT_PUBLIC_GSC_VERIFICATION` = тэр утга → **Redeploy**
-4. Search Console дээр **Verify** дар
-5. **Sitemaps** → `sitemap.xml` илгээ
+2. Баталгаажуулах гурван арга. Аль нэгийг нь сонгоно:
+
+   | Арга                      | Юу хийх вэ                                                                                                                                                |
+   | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | **HTML file**             | Татсан `googleXXXX.html`-ийг `public/` дотор нэмж, деплой хийнэ. Файл `https://<домэйн>/googleXXXX.html` дээр үйлчлэгдэнэ. Нэг файл аль хэдийн репод бий. |
+   | **HTML tag**              | `content="..."` доторх утгыг Vercel дээр `NEXT_PUBLIC_GSC_VERIFICATION` болгож тавиад **Redeploy**                                                        |
+   | **DNS (Domain property)** | Хамгийн бүрэн: apex, www, http, https бүгдийг нэг дор батална. Домэйн нийлүүлэгч дээр TXT бичлэг нэмнэ                                                    |
+
+3. **Эхлээд deploy хий**, дараа нь Search Console дээр **Verify** дар —
+   файл ч, мета таг ч deploy болтол сайт дээр гарахгүй.
+4. **Sitemaps** → `sitemap.xml` илгээ
+
+> Баталгаажсаны дараа ч файлыг устгаж болохгүй: Google үе үе дахин шалгадаг.
 
 ---
 
@@ -174,6 +182,24 @@ aws s3 ls "s3://<нөөцийн-bucket>/db/daily/" --endpoint-url https://<accou
 
 ---
 
+## 7.5. Build дээрх хоёр хамгаалалт
+
+Индексжилтийг (`NEXT_PUBLIC_ALLOW_INDEXING=true`) асаасан үед build хоёр
+шалгалтаар дамжина. Хоёулаа **build-ийг унагаадаг** тул буруу тохиргоо
+сайт дээр гарахгүй:
+
+| Шалгалт                         | Хаана                                                              | Юу барих вэ                                                                                        |
+| ------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `scripts/launch-guard.ts`       | `next.config.ts` — ямар ч build командад ажиллана                  | `NEXT_PUBLIC_SITE_URL` нь `*.vercel.app`, localhost, эсвэл `SITE_CANONICAL_HOST`-оос зөрүүтэй байх |
+| `scripts/check-placeholders.ts` | `prebuild` — иймд **Build Command заавал `pnpm build`** байх ёстой | Кодод болон CMS-д үлдсэн «ЖИШЭЭ…», `example.org`, TBD                                              |
+
+`vercel.json` дотор `buildCommand: pnpm build` гэж бэхэлсэн нь хоёр дахийг
+алгасахаас сэргийлнэ (`next build` гэж шууд дуудвал `prebuild` ажиллахгүй).
+
+Build унавал логт яг юу буруу байгаа, хаана засахыг бичнэ.
+
+---
+
 ## 8. Эцсийн шалгалт
 
 - [ ] `https://<домэйн>` нээгдэж, HTTPS ногоон
@@ -182,6 +208,9 @@ aws s3 ls "s3://<нөөцийн-bucket>/db/daily/" --endpoint-url https://<accou
 - [ ] `/admin` дээр нэвтэрч, нэг текст засаад хадгалсан
 - [ ] Засвар сайт дээр харагдсан
 - [ ] `/sitemap.xml`, `/robots.txt` нээгдэнэ
+- [ ] `robots.txt` доторх `Host:` ба `Sitemap:` нь **жинхэнэ домэйн** (vercel.app биш)
+- [ ] Хуудсын `<link rel="canonical">` нь redirect-гүй хаяг руу заана:
+      `curl -sI "$(curl -s https://<домэйн>/mn | grep -o 'rel="canonical" href="[^"]*' | cut -d'"' -f3)"` → `200`
 - [ ] Search Console баталгаажиж, sitemap «Success»
 - [ ] Plausible дээр зочлолт бүртгэгдсэн
 - [ ] Эхний шөнийн нөөц R2 дээр орсон

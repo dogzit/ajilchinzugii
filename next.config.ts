@@ -2,6 +2,14 @@ import { withPayload } from '@payloadcms/next/withPayload';
 import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from 'next';
 import { adminHeaders, publicHeaders } from './src/lib/security-headers';
+import { assertLaunchReady } from './scripts/launch-guard';
+
+/*
+ * Before anything else: a build that may be indexed has to be pointed at the
+ * site's own domain. See scripts/launch-guard.ts — it runs here rather than
+ * in an npm hook so that no build command can skip it.
+ */
+assertLaunchReady(process.env);
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 

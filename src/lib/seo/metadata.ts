@@ -136,13 +136,19 @@ export async function buildRootMetadata(
       locale: ogLocale[locale],
       url: absoluteUrl(locale, '/'),
     },
-    // Off until the content is the client's own; see src/lib/indexing.ts.
+    /*
+     * Off until the content is the client's own; see src/lib/indexing.ts.
+     *
+     * When it is open, this says nothing about indexing at all — a crawler
+     * that finds no robots tag indexes and follows, which is what we want.
+     * Saying it out loud here would put `index, follow` on the 404 page too,
+     * next to the `noindex` that not-found.tsx renders for itself: two
+     * robots tags contradicting each other on the one page that most needs
+     * to be read correctly. Only the image-preview hint is worth a tag, and
+     * it goes to Googlebot alone.
+     */
     robots: indexingAllowed
-      ? {
-          index: true,
-          follow: true,
-          googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
-        }
+      ? { googleBot: { 'max-image-preview': 'large' } }
       : { index: false, follow: false, nocache: true },
     ...(verification ? { verification: { google: verification } } : {}),
   };
