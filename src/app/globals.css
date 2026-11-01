@@ -183,6 +183,22 @@
     color: var(--ink);
   }
 
+  /*
+   * Anything the pointer or the keyboard can land on eases between its
+   * colours instead of switching. One rule here rather than a
+   * `transition-colors` on every link in the site — and it is colour only,
+   * so nothing moves and nothing can shift the layout.
+   */
+  a,
+  button,
+  summary,
+  [role='button'] {
+    transition-property:
+      color, background-color, border-color, text-decoration-color, box-shadow;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -261,6 +277,128 @@ body > footer {
  */
 main [id] {
   scroll-margin-top: 5.5rem;
+}
+
+/*
+ * Waiting — the outline a route's loading.tsx puts up while its page is
+ * fetched. Why it exists, and who it is for, is written down in
+ * src/components/ui/skeleton.tsx.
+ *
+ * The delay before the fade is the load-bearing part. Most answers come back
+ * before it elapses, so the reader never sees the outline at all; and the
+ * bars are still fully transparent when real content takes their place,
+ * which is what keeps a prerendered page's layout shift at zero.
+ */
+@keyframes skeleton-appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.skeleton-screen {
+  animation: skeleton-appear 200ms ease-out 160ms both;
+}
+
+.skeleton {
+  background-color: var(--surface-tint);
+  border-radius: 0.75rem;
+}
+
+/*
+ * The bars breathe rather than shimmer: a travelling highlight needs a
+ * gradient, and this page has none. Asked for less motion, they simply sit
+ * there — the global rule cuts the duration, and the keyframes are written
+ * so that what is left is the bar at full strength.
+ */
+@keyframes skeleton-breathe {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skeleton {
+    animation: skeleton-breathe 1.8s ease-in-out infinite;
+  }
+}
+
+/*
+ * The line across the top of the page that says a click was heard.
+ *
+ * It starts a tenth of a second late, so a page that is already in hand
+ * arrives without it ever being drawn, and it never reaches the far edge:
+ * the page's own arrival is what ends it, and a bar that completed before
+ * the page did would be a lie. Scale rather than width, so it costs one
+ * composited frame and no layout.
+ *
+ * Asked for less motion, the global rule cuts the slide and what is left is
+ * a short honey line that waits with the reader — feedback without movement.
+ */
+.nav-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 50;
+  height: 2px;
+  background-color: var(--accent-mark);
+  transform: scaleX(0);
+  /* `transform-origin` takes no logical keyword; both languages here
+     run left to right. */
+  transform-origin: left;
+  pointer-events: none;
+}
+
+@keyframes nav-progress {
+  from {
+    transform: scaleX(0.02);
+  }
+  55% {
+    transform: scaleX(0.65);
+  }
+  to {
+    transform: scaleX(0.94);
+  }
+}
+
+html[data-nav-pending] .nav-progress {
+  animation: nav-progress 2.4s cubic-bezier(0.12, 0.72, 0.18, 1) 100ms both;
+}
+
+/*
+ * A <details> that opens — the mobile menu, and a chart's data table —
+ * brings its panel in rather than snapping it open. `:not(summary)` so the
+ * hamburger itself holds still.
+ */
+@keyframes panel-open {
+  from {
+    /* Not from nothing: a panel that spends its whole opening translucent
+       shows the page through itself, which reads as a mistake. */
+    opacity: 0.2;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+details[open] > :not(summary) {
+  animation: panel-open 150ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/*
+ * Jumping to an anchor on the same page — the figure that asks how it was
+ * counted — travels instead of teleporting, so the reader keeps their
+ * bearings. Next sets this to `auto` for its own navigations, and the global
+ * reduced-motion rule turns it off for a reader who asked for less.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 /*

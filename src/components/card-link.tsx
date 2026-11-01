@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/components/link';
 
 /** A quiet card: a heading, one line, and the whole card is the link. */
 export function CardLink({

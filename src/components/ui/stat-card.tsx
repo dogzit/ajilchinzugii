@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/components/link';
 import { Icon } from '@/components/ui/icon';
 import { localeHref } from '@/lib/locale-href';
 import { formatCompact, formatDate, formatNumber } from '@/lib/format';

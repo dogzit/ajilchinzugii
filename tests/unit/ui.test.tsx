@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { Button, ButtonLink } from '../../src/components/ui/button';
 import { SectionHeader } from '../../src/components/ui/section-header';
 import { Icon } from '../../src/components/ui/icon';
+import {
+  SkeletonArticlePage,
+  SkeletonLines,
+  SkeletonScreen,
+} from '../../src/components/ui/skeleton';
 
 describe('buttons', () => {
   it('is a link when it goes somewhere and a button when it does something', () => {
@@ -83,5 +88,32 @@ describe('icons', () => {
     const svg = container.querySelector('svg');
     expect(svg).toHaveAttribute('aria-hidden', 'true');
     expect(svg).toHaveAttribute('focusable', 'false');
+  });
+});
+
+describe('the outline a page waits behind', () => {
+  it('is a drawing, so it says nothing to a screen reader', () => {
+    const { container } = render(
+      <SkeletonScreen>
+        <SkeletonLines count={3} />
+      </SkeletonScreen>,
+    );
+
+    const outline = container.firstElementChild;
+    expect(outline).toHaveAttribute('aria-hidden', 'true');
+    // No text, no headings, no landmarks — nothing to announce.
+    expect(outline?.textContent).toBe('');
+    expect(container.querySelectorAll('.skeleton')).toHaveLength(3);
+  });
+
+  it('carries the delayed fade, so a fast page never flashes grey', () => {
+    const { container } = render(<SkeletonArticlePage />);
+    expect(container.firstElementChild).toHaveClass('skeleton-screen');
+  });
+
+  it('stands in the page’s own frame, so the content lands where it was', () => {
+    const { container } = render(<SkeletonArticlePage />);
+    // The same shell and rhythm every inner page uses.
+    expect(container.firstElementChild).toHaveClass('shell', 'py-14');
   });
 });

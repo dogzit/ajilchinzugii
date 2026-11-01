@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/components/link';
 import { Icon } from '@/components/ui/icon';
 import { IconTile } from '@/components/ui/icon-tile';
 import { SectionHeader } from '@/components/ui/section-header';

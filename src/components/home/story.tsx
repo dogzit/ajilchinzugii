@@ -1,5 +1,5 @@
 import { Icon } from '@/components/ui/icon';
-import Link from 'next/link';
+import { Link } from '@/components/link';
 
 /**
  * A quote, when there is one to publish.

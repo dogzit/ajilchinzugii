@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageHeader } from '@/components/page-header';
-import Link from 'next/link';
+import { Link } from '@/components/link';
 import type { Locale } from '@/i18n/routing';
 import { getPapers } from '@/lib/cms';
 import { localeHref } from '@/lib/locale-href';

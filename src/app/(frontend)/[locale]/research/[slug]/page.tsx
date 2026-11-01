@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CitationBlock } from '@/components/citation-block';
 import { JsonLd } from '@/components/json-ld';
 import { RichText } from '@/components/rich-text';
-import Link from 'next/link';
+import { Link } from '@/components/link';
 import { routing, type Locale } from '@/i18n/routing';
 import { getPaper, getPaperSlugs } from '@/lib/cms';
 import { localeHref } from '@/lib/locale-href';

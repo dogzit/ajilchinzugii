@@ -78,6 +78,13 @@ export default async function LocaleLayout({
           this puts it back before the next paint.
         */}
         <ThemeKeeper />
+        {/*
+          A click is answered here, at the top edge of the window, while the
+          page it asked for is on its way — see src/components/nav-pending.tsx.
+          Two pixels of honey, fixed, above everything, and outside the flow,
+          so it cannot move a single word on the page.
+        */}
+        <div className="nav-progress" aria-hidden="true" />
         <JsonLd data={[ngoJsonLd(site, locale), webSiteJsonLd(site, locale)]} />
         <SkipLink />
         <DemoBanner
