@@ -22,6 +22,7 @@
     "migrate": "DATABASE_MIGRATING=true payload migrate",
     "migrate:status": "DATABASE_MIGRATING=true payload migrate:status",
     "seed": "payload run src/payload/seed.ts",
+    "seed:org": "payload run src/payload/seed-org.ts",
     "lhci": "lhci autorun",
     "test:a11y": "playwright test tests/e2e/a11y.spec.ts",
     "seed:demo": "payload run src/payload/seed-demo.ts",

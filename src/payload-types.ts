@@ -778,6 +778,21 @@ export interface Methodology {
       }[]
     | null;
   /**
+   * Ямар төрлийн тоо хэмжигддэгийг тодорхойлно — бодит тоо хэзээ ч энд бичигдэхгүй, тоо зөвхөн хүснэгтээс ирнэ. Names the kinds of figures that are measured — never an actual number, which comes only from the sheet.
+   */
+  measures?:
+    | {
+        category: string;
+        items?:
+          | {
+              label: string;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Эдгээр тоо юуг харуулж чадахгүйг шулуухан бич. What these numbers cannot show. Write it plainly.
    */
   limitations?: {
@@ -948,6 +963,18 @@ export interface MethodologySelect<T extends boolean = true> {
         anchorId?: T;
         rule?: T;
         detail?: T;
+        id?: T;
+      };
+  measures?:
+    | T
+    | {
+        category?: T;
+        items?:
+          | T
+          | {
+              label?: T;
+              id?: T;
+            };
         id?: T;
       };
   limitations?: T;

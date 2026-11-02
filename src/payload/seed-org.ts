@@ -1,0 +1,1115 @@
+import { getPayload } from 'payload';
+import config from '../payload.config';
+import { isDemoValue, isPlaceholder } from '../lib/placeholder';
+
+/** True when the field is still empty, a TBD placeholder, or leftover demo text. */
+const needsRealContent = (value?: string | null): boolean =>
+  isPlaceholder(value) || isDemoValue(value);
+
+/**
+ * The organisation's real content, as given by the client in 2026-11.
+ *
+ * Unlike seed.ts (placeholders for a brand-new install), this writes actual
+ * copy: the mission line, the methodology definitions and counting rules,
+ * the policy proposal, the first research paper, and the three named
+ * partners. Figures still come only from the Google Sheet pipeline — nothing
+ * here is an impact number.
+ *
+ * Each field is written only if it is currently empty or still the TBD
+ * placeholder, so re-running this after an editor has made real edits in
+ * `/admin` will not clobber their work.
+ *
+ * Run with: pnpm seed:org
+ */
+
+const TBD = '[ХҮЛЭЭГДЭЖ БУЙ / TBD]';
+
+/** Minimal Lexical document holding one paragraph per string given. */
+const richText = (paragraphs: string[]) => ({
+  root: {
+    type: 'root',
+    format: '' as const,
+    indent: 0,
+    version: 1,
+    direction: 'ltr' as const,
+    children: paragraphs.map((text) => ({
+      type: 'paragraph',
+      format: '' as const,
+      indent: 0,
+      version: 1,
+      direction: 'ltr' as const,
+      textFormat: 0,
+      children: [
+        {
+          type: 'text',
+          detail: 0,
+          format: 0,
+          mode: 'normal',
+          style: '',
+          text,
+          version: 1,
+        },
+      ],
+    })),
+  },
+});
+
+type Row = Record<string, unknown>;
+
+/**
+ * Writes a localized array in two passes without losing the first language.
+ * See seed.ts for why: Payload keys a localized array's rows to their ids,
+ * so the second-language write must reuse the ids the first write created.
+ */
+const withIds = (
+  rows: readonly Row[],
+  saved: { id?: string | null }[] | null | undefined,
+): Row[] => rows.map((row, index) => ({ ...row, id: saved?.[index]?.id ?? undefined }));
+
+// ── Methodology content ────────────────────────────────────────────────────
+
+type Bilingual<T> = { mn: T; en: T };
+
+const def = (
+  anchorId: string,
+  term: Bilingual<string>,
+  definition: Bilingual<string>,
+): {
+  anchorId: string;
+  mn: { term: string; definition: string };
+  en: { term: string; definition: string };
+} => ({
+  anchorId,
+  mn: { term: term.mn, definition: definition.mn },
+  en: { term: term.en, definition: definition.en },
+});
+
+const DEFINITIONS = [
+  def(
+    'working-teen',
+    { mn: 'Ажил эрхэлдэг өсвөр нас', en: 'Working teen' },
+    {
+      mn: 'Монголд амьдардаг 13–19 насны, өөрийн гэр бүлээс гадна хэн нэгэнд цалинтай эсвэл хангамжийн хэлбэрээр ажил хийдэг хүн. Малчин гэр бүлийн мал маллах, гэрийн ажил үүний хамаарахгүй, зөвхөн тухайн өсвөр нас өөрөө тусламж хүсвэл тооцогдоно.',
+      en: 'Anyone aged 13–19 in Mongolia who works for pay or in kind for someone outside their own household. Family herding and household chores are left out unless the teen asks for help with them.',
+    },
+  ),
+  def(
+    'member',
+    { mn: 'Гишүүн', en: 'Member' },
+    {
+      mn: 'Нэр, нас, холбоо барих мэдээлэл, ажил олгогч буюу салбараа мэдүүлж, зөвшөөрөл өгч бүртгүүлсэн ажил эрхэлдэг өсвөр нас. 16 нас хүрээгүй хүн бол асран хамгаалагчийн зөвшөөрөл шаардлагатай.',
+      en: 'A working teen who has registered, giving their name, age, contact details, employer or sector, and consent. A guardian’s consent is needed for anyone under 16.',
+    },
+  ),
+  def(
+    'active-member',
+    { mn: 'Идэвхтэй гишүүн', en: 'Active member' },
+    {
+      mn: 'Сүүлийн 90 хоногт байгууллагатай дор хаяж нэг удаа холбогдсон гишүүн.',
+      en: 'A member who has had at least one contact with the organisation in the last 90 days.',
+    },
+  ),
+  def(
+    'contact',
+    { mn: 'Холбогдол', en: 'Contact' },
+    {
+      mn: 'Өсвөр настай хийсэн ямар нэгэн харилцан үйлчлэл: мессеж, дуудлага, уулзалт, сургалт зэрэг. Хамрах хүрээг тоолоход ашиглагдана, хэрэг биш.',
+      en: 'Any interaction with a teen, such as a message, call, visit or workshop. It is counted for reach but is not a case.',
+    },
+  ),
+  def(
+    'inquiry',
+    { mn: 'Асуулга', en: 'Inquiry' },
+    {
+      mn: 'Нэг, хоёр холбогдлоор хариулагдах, гуравдагч этгээдэд хандах шаардлагагүй мэдээлэл хүссэн хүсэлт. Жишээ нь: "Хөдөлмөрийн хамгийн бага хөлс хэд вэ?"',
+      en: 'A request for information that is answered in one or two contacts with no action toward a third party. For example: "What’s the minimum wage?" or "Can my boss make me work 40 hours?"',
+    },
+  ),
+  def(
+    'case',
+    { mn: 'Хэрэг', en: 'Case' },
+    {
+      mn: 'Дараах дөрвөн нөхцлийг хангасан тодорхой гомдол: (1) тодорхой ажилтантай холбоотой, (2) тодорхой ажил олгогч буюу ажлын зохицуулалттай холбоотой, (3) хууль, гэрээ, хэлэлцээр буюу суурь аюулгүй байдлыг зөрчсөн байх магадлалтай, (4) шийдвэрлэхийн тулд гуравдагч этгээд (ажил олгогч, асран хамгаалагч, сургуулиэсвэл эрх бүхий байгууллага) оролцох шаардлагатай. Хэрэг нь intake хуудас бөглөгдөж, өсвөр нас арга хэмжээ авахад зөвшөөрөл өгсөн өдрөөс эхэлнэ.',
+      en: 'A specific grievance that involves an identified worker, an identified employer or work arrangement, a likely breach of law, contract or basic safety, and needs action involving a third party (the employer, a guardian, a school, or an authority). A case opens on the date the intake form is completed and the teen consents to action.',
+    },
+  ),
+  def(
+    'collective-case',
+    { mn: 'Хамтын хэрэг', en: 'Collective case' },
+    {
+      mn: 'Нэг ажил олгогчтой холбоотой 3 буюу түүнээс олон ажилтны хуваалцсан нэг гомдол. Нэг хэрэг гэж тоологдох ба хамрагдсан ажилтны тоог тусад нь бүртгэнэ.',
+      en: 'A single grievance shared by 3 or more workers at the same employer. It counts as one case, and the number of workers covered is recorded separately.',
+    },
+  ),
+  def(
+    'collective-agreement',
+    { mn: 'Хамтын хэлэлцээр', en: 'Collective agreement' },
+    {
+      mn: 'Ажил олгогч, Ажилчин Зөгий хоёрын хооронд холбогдох өсвөр насныхны нэрийн өмнөөс байгуулж, тэдний цалин, цагийн хуваарь, аюулгүй байдал, сургуулийн нөхцлийг тогтоосон бичгээр баталгаажуулсан хэлэлцээр.',
+      en: 'A written agreement signed by an employer and Ajilchin Zugii, on behalf of the working teens concerned, that sets terms for their pay, hours, safety or schooling at that employer.',
+    },
+  ),
+  def(
+    'case-type-wages',
+    { mn: 'Хэргийн төрөл: цалин хөлс', en: 'Case type: wages' },
+    {
+      mn: 'Олгогдоогүй цалин, хамгийн бага цалингаас доогуур хөлс, эсвэл суутгал.',
+      en: 'Unpaid wages, pay below the minimum wage, or deductions.',
+    },
+  ),
+  def(
+    'case-type-hours',
+    { mn: 'Хэргийн төрөл: ажлын цаг', en: 'Case type: hours' },
+    {
+      mn: '7 хоногт 30 цагаас илүү, шөнийн ажил, эсвэл сургуулийн цагаар ажилласан.',
+      en: 'More than 30 hours a week, night work, or work during school hours.',
+    },
+  ),
+  def(
+    'case-type-hazardous-work',
+    { mn: 'Хэргийн төрөл: аюултай ажил', en: 'Case type: hazardous work' },
+    {
+      mn: 'Хүнд ачаа, аюултай машин механизм, хэт хүйтэн орчин, том амьтан, уралдаанд морь унах зэрэг.',
+      en: 'Heavy loads, dangerous machinery, extreme cold, large animals, or horse racing.',
+    },
+  ),
+  def(
+    'case-type-underage-employment',
+    {
+      mn: 'Хэргийн төрөл: насанд хүрэлцээгүй хөдөлмөр эрхлэлт',
+      en: 'Case type: underage employment',
+    },
+    {
+      mn: 'Тухайн төрлийн ажилд хуулиар зөвшөөрөгдсөн насаас доогуур насандаа ажиллах.',
+      en: 'Working below the legal age for the type of work.',
+    },
+  ),
+  def(
+    'case-type-injury',
+    { mn: 'Хэргийн төрөл: ажлын байрны осол', en: 'Case type: injury' },
+    { mn: 'Ажлын байранд гэмтсэн.', en: 'Injury at work.' },
+  ),
+  def(
+    'case-type-dismissal-contract',
+    { mn: 'Хэргийн төрөл: ажлаас халах, гэрээ', en: 'Case type: dismissal or contract' },
+    {
+      mn: 'Цалин төлөхгүйгээр халагдах, эсвэл бичгээр гэрээ байгуулаагүй байх.',
+      en: 'Firing without pay, or no written terms.',
+    },
+  ),
+  def(
+    'case-type-abuse-harassment',
+    {
+      mn: 'Хэргийн төрөл: хүчирхийлэл, дарамт',
+      en: 'Case type: abuse, harassment or coercion',
+    },
+    {
+      mn: 'Хүчирхийлэл, дарамт шаардлага, ажлаасаа гарч чадахгүй байгаа өсвөр нас орно.',
+      en: 'Abuse, harassment or coercion, including a teen who cannot leave the job.',
+    },
+  ),
+  def(
+    'case-type-schooling-conflict',
+    { mn: 'Хэргийн төрөл: сургалттай зөрчилдөх', en: 'Case type: schooling conflict' },
+    {
+      mn: 'Ажил нь сургуульд тасалдал, сургуулиа орхихоос шалтгаалах.',
+      en: 'Work forcing absence from school or dropout.',
+    },
+  ),
+  def(
+    'case-status-intake',
+    { mn: 'Хэргийн төлөв: бүртгэгдсэн', en: 'Case status: intake' },
+    {
+      mn: 'Гомдол мэдэгдсэн бөгөөд хэргийн тодорхойлолтод нийцэж байгаа эсэхийг шалгаж байна.',
+      en: 'The grievance has been reported and is being checked against the case definition.',
+    },
+  ),
+  def(
+    'case-status-verified',
+    { mn: 'Хэргийн төлөв: баталгаажсан', en: 'Case status: verified' },
+    {
+      mn: 'Өсвөр насны хэлсэн үгнээс гадна дор хаяж нэг нотолгоо байгаа: цалингийн баримт, зурвас, гэрч, зураг, эмнэлгийн тэмдэглэл зэрэг.',
+      en: 'There is at least one piece of evidence beyond the teen’s account, such as a pay record, messages, a witness, a photo or a medical note.',
+    },
+  ),
+  def(
+    'case-status-active',
+    { mn: 'Хэргийн төлөв: ажиллагаатай', en: 'Case status: active' },
+    {
+      mn: 'Ажил олгогчтой холбогдох, хэлэлцээ хийх, зуучлах зэрэг арга хэмжээ явагдаж байна.',
+      en: 'Action is underway, such as contacting the employer, negotiating or mediating.',
+    },
+  ),
+  def(
+    'case-status-closed',
+    { mn: 'Хэргийн төлөв: хаагдсан', en: 'Case status: closed' },
+    {
+      mn: 'Хэрэг дараах үр дүнгүүдийн яг нэгээр хаагдсан байна.',
+      en: 'The case has ended with exactly one of the defined outcomes.',
+    },
+  ),
+  def(
+    'outcome-resolved-full',
+    { mn: 'Үр дүн: бүрэн шийдвэрлэгдсэн', en: 'Outcome: resolved (full)' },
+    {
+      mn: 'Intake үед өсвөр насны хүссэн тодорхой засал олдсон бөгөөд: (1) үүнийг нотлох баримт байгаа (банкны шилжүүлэг, баримт, гарын үсэг зурсан хэлэлцээр, өөрчлөгдсөн хуваарь), (2) 30 хоногийн дараагийн уулзалт дээр өсвөр нас үүнийг баталсан.',
+      en: 'The specific remedy the teen asked for at intake was obtained, with evidence of it, and the teen confirms it at a follow-up 30 days later.',
+    },
+  ),
+  def(
+    'outcome-resolved-partial',
+    { mn: 'Үр дүн: хэсэгчлэн шийдвэрлэгдсэн', en: 'Outcome: resolved (partial)' },
+    {
+      mn: 'Заслын зарим хэсэг нь олдсон, жишээ нь, олгогдоогүй цалингийн тал хувь, эсвэл цаг бага болсон ч хуулиар зөвшөөрөгдсөн хязгаараас дээгүүр хэвээр байна.',
+      en: 'Part of the remedy was obtained, for example half the back pay, or fewer hours but still over the limit.',
+    },
+  ),
+  def(
+    'outcome-referred',
+    { mn: 'Үр дүн: шилжүүлсэн', en: 'Outcome: referred' },
+    {
+      mn: 'Хэргийг Хөдөлмөрийн хяналтын байгууллага, хүүхэд хамгааллын алба эсвэл цагдаад шилжүүлсэн. Зөвхөн тухайн байгууллага арга хэмжээ авч, өсвөр нас үр дүнг баталсан тохиолдолд шийдвэрлэгдсэн гэж тооцогдоно.',
+      en: 'The case was handed to the Labour Inspection Agency, child protection services or the police. It counts as resolved only if that body acts and the teen confirms the outcome.',
+    },
+  ),
+  def(
+    'outcome-unresolved',
+    { mn: 'Үр дүн: шийдвэрлэгдээгүй', en: 'Outcome: unresolved' },
+    {
+      mn: 'Боломжтой бүх алхамыг хийсэн ч засал олдоогүй.',
+      en: 'All available steps were taken and no remedy was obtained.',
+    },
+  ),
+  def(
+    'outcome-withdrawn',
+    { mn: 'Үр дүн: хэрэгсэхгүй болгосон', en: 'Outcome: withdrawn' },
+    {
+      mn: 'Өсвөр нас хэргийг зогсоосон. Хэрэгсэхгүй болгосон хэргүүдийг шийдвэрлэх хувь хэмжээнд тооцохгүй, харин тусад нь бүртгэнэ, учир нь өндөр тоо нь ажил олгогчоосоо айж байгааг илтгэх боломжтой.',
+      en: 'The teen ended the case. Withdrawn cases are left out of the resolution rate but counted separately, because a high number can signal fear of the employer.',
+    },
+  ),
+  def(
+    'sustained-resolution',
+    { mn: 'Тогтвортой шийдэл', en: 'Sustained resolution' },
+    {
+      mn: 'Бүрэн шийдвэрлэгдсэн хэрэг бөгөөд тухайн ажил олгогчтой холбоотой ижил асуудал 90 хоногийн дотор дахин гараагүй.',
+      en: 'A fully resolved case where the same problem with the same employer has not come back after 90 days.',
+    },
+  ),
+  def(
+    'safeguarding-override',
+    { mn: 'Хамгааллын тэргүүлэх зарчим', en: 'Safeguarding override' },
+    {
+      mn: 'Хүчирхийлэл, шаардлага тулгалт, хүний наймааны шинж тэмдэг, эсвэл 13 нас хүрээгүй хүүхэд аюултай ажилд оролцсон тохиолдолд, өсвөр насны хүсэл хүслийг үл харгалзан эрх бүхий байгууллагад даруй шилжүүлнэ. Энэ бол хөдөлмөрийг дэмжих зарчмаас хамгааллын зарчимд шилждэг цор ганц цэг.',
+      en: 'Abuse, coercion, signs of trafficking, or a child under 13 in hazardous work is referred to the authorities immediately, whatever the teen prefers. This is the one point where facilitating work gives way to protection.',
+    },
+  ),
+];
+
+const COUNTING_RULES: {
+  anchorId: string;
+  mn: { rule: string; detail: string };
+  en: { rule: string; detail: string };
+}[] = [
+  {
+    anchorId: 'counting-people-once',
+    mn: {
+      rule: 'Хүн бүрийг нэг удаа тоолно',
+      detail:
+        'Хүн бүрийг гишүүний ID ашиглан амьдралд нэг л удаа тоолно. Хоёр удаа холбогдсон өсвөр нас нэг хүн хэвээр байна.',
+    },
+    en: {
+      rule: 'People are counted once each, ever',
+      detail:
+        'Using a member ID. A teen who contacts the organisation twice is still one person reached.',
+    },
+  },
+  {
+    anchorId: 'counting-contacts-every-time',
+    mn: {
+      rule: 'Холбогдол болгоныг тоолно',
+      detail: 'Нэг өсвөр насны хоёр холбогдол хоёр холбогдол гэж тоологдоно.',
+    },
+    en: {
+      rule: 'Contacts are counted every time',
+      detail: 'Two contacts from the same teen count as two contacts.',
+    },
+  },
+  {
+    anchorId: 'counting-cases-per-grievance',
+    mn: {
+      rule: 'Хэргийн тоолол: ажил олгогч, гомдол тус бүрт нэг',
+      detail:
+        'Нэг ажилтны нэг асуудал нэг ажил олгогчоос гарч байгаа бол хэдэн удаа холбогдсон ч нэг хэрэг хэвээр байна. Нэг ажилтны өөр асуудал, эсвэл өөр ажил олгогчтой холбоотой бол шинэ хэрэг.',
+    },
+    en: {
+      rule: 'Cases are one per grievance per employer',
+      detail:
+        'The same teen with the same problem from the same employer is one case, however many times they get in touch. The same teen with a different problem, or with a different employer, is a new case.',
+    },
+  },
+  {
+    anchorId: 'counting-recurrence',
+    mn: {
+      rule: 'Дахин гарсан асуудал шинэ хэрэг',
+      detail:
+        'Шийдвэрлэгдсэн гэж хаагдсан хэргийн асуудал дахин гарч ирэх нь шинэ хэрэг болно. Үүнийг давтагдал гэж тэмдэглэх бөгөөд энэ нь өмнөх хэргийн тогтвортой байдлын статусыг цуцална.',
+    },
+    en: {
+      rule: 'A recurrence is a new case',
+      detail:
+        'The same problem coming back after the case was closed as resolved is a new case. It is flagged as a recurrence, which cancels the earlier case’s sustained status.',
+    },
+  },
+  {
+    anchorId: 'counting-collective-cases',
+    mn: {
+      rule: 'Хамтын хэргийг нэг хэрэг гэж тоолно',
+      detail:
+        'Хамтын хэрэг нэг хэрэг гэж тоологдож, хамрагдсан ажилтан бүрийг "хамрагдсан ажилтан" үзүүлэлтэд тоолно. Хүн бүрийг хүний тоонд нэг л удаа тоолно.',
+    },
+    en: {
+      rule: 'Collective cases count as one case',
+      detail:
+        'Every worker covered is counted in "workers covered". Each worker is still counted only once in the people figure.',
+    },
+  },
+  {
+    anchorId: 'counting-inquiries-merged',
+    mn: {
+      rule: 'Давтан асуулгыг нэгтгэнэ',
+      detail:
+        'Асуулгыг асуулт бүрт нэг удаа тоолно. 7 хоногийн дотор ижил сэдвээр гарсан давтан асуулгыг нэг болгон нэгтгэнэ.',
+    },
+    en: {
+      rule: 'Inquiries are counted once per question',
+      detail: 'Repeat inquiries on the same topic within 7 days are merged into one.',
+    },
+  },
+  {
+    anchorId: 'counting-money-hours-verified',
+    mn: {
+      rule: 'Мөнгө, цагийг баталгаажсан мөч дээр нэг удаа тоолно',
+      detail: 'Зөвхөн амлалт байхад юу ч тоологдохгүй.',
+    },
+    en: {
+      rule: 'Money and hours are counted once, at verification',
+      detail: 'Nothing is counted when it is only promised.',
+    },
+  },
+  {
+    anchorId: 'counting-outcomes-once',
+    mn: {
+      rule: 'Үр дүнг эцсийн төлвөөр нэг удаа бүртгэнэ',
+      detail:
+        'Хэсэгчлэн шийдвэрлэгдсэн хэрэг хожим бүрэн шийдвэрлэгдвэл зөвхөн бүрэн гэж тоологдоно, хоёуланг нь хэзээ ч тоолохгүй.',
+    },
+    en: {
+      rule: 'Outcomes are recorded once per case, at the final status',
+      detail:
+        'A partial resolution that later becomes a full one is counted as full only, never as both.',
+    },
+  },
+  {
+    anchorId: 'counting-reporting-period',
+    mn: {
+      rule: 'Тайлант хугацаа: хаагдсан улиралаар',
+      detail:
+        'Хэрэг хаагдсан улирлаараа тооцогдоно. Нээгдсэн хэргүүдийг тусад нь, нээгдсэн улирлаараа тайлагнана.',
+    },
+    en: {
+      rule: 'Reporting period: a case belongs to the quarter it closed in',
+      detail: 'Opened cases are reported separately by the quarter they opened in.',
+    },
+  },
+  {
+    anchorId: 'counting-small-numbers',
+    mn: {
+      rule: '5-аас цөөн тохиолдлыг тоогоор харуулахгүй',
+      detail:
+        '5-аас цөөн хэрэг дээр суурилсан аливаа тоо хэзээ ч тоогоор харагдахгүй. "5-аас цөөн" гэсэн тэмдэглэгээ ашиглана, ямар ч хүүхдийг таниулахгүйн тулд. Иймээс нийт дүн сарын дүнгийн нийлбэртэй тэнцэхгүй байж болно.',
+    },
+    en: {
+      rule: 'Small numbers: fewer than 5 cases are never shown as a number',
+      detail:
+        'Any figure based on fewer than 5 cases is shown as "fewer than 5", so that no child can be identified. A total may therefore not equal the sum of its months.',
+    },
+  },
+  {
+    anchorId: 'counting-start-of-counting',
+    mn: {
+      rule: 'Тоолол эхэлсэн цэг',
+      detail:
+        'Тоолол хэргийн бүртгэлд орсон анхны хэргээс эхэлнэ. Энэ өдрөөс өмнөх юуг ч тооцохгүй, бүх тоо улирал, сараар тэмдэглэгдээгүй бол тухайн өдрөөс хойш хуримтлагдсан дүн болно.',
+    },
+    en: {
+      rule: 'Start of counting',
+      detail:
+        'Counting starts with the first case entered in the case log. Nothing before that date is counted, and every figure is cumulative from it unless labelled as a quarter or a month.',
+    },
+  },
+  {
+    anchorId: 'counting-case-open-close',
+    mn: {
+      rule: 'Хэрэг нээгдэх, хаагдах огноо',
+      detail:
+        'Хэрэг intake өдрөөс нээгдсэн, үр дүн бүртгэгдсэн өдрөөр хаагдсан гэж тооцогдоно. 30 хоног, 90 хоногийн дараагийн уулзалт нь зөвхөн тухайн хэргийн үр дүнг шинэчилнэ, шинэ хэрэг нээхгүй.',
+    },
+    en: {
+      rule: 'Start and end of a case',
+      detail:
+        'A case is counted as open from its intake date and as closed on the date its outcome is recorded. The 30-day and 90-day follow-ups update the outcome of the same case and never open a new one.',
+    },
+  },
+  {
+    anchorId: 'counting-open-at-period-end',
+    mn: {
+      rule: 'Тайлант үеийн төгсгөлд нээлттэй хэрэг',
+      detail:
+        'Тайлант үе дуусахад нээлттэй хэвээр байгаа хэргийг тухайн үед нээлттэй гэж, зөвхөн хаагдсан улиралд хаагдсан гэж тооцно.',
+    },
+    en: {
+      rule: 'Open cases at the end of a period',
+      detail:
+        'A case still open when a reporting period ends is reported as open in that period and counted as closed only in the quarter it closes.',
+    },
+  },
+  {
+    anchorId: 'counting-membership-window',
+    mn: {
+      rule: 'Гишүүнчлэлийн тоолол',
+      detail:
+        'Гишүүн бүртгүүлсэн өдрөөсөө хойш нийт гишүүний тоонд тооцогдоно. Сүүлийн холбогдлоосоо хойш 90 хоногийн турш идэвхтэй гэж тооцогдож, дараа нь дахин холбогдох хүртэл идэвхтэй тооноос хасагдана.',
+    },
+    en: {
+      rule: 'Membership',
+      detail:
+        'A member is counted in total members from the date they register. They count as active for 90 days after their last contact, then leave the active figure until they get in touch again.',
+    },
+  },
+  {
+    anchorId: 'counting-as-of-date',
+    mn: {
+      rule: 'Он сар өдрийн тэмдэглэгээ',
+      detail:
+        'Нийтлэгдсэн тоо бүр хэдний байдлаар үнэн болохыг харуулсан огноотой байна.',
+    },
+    en: {
+      rule: 'As-of date',
+      detail: 'Every published figure shows the date it is true as of.',
+    },
+  },
+];
+
+const SOURCES = [
+  {
+    mn: {
+      title: 'Ажилчин Зөгийн хэргийн бүртгэл',
+      note: 'Дотоод, хэзээ ч нийтлэгдэхгүй. Нийтлэгдсэн бүх үзүүлэлт үүнээс тооцсон нийлбэр дүн.',
+    },
+    en: {
+      title: 'Ajilchin Zugii case log',
+      note: 'Internal and never shared. All impact figures are totals computed from it.',
+    },
+  },
+  {
+    mn: {
+      title: 'Үндэсний Статистикийн Хороо (nso.mn)',
+      note: 'Хүүхдийн хөдөлмөрийн судалгаа 2021–22 ба Хөдөлмөр эрхлэлтийн судалгаа, үндэсний түвшний суурь мэдээлэлд ашиглагдана.',
+    },
+    en: {
+      title: 'National Statistics Office of Mongolia (nso.mn)',
+      note: 'Child Labour Survey 2021–22 and Labour Force Survey, used for national context on child labour.',
+    },
+  },
+  {
+    mn: {
+      title: 'Олон Улсын Хөдөлмөрийн Байгууллага (ilo.org)',
+      note: '2021–22 оны Хүүхдийн хөдөлмөрийн судалгааны түнш, ашигласан хүүхдийн хөдөлмөрийн тодорхойлолтын эх сурвалж.',
+    },
+    en: {
+      title: 'International Labour Organization (ilo.org)',
+      note: 'Partner on the 2021–22 Child Labour Survey and source of the child-labour definitions used.',
+    },
+  },
+  {
+    mn: {
+      title:
+        'АНУ-ын Хөдөлмөрийн яамны Олон улсын хөдөлмөрийн асуудал эрхэлсэн алба (dol.gov/agencies/ilab)',
+      note: '2024 оны Монгол дахь хүүхдийн хөдөлмөрийн хамгийн хүнд хэлбэрүүдийн тухай тайлан, ашигласан хөдөлмөрийн хяналтын тоо мэдээллийн эх сурвалж.',
+    },
+    en: {
+      title:
+        'U.S. Department of Labor, Bureau of International Labor Affairs (dol.gov/agencies/ilab)',
+      note: '2024 Findings on the Worst Forms of Child Labor: Mongolia, source of the labour inspection figures used in the policy proposal.',
+    },
+  },
+] as const;
+
+const measureCategory = (
+  category: Bilingual<string>,
+  items: Bilingual<string>[],
+): { category: Bilingual<string>; items: Bilingual<string>[] } => ({ category, items });
+
+/** What is measured — never an actual number, which comes only from the sheet. */
+const MEASURES = [
+  measureCategory({ mn: 'Хамрах хүрээ', en: 'Reach' }, [
+    {
+      mn: 'Нийт гишүүн, идэвхтэй гишүүн, нас, хүйс, аймаг, салбар, хот/хөдөөгөөр задаргаатай.',
+      en: 'Total members and active members, broken down by age, sex, aimag, sector and urban or rural location.',
+    },
+    { mn: 'Холбогдол, асуулгын тоо.', en: 'Number of contacts and inquiries.' },
+    { mn: 'Сургалтад хамрагдалт.', en: 'Workshop attendance.' },
+    {
+      mn: 'Үндсэн 3 эрхийг (хамгийн бага цалин, 30 цагийн хязгаар, аюултай ажлыг хориглосон) нэрлэж чадах гишүүдийн тоо, бүртгүүлэх үед, дараа нь 6 сарын дараа дахин шалгасан.',
+      en: 'Members who can name 3 core rights: minimum wage, the 30-hour limit and the hazardous-work ban. This is tested at registration and again after 6 months.',
+    },
+  ]),
+  measureCategory({ mn: 'Хэргийн хэмжээ', en: 'Case volume' }, [
+    {
+      mn: 'Улирал тутамд нээгдсэн, баталгаажсан, хаагдсан хэргийн тоо.',
+      en: 'Cases opened, verified and closed per quarter.',
+    },
+    { mn: 'Хэргийн төрлөөр нь хуваарилалт.', en: 'Case mix by type.' },
+    {
+      mn: 'Хамтын хэргийн тоо, хамрагдсан ажилтны тоо.',
+      en: 'Number of collective cases and the workers they cover.',
+    },
+  ]),
+  measureCategory({ mn: 'Үр нөлөө', en: 'Effectiveness' }, [
+    {
+      mn: 'Шийдвэрлэх хувь хэмжээ: бүрэн шийдвэрлэгдсэн хэрэг ÷ хаагдсан хэрэг, хэрэгсэхгүй болгосныг оруулахгүй. Хэсэгчлэн шийдвэрлэгдснийг тусад нь мэдээлнэ.',
+      en: 'Resolution rate: cases fully resolved ÷ closed cases, with withdrawn cases excluded. Partial resolutions are reported separately.',
+    },
+    {
+      mn: 'Тогтвортой шийдлийн хувь хэмжээ: тогтвортой шийдэл ÷ бүрэн шийдэл.',
+      en: 'Sustained resolution rate: sustained resolutions ÷ full resolutions.',
+    },
+    {
+      mn: 'Шийдвэрлэхэд зарцуулсан дундаж хоног: бүртгэлээс хаагдах хүртэл.',
+      en: 'Median days to resolution: from intake to close.',
+    },
+    {
+      mn: 'Шилжүүлгийн гүйцэтгэл: эрх бүхий байгууллага арга хэмжээ авсан шилжүүлсэн хэрэг ÷ бүх шилжүүлсэн хэрэг.',
+      en: 'Referral follow-through: referred cases where the authority acted ÷ all referred cases.',
+    },
+    { mn: 'Хэрэгсэхгүй болгосон хувь хэмжээ.', en: 'Withdrawal rate.' },
+  ]),
+  measureCategory({ mn: 'Бодит үр дүн', en: 'Material outcomes' }, [
+    {
+      mn: 'Төгрөгөөр сэргээгдсэн цалин, нийт дүн ба хэргийн дундаж.',
+      en: 'Wages recovered in MNT, as both a total and a per-case median.',
+    },
+    {
+      mn: 'Хуулийн хязгаараас илүү байсан, арилгасан долоо хоногийн ажлын цаг.',
+      en: 'Weekly hours over the legal limit that were eliminated.',
+    },
+    {
+      mn: 'Ажлаа хадгалсан хэвээр, аюултай ажлаас гаргасан өсвөр насныхны тоо. Энэ бол хөдөлмөрийг зогсоохоос илүү дэмжих эрхэм зорилгыг харуулсан тул гол үзүүлэлт.',
+      en: 'Teens removed from a hazardous task while keeping their job. This is the headline measure, since it shows the mission of facilitating work rather than stopping it.',
+    },
+    {
+      mn: 'Нөхөн олговор, эмчилгээний зардал авсан гэмтсэн өсвөр насныхны тоо.',
+      en: 'Injured teens who received compensation or medical costs.',
+    },
+    {
+      mn: 'Сургалтын зөрчилтэй хэргүүдийн дундаас сургуульд үлдсэн өсвөр насныхны тоо, дараагийн улирлын элсэлтээр шалгасан.',
+      en: 'Teens kept in school among schooling-conflict cases, checked by enrolment at the next term.',
+    },
+  ]),
+  measureCategory({ mn: 'Хамтын хүч', en: 'Collective power' }, [
+    {
+      mn: 'Ажил олгогчтой байгуулсан хамтын хэлэлцээрийн тоо.',
+      en: 'Collective agreements signed with employers.',
+    },
+    {
+      mn: 'Давтан зөрчил гаргасан ажил олгогчдын тоо.',
+      en: 'Employers with a repeat violation.',
+    },
+    { mn: 'Хэлэлцээрт хамрагдсан ажилтны тоо.', en: 'Workers covered by agreements.' },
+  ]),
+  measureCategory({ mn: 'Бодлого', en: 'Policy' }, [
+    {
+      mn: 'Улсын Их Хурал, яамдад хүргүүлсэн албан ёсны саналын тоо.',
+      en: 'Formal submissions to parliament or ministries.',
+    },
+    { mn: 'Нийтлэгдсэн мэдээллийн хураангуйн тоо.', en: 'Data briefs published.' },
+    {
+      mn: 'Байгууллагын ажлыг иш татсан, батлагдсан заалтын тоо.',
+      en: 'Provisions adopted that cite the organisation’s work.',
+    },
+  ]),
+  measureCategory({ mn: 'Чанар', en: 'Quality' }, [
+    {
+      mn: '30 хоногийн дараагийн уулзалт дээр асуусан, үр дүнд сэтгэл хангалуун байдал, 1–5 оноогоор.',
+      en: 'Teen satisfaction with the outcome on a 1–5 scale, asked at the 30-day follow-up.',
+    },
+    {
+      mn: 'Бүрэн бүртгэлтэй хэргийн эзлэх хувь.',
+      en: 'Share of cases with complete records.',
+    },
+  ]),
+];
+
+/** Writes a nested localized array (category -> items) across two locale passes. */
+const withNestedIds = (
+  categories: readonly { category: string; items: { label: string }[] }[],
+  saved:
+    { id?: string | null; items?: { id?: string | null }[] | null }[] | null | undefined,
+): Row[] =>
+  categories.map((cat, i) => ({
+    ...cat,
+    id: saved?.[i]?.id ?? undefined,
+    items: cat.items.map((item, j) => ({
+      ...item,
+      id: saved?.[i]?.items?.[j]?.id ?? undefined,
+    })),
+  }));
+
+const LIMITATIONS: Bilingual<string[]> = {
+  mn: [
+    'Эдгээр тоо нь зөвхөн Ажилчин Зөгийтэй холбогдсон өсвөр насныхныг хамарна. Тэд Монголд ажил эрхэлдэг бүх өсвөр насныхны дунд хөдөлмөрийн зөрчил хэр түгээмэл байгааг бус, байгууллага юу хийсэнийг харуулж байна.',
+    'Зөвхөн өөрийн гэр бүлийнхэнд зориулж малчилж, гэрийн ажил хийдэг өсвөр нас, туслалцаа хүсэхээс бусад тохиолдолд, хамрах хүрээнээс гадуур байна.',
+    'Дутуу мэдээлэгдэх магадлал өндөр. Ажлаасаа халагдахаас эмээж байгаа, хуулиар зөвшөөрөгдсөн насаас доогуур ажиллаж байгаа, хүчирхийлэлд өртсөн өсвөр насныхан хандах магадлал хамгийн бага.',
+    'Хэрэг зөвхөн 30 хоногийн дараагийн уулзалт дээр өсвөр нас баталсан тохиолдолд бүрэн шийдвэрлэгдсэн гэж тооцогдоно. Тухайн үед холбоо барьж чадаагүй өсвөр насныхныг бүрэн шийдвэрлэгдсэн гэж тооцдоггүй тул шийдвэрлэх хувь хэмжээ бодит байдлаас доогуур харагдаж болзошгүй.',
+    'Вэбсайтад иш татсан үндэсний статистик нь зөвхөн гэртээ амьдардаг хүүхдийг хамарсан ҲСХ/ОУХБ-ын 2021–22 оны Хүүхдийн хөдөлмөрийн судалгаанаас гаралтай. Уяачны байшинд амьдардаг хүүхэд уяач, гэргүй хүүхэд, хүний наймаанд өртсөн хүүхэд үүнд хамаарахгүй.',
+  ],
+  en: [
+    'The figures cover only teens who contact Ajilchin Zugii. They show what the organisation did, not how common labour violations are among all working teens in Mongolia.',
+    'Teens working only for their own family, in herding or household chores, are outside the scope unless they ask for help.',
+    'Under-reporting is likely. Teens who fear losing their job, those working below the legal age, and those facing abuse are the least likely to come forward.',
+    'A case counts as fully resolved only if the teen confirms it at the 30-day follow-up. Teens who cannot be reached then are not counted as fully resolved, so the resolution rate may understate results.',
+    'National statistics cited on the site come from the NSO/ILO Child Labour Survey 2021–22, which covers only children living at home. Child jockeys at trainers’ camps, homeless children and trafficked children are not included.',
+  ],
+};
+
+// ── Site ────────────────────────────────────────────────────────────────
+
+const SITE = {
+  missionLine: {
+    mn: 'Хөдөлмөр эрхэлдэг залуусыг нэг эгнээнд нэгтгэснээр бид эрхээ мэддэг, хөдөлмөрийнхөн тухай хууль тогтоомжийг өөрсдөөр нь тодорхойлдог, улс орныг хүндэтгэлтэй хөдөлмөр рүү хөтлөх залуу үеийг төлөвшүүлнэ.',
+    en: 'By uniting working youth into one collective voice, we raise a generation of young workers who know their rights, shape the laws that govern their labour, and lead the nation toward dignified work.',
+  },
+  city: { mn: 'Улаанбаатар', en: 'Ulaanbaatar' },
+  foundingDate: '2026-06-01',
+  seoTitle: 'Ajilchin Zugii',
+  seoDescription: {
+    mn: 'Ажилчин Зөгий бол ажил эрхэлдэг өсвөр насныханд зориулсан ТББ. Бид тэдэнд шударга хөлс, аюулгүй нөхцөл, сургуульд хамрагдах цагийг хамгаалж өгдөг.',
+    en: 'Ajilchin Zugii is a union-style NGO for working teens in Mongolia. We help them claim fair pay, safe conditions and time for school.',
+  },
+};
+
+// ── Policy ──────────────────────────────────────────────────────────────
+
+const POLICY = {
+  summary: {
+    mn: 'Насанд хүрээгүй ажилтныг хамгаалах нэмэлт өөрчлөлтийн төсөл нь Монголын Хөдөлмөрийн тухай хуульд таван өөрчлөлт оруулахыг санал болгож байна, үүгээрээ төр гэр бүлээсээ гадна ажил олгогчдод ажилладаг хүүхдийг харж, хянаж, хамгаалах боломжтой болно. 7 хоногийн дундаж байдлаар ойролцоогоор 10,900 хүүхэд ийм төрлийн ажил эрхэлж байгаагаас 82% нь хуулийн дор хаяж нэг хязгаарыг зөрчдөг, гэвч Монголд ойролцоогоор 1.3 сая ажилчинд ногдож зөвхөн 66 хөдөлмөрийн хяналтын байцаагч байгаа бөгөөд хамгийн бага насны хязгаарыг зөрчиж хүүхэд ажиллуулсан тохиолдолд ямар ч торгууль байдаггүй. Нэмэлт өөрчлөлт нь 18 хүрээгүй ажилтан бүрийг бүртгэхийг ажил олгогчоос шаардах, бүртгэлтэй ажлын байранд урьдчилан мэдэгдэлгүй шалгалт хийх боломж олгох, хуулиас гадуур ажилласан хүүхэд тус бүрт торгууль тогтоох, 13–14 насны хүүхдэд зөвшөөрөгдсөн хөнгөн ажлын жагсаалтыг нийтлэх, хүүхдийн хөдөлмөрийн статистикт эдгээр хүүхдийг тусдаа бүлэг болгон тооцохыг шаарддаг.',
+    en: 'The Minor Workers Protection Amendment proposes five changes to Mongolia’s Labour Law so that the state can see, inspect and protect children who work for employers outside their family. About 10,900 such children work in an average week, and 82% of them break at least one legal limit, yet Mongolia has 66 labour inspectors for about 1.3 million workers and no penalty for employing a child under the minimum age. The amendment requires employers to register every worker under 18, allows unannounced inspections of registered workplaces, sets a fine for each child employed outside the law, publishes a list of permitted light work for 13–14-year-olds, and requires child labour statistics to report these children as their own group.',
+  },
+  fullText: {
+    mn: [
+      'Санал болгож буй агуулга, Монгол дахь гэр бүлээсээ гадуур ажил олгогчдод ажилладаг хүүхдийн тухай (2026) судалгааны өгүүллийн 7-р бүлэгт заасны дагуу:',
+      'Бүртгэл: ажил олгогч бүр 18 хүрээгүй ажилтан бүрийг ажилд авснаасаа хойш 7 хоногийн дотор орон нутгийн хөдөлмөрийн албанд онлайнаар бүртгүүлнэ, насыг, цагийн хуваарийг, үүргийг, эцэг эхийн бичгээр өгсөн зөвшөөрлийг заана.',
+      'Шалгалт: бүртгэлтэй ажлын байранд урьдчилан мэдэгдэлгүй шалгалт хийх боломжтой.',
+      'Торгуул: хуулийн насанд хүрээгүй, 7 хоногт 30 цагаас илүү, аюултай ажилд, эсвэл бүртгэлгүйгээр ажилласан хүүхэд бүрт сарын хамгийн бага цалингийн үржвэрээр тогтоосон торгууль, давтан зөрчилд хоёр дахин нэмэгдэнэ.',
+      'Хөнгөн ажлын жагсаалт: төр 13–14 насны хүүхдэд зөвшөөрөгдсөн хөнгөн ажлын жагсаалтыг нийтэлнэ.',
+      'Тооллого: хүүхдийн хөдөлмөрийн судалгаа бүр гэр бүлээсээ гадуур ажил олгогчдод ажилладаг хүүхдийг тусдаа үзүүлэлтээр мэдээлж, бүртгэлийн жилийн нийт дүнг нийтэлнэ.',
+    ],
+    en: [
+      'The proposal as set out in Chapter 7 of the research paper Children Working for Outside Employers in Mongolia (2026):',
+      'Register: every employer records each worker under 18 with the local labour office within 7 days of hiring, online, with the worker’s age, hours, tasks and a parent’s written consent.',
+      'Inspect: workplaces on the register can be inspected without notice.',
+      'Penalise: a fine for each child employed under age, over 30 hours a week, in hazardous work or unregistered, set as a multiple of the monthly minimum wage and doubled for repeat violations.',
+      'Light work list: the state publishes a list of permitted light work for 13–14-year-olds.',
+      'Count: each child labour survey reports children working for outside employers as its own figure, and the register’s yearly totals are published.',
+    ],
+  },
+  history: [
+    {
+      date: '2026-09-01',
+      status: 'drafted' as const,
+      mn: 'Монгол дахь гэр бүлээсээ гадуур ажил олгогчдод ажилладаг хүүхдийн тухай судалгааны өгүүллийн 7-р бүлэг болгон боловсруулсан.',
+      en: 'Drafted as Chapter 7 of the research paper Children Working for Outside Employers in Mongolia.',
+    },
+    {
+      date: '2026-10-01',
+      status: 'submitted' as const,
+      mn: 'Судалгааны өгүүлэл болон саналыг Гэр бүл, хөдөлмөр, нийгмийн хамгааллын яаманд хүргүүлсэн.',
+      en: 'Research paper and proposal sent to the Ministry of Family, Labour and Social Protection.',
+    },
+    {
+      date: '2026-10-28',
+      status: 'submitted' as const,
+      mn: 'Монголын үйлдвэрчний эвлэлүүдийн холбооны дамжуулан Улсын Их Хуралд хэлэлцүүлэхээр хүргүүлсэн.',
+      en: 'Submitted through the Confederation of Mongolian Trade Unions for parliamentary discussion.',
+    },
+  ],
+  status: 'submitted' as const,
+  statusDate: '2026-10-28',
+};
+
+// ── Research paper ──────────────────────────────────────────────────────
+
+const PAPER = {
+  slug: 'children-working-for-outside-employers-in-mongolia',
+  title: {
+    mn: 'Монгол дахь гэр бүлээсээ гадуур ажил олгогчдод ажилладаг хүүхдүүд: 2021–22 оны Үндэсний хүүхдийн хөдөлмөрийн судалгааны нотолгоо',
+    en: 'Children Working for Outside Employers in Mongolia: Evidence from the 2021–22 National Child Labour Survey',
+  },
+  abstract: {
+    mn: [
+      'Монголд 5–17 насны ойролцоогоор 10,900 хүүхэд долоо хоногийн дунджаар өөрийн гэр бүлээс гадна хэн нэгэнд ажил хийдэг бөгөөд тэдний 82%, өөрөөр хэлбэл ойролцоогоор 8,860 хүүхэд Хөдөлмөрийн тухай хуулийн дор хаяж нэг хязгаарыг зөрчиж байна. 2021–22 оны Үндэсний хүүхдийн хөдөлмөрийн судалгааны (23,876 хүүхэд, 13,144 өрх) анхдагч өгөгдлийг ашиглан, өгүүлэл эдгээр хүүхэд хэн болох, тэдний ажил гэр бүлдээ туслаж байгаа хүүхдүүдийнхээс юугаар ялгаатай болохыг судлав.',
+      'Ижил нас, хүйс, аймаг, суурин газрын төрөл, судалгааны улиралтай гэр бүлийн ажилтантай харьцуулахад тэд аюултай ажил хийх магадлал 38.6 нэгж хувиар, 7 хоногт 30 цагаас (хуулийн дээд хязгаар) илүү ажиллах магадлал 32.5 нэгж хувиар өндөр байна. Тэд 7 хоногт 15.3 цагаар илүү ажиллаж, гэртээ 1.4 цагаар бага хичээллэдэг бөгөөд цалинтай ажилладаг хүүхдийн 14.3% нь хамгийн бага цагийн хөлсөөс доогуур орлого олдог.',
+      'Орлого буурсан нь энэ байдлыг тайлбарлахгүй: орлого буурсан өрхийн 200-гийн 1-ээс бага нь хүүхэд ажиллаж эхэлсэн гэж хэлсэн. Харин өгөгдөл хэнд ч бараг хяналтаар тэнцдэггүй хуулийг илэрхийлж байна: ойролцоогоор 1.3 сая ажилтанд ногдож 66 хөдөлмөрийн байцаагч байгаа бөгөөд хамгийн бага насны хязгаарыг зөрчиж хүүхэд ажиллуулсан тохиолдолд торгууль байдаггүй. Өгүүлэл насанд хүрээгүй ажилтны бүртгэл, урьдчилан мэдэгдэлгүй шалгалт, хуулиас гадуур ажилласан хүүхэд бүрт торгууль тогтоохыг санал болгож байна.',
+    ],
+    en: [
+      'In an average week, about 10,900 children aged 5–17 in Mongolia work for someone outside their own family, and 82%, about 8,860 children, break at least one limit in the Labour Law. Using the microdata of the 2021–22 National Child Labour Survey (23,876 children in 13,144 households), the paper asks who these children are and how their work differs from that of children who help their own families.',
+      'Compared with family workers of the same age and sex, in the same aimag, type of place and survey quarter, they are 38.6 percentage points more likely to do hazardous work and 32.5 points more likely to work more than 30 hours a week, the legal maximum. They work 15.3 more hours a week, study 1.4 fewer hours a week at home, and 14.3% of those paid earn less than the minimum hourly wage.',
+      'Hard times do not explain this: fewer than 1 in 200 households whose income fell said a child started working. The data point instead to a law that almost nobody checks, with 66 labour inspectors for about 1.3 million workers and no penalty for employing a child under the minimum age. The paper proposes a register of employed minors, unannounced inspections and a fine for each child employed outside the law.',
+    ],
+  },
+  authors: [{ name: 'Erdenebat Batbayar' }],
+  year: 2026,
+  dataUrl: 'https://nada.nso.mn/en/catalog/58',
+  status: 'working-paper' as const,
+  seoTitle: {
+    mn: 'Монгол дахь гадны ажил олгогчдод ажилладаг хүүхдүүд',
+    en: 'Children working for outside employers in Mongolia',
+  },
+  seoDescription: {
+    mn: '2021–22 оны Үндэсний хүүхдийн хөдөлмөрийн судалгаанд тулгуурласан, Монголд ажил эрхэлдэг хүүхдүүдийн тухай судалгааны ажил.',
+    en: 'A working paper on children working for outside employers in Mongolia, based on the 2021–22 National Child Labour Survey.',
+  },
+};
+
+// ── Partners ────────────────────────────────────────────────────────────
+
+const PARTNERS = [
+  {
+    name: 'Ministry of Family, Labour and Social Protection',
+    url: 'https://mlsp.gov.mn',
+  },
+  { name: 'Confederation of Mongolian Trade Unions', url: 'https://cmtu.mn' },
+  { name: 'Stoic NGO', url: undefined },
+];
+
+const seed = async () => {
+  const payload = await getPayload({ config });
+  const { logger } = payload;
+
+  // ── Site ─────────────────────────────────────────────────────────────
+  const site = await payload.findGlobal({
+    slug: 'site',
+    locale: 'mn',
+    overrideAccess: true,
+  });
+
+  if (needsRealContent(site?.missionLine)) {
+    for (const locale of ['mn', 'en'] as const) {
+      await payload.updateGlobal({
+        slug: 'site',
+        locale,
+        overrideAccess: true,
+        data: {
+          missionLine: SITE.missionLine[locale],
+          organization: {
+            addressCity: SITE.city[locale],
+            foundingDate: SITE.foundingDate,
+          },
+          seo: {
+            metaTitle: SITE.seoTitle,
+            metaDescription: SITE.seoDescription[locale],
+          },
+        },
+      });
+    }
+    logger.info('Seeded Site global with real organisation content');
+  } else {
+    logger.info('Site global mission line already filled in — left untouched');
+  }
+
+  // Demo text ("ЖИШЭЭ: ...") in legalName or contactEmail would otherwise
+  // render on the About page and in structured data as if it were real —
+  // publishable() hides it from metadata/JSON-LD, but the About page reads
+  // these fields directly. Replace it with the TBD marker instead, since no
+  // real legal name or contact email was given yet.
+  const siteCurrent = await payload.findGlobal({
+    slug: 'site',
+    locale: 'mn',
+    overrideAccess: true,
+  });
+
+  if (isDemoValue(siteCurrent?.organization?.legalName)) {
+    for (const locale of ['mn', 'en'] as const) {
+      await payload.updateGlobal({
+        slug: 'site',
+        locale,
+        overrideAccess: true,
+        data: { organization: { legalName: TBD } },
+      });
+    }
+    logger.info('Cleared demo legal name to TBD — still pending from the client');
+  }
+
+  if (isDemoValue(siteCurrent?.contactEmail)) {
+    await payload.updateGlobal({
+      slug: 'site',
+      overrideAccess: true,
+      data: { contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tbd@example.org' },
+    });
+    logger.info('Cleared demo contact email — still pending from the client');
+  }
+
+  // Contact email, legal name and social links were not provided by the
+  // client yet, so they are intentionally left as whatever they currently
+  // are (TBD placeholder or editor-entered) rather than guessed here.
+
+  // ── Methodology ──────────────────────────────────────────────────────
+  const methodology = await payload.findGlobal({
+    slug: 'methodology',
+    locale: 'mn',
+    overrideAccess: true,
+  });
+
+  const hasOnlyPlaceholderDefinitions =
+    !methodology?.definitions?.length ||
+    (methodology.definitions.length === 1 &&
+      needsRealContent(methodology.definitions[0]?.term as string | null));
+
+  if (hasOnlyPlaceholderDefinitions) {
+    const mnDefinitions = DEFINITIONS.map(({ anchorId, mn }) => ({ anchorId, ...mn }));
+    const mnCountingRules = COUNTING_RULES.map(({ anchorId, mn }) => ({
+      anchorId,
+      ...mn,
+    }));
+    const mnSources = SOURCES.map((s) => s.mn);
+    const changeLog = [{ date: '2026-11-02', summary: 'Эхний хувилбар.' }];
+
+    await payload.updateGlobal({
+      slug: 'methodology',
+      locale: 'mn',
+      overrideAccess: true,
+      data: {
+        sources: mnSources,
+        definitions: mnDefinitions,
+        countingRules: mnCountingRules,
+        limitations: richText(LIMITATIONS.mn),
+        changeLog,
+        seo: { metaTitle: TBD, metaDescription: TBD },
+      },
+    });
+
+    const saved = await payload.findGlobal({
+      slug: 'methodology',
+      locale: 'mn',
+      overrideAccess: true,
+    });
+
+    const enDefinitions = DEFINITIONS.map(({ anchorId, en }) => ({ anchorId, ...en }));
+    const enCountingRules = COUNTING_RULES.map(({ anchorId, en }) => ({
+      anchorId,
+      ...en,
+    }));
+    const enSources = SOURCES.map((s) => s.en);
+
+    await payload.updateGlobal({
+      slug: 'methodology',
+      locale: 'en',
+      overrideAccess: true,
+      data: {
+        sources: withIds(enSources, saved?.sources) as never,
+        definitions: withIds(enDefinitions, saved?.definitions) as never,
+        countingRules: withIds(enCountingRules, saved?.countingRules) as never,
+        limitations: richText(LIMITATIONS.en),
+        changeLog: withIds(changeLog, saved?.changeLog) as never,
+        seo: { metaTitle: TBD, metaDescription: TBD },
+      },
+    });
+
+    logger.info('Seeded Methodology global with real definitions and counting rules');
+  } else {
+    logger.info('Methodology global already filled in — left untouched');
+  }
+
+  // "What is measured" is written independently of the block above so a
+  // database that already had real definitions (from an earlier run of this
+  // script) still gets it.
+  const methodologyMeasures = await payload.findGlobal({
+    slug: 'methodology',
+    locale: 'mn',
+    overrideAccess: true,
+  });
+
+  if (!methodologyMeasures?.measures?.length) {
+    const mnMeasures = MEASURES.map((m) => ({
+      category: m.category.mn,
+      items: m.items.map((i) => ({ label: i.mn })),
+    }));
+
+    await payload.updateGlobal({
+      slug: 'methodology',
+      locale: 'mn',
+      overrideAccess: true,
+      data: { measures: mnMeasures },
+    });
+
+    const savedMeasures = await payload.findGlobal({
+      slug: 'methodology',
+      locale: 'mn',
+      overrideAccess: true,
+    });
+
+    const enMeasures = MEASURES.map((m) => ({
+      category: m.category.en,
+      items: m.items.map((i) => ({ label: i.en })),
+    }));
+
+    await payload.updateGlobal({
+      slug: 'methodology',
+      locale: 'en',
+      overrideAccess: true,
+      data: {
+        measures: withNestedIds(enMeasures, savedMeasures?.measures) as never,
+      },
+    });
+
+    logger.info('Seeded Methodology global with "what is measured"');
+  } else {
+    logger.info('Methodology "what is measured" already filled in — left untouched');
+  }
+
+  // ── Policy ───────────────────────────────────────────────────────────
+  const policy = await payload.findGlobal({
+    slug: 'policy',
+    locale: 'mn',
+    overrideAccess: true,
+  });
+
+  if (needsRealContent(policy?.summary)) {
+    const mnHistory = POLICY.history.map(({ date, status, mn }) => ({
+      date,
+      status,
+      note: mn,
+    }));
+
+    await payload.updateGlobal({
+      slug: 'policy',
+      locale: 'mn',
+      overrideAccess: true,
+      data: {
+        summary: POLICY.summary.mn,
+        fullText: richText(POLICY.fullText.mn),
+        status: POLICY.status,
+        statusDate: POLICY.statusDate,
+        history: mnHistory,
+        seo: { metaTitle: TBD, metaDescription: TBD },
+      },
+    });
+
+    const saved = await payload.findGlobal({
+      slug: 'policy',
+      locale: 'mn',
+      overrideAccess: true,
+    });
+
+    const enHistory = POLICY.history.map(({ date, status, en }) => ({
+      date,
+      status,
+      note: en,
+    }));
+
+    await payload.updateGlobal({
+      slug: 'policy',
+      locale: 'en',
+      overrideAccess: true,
+      data: {
+        summary: POLICY.summary.en,
+        fullText: richText(POLICY.fullText.en),
+        status: POLICY.status,
+        statusDate: POLICY.statusDate,
+        history: withIds(enHistory, saved?.history) as never,
+        seo: { metaTitle: TBD, metaDescription: TBD },
+      },
+    });
+
+    logger.info('Seeded Policy global with the Minor Workers Protection Amendment');
+  } else {
+    logger.info('Policy global already filled in — left untouched');
+  }
+
+  // ── Research paper ───────────────────────────────────────────────────
+  const existingPaper = await payload.find({
+    collection: 'papers',
+    where: { slug: { equals: PAPER.slug } },
+    limit: 1,
+    overrideAccess: true,
+  });
+
+  if (existingPaper.totalDocs === 0) {
+    const created = await payload.create({
+      collection: 'papers',
+      locale: 'mn',
+      overrideAccess: true,
+      data: {
+        title: PAPER.title.mn,
+        slug: PAPER.slug,
+        abstract: richText(PAPER.abstract.mn),
+        authors: PAPER.authors,
+        year: PAPER.year,
+        dataUrl: PAPER.dataUrl,
+        status: PAPER.status,
+        seo: { metaTitle: PAPER.seoTitle.mn, metaDescription: PAPER.seoDescription.mn },
+      },
+      draft: false,
+    });
+
+    await payload.update({
+      collection: 'papers',
+      id: created.id,
+      locale: 'en',
+      overrideAccess: true,
+      data: {
+        title: PAPER.title.en,
+        abstract: richText(PAPER.abstract.en),
+        seo: { metaTitle: PAPER.seoTitle.en, metaDescription: PAPER.seoDescription.en },
+      },
+      draft: false,
+    });
+
+    logger.info(`Created research paper "${PAPER.slug}"`);
+  } else {
+    logger.info('Research paper already exists — left untouched');
+  }
+
+  // ── Partners ─────────────────────────────────────────────────────────
+  for (const partner of PARTNERS) {
+    const existing = await payload.find({
+      collection: 'partners',
+      where: { name: { equals: partner.name } },
+      limit: 1,
+      overrideAccess: true,
+    });
+
+    if (existing.totalDocs === 0) {
+      await payload.create({
+        collection: 'partners',
+        overrideAccess: true,
+        data: { name: partner.name, url: partner.url },
+      });
+      logger.info(`Created partner "${partner.name}"`);
+    } else {
+      logger.info(`Partner "${partner.name}" already exists — left untouched`);
+    }
+  }
+
+  // Team and member photos are intentionally left untouched: no team member
+  // names, roles or photos were given, and none may be invented.
+  logger.info(
+    'Reminder: logo files and written permission to show each partner logo are still ' +
+      'needed (Ministry, Confederation and Stoic), and Stoic’s website URL is still pending.',
+  );
+  logger.info('Organisation content seed complete.');
+};
+
+await seed();
+process.exit(0);

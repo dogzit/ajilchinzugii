@@ -109,6 +109,38 @@ export const Methodology: GlobalConfig = {
       ],
     },
     {
+      name: 'measures',
+      type: 'array',
+      label: 'Юу хэмжигддэг вэ / What is measured',
+      admin: {
+        description:
+          'Ямар төрлийн тоо хэмжигддэгийг тодорхойлно — бодит тоо хэзээ ч энд бичигдэхгүй, тоо зөвхөн хүснэгтээс ирнэ. Names the kinds of figures that are measured — never an actual number, which comes only from the sheet.',
+      },
+      fields: [
+        {
+          name: 'category',
+          type: 'text',
+          required: true,
+          localized: true,
+          label: 'Ангилал / Category',
+        },
+        {
+          name: 'items',
+          type: 'array',
+          label: 'Хэмжигдэхүүнүүд / Measures',
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+              localized: true,
+              label: 'Хэмжигдэхүүн / Measure',
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'limitations',
       type: 'richText',
       localized: true,
