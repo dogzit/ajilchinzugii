@@ -1120,6 +1120,7 @@ const seed = async () => {
         id: existing.id,
         locale: 'mn',
         overrideAccess: true,
+        draft: false,
         data: { abstract: richText(PAPER.abstract.mn), venue: PAPER.venue },
       });
       await payload.update({
@@ -1127,6 +1128,7 @@ const seed = async () => {
         id: existing.id,
         locale: 'en',
         overrideAccess: true,
+        draft: false,
         data: { abstract: richText(PAPER.abstract.en) },
       });
       logger.info('Synced the abstract to the PDF’s own wording, and set venue');
@@ -1173,6 +1175,7 @@ const seed = async () => {
         collection: 'papers',
         id: paperDoc.id,
         overrideAccess: true,
+        draft: false,
         data: { pdf: pdfMedia.id },
       });
 
