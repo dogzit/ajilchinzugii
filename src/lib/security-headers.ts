@@ -40,7 +40,9 @@ export function contentSecurityPolicy(): string {
     'base-uri': ["'self'"],
     'form-action': ["'self'"],
     'frame-ancestors': ["'none'"],
-    'frame-src': ["'none'"],
+    // The research paper page embeds its own PDF inline, served either from
+    // this origin (Payload's proxy route) or the R2 public host.
+    'frame-src': ["'self'", ...(r2PublicHost ? [r2PublicHost] : [])],
     'worker-src': ["'self'", 'blob:'],
     'manifest-src': ["'self'"],
   };
@@ -60,7 +62,7 @@ export function adminContentSecurityPolicy(): string {
   return contentSecurityPolicy()
     .replace("script-src 'self'", "script-src 'self' blob:")
     .replace("connect-src 'self'", "connect-src 'self' blob: data:")
-    .replace("frame-src 'none'", "frame-src 'self' blob:");
+    .replace("frame-src 'self'", "frame-src 'self' blob:");
 }
 
 const shared = [
@@ -90,6 +92,26 @@ const shared = [
 export const publicHeaders = [
   ...shared,
   { key: 'Content-Security-Policy', value: contentSecurityPolicy() },
+];
+
+/**
+ * Files served from Payload's own route (`/api/media/file/*`) — currently
+ * just the research paper's PDF, embedded inline via an iframe. A file's own
+ * response headers govern whether it can be framed at all, so it needs
+ * `frame-ancestors 'self'` rather than the site-wide `'none'`: that header
+ * is not about this site framing others, it is this *file* refusing to be
+ * framed by anyone, including this site's own page.
+ */
+export const mediaHeaders = [
+  ...shared.filter((header) => header.key !== 'X-Frame-Options'),
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  {
+    key: 'Content-Security-Policy',
+    value: contentSecurityPolicy().replace(
+      "frame-ancestors 'none'",
+      "frame-ancestors 'self'",
+    ),
+  },
 ];
 
 export const adminHeaders = [

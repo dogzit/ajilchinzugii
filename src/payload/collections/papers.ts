@@ -222,6 +222,10 @@ export const Papers: CollectionConfig = {
       name: 'citations',
       type: 'group',
       label: 'Эшлэл (автоматаар) / Citations (generated)',
+      // Localized because the title it quotes is localized: an APA/BibTeX
+      // string built from the Mongolian title is wrong on the English page,
+      // and a single shared slot can only ever hold one language's version.
+      localized: true,
       admin: {
         description:
           'Хадгалах болгонд дээрх талбаруудаас автоматаар бүрддэг. Generated from the fields above every time the paper is saved.',

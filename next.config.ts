@@ -1,7 +1,7 @@
 import { withPayload } from '@payloadcms/next/withPayload';
 import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from 'next';
-import { adminHeaders, publicHeaders } from './src/lib/security-headers';
+import { adminHeaders, mediaHeaders, publicHeaders } from './src/lib/security-headers';
 import { assertLaunchReady } from './scripts/launch-guard';
 
 /*
@@ -30,7 +30,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: '/admin/:path*', headers: adminHeaders },
-      { source: '/((?!admin).*)', headers: publicHeaders },
+      { source: '/api/media/:path*', headers: mediaHeaders },
+      { source: '/((?!admin|api/media).*)', headers: publicHeaders },
     ];
   },
 

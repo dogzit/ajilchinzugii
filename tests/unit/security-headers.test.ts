@@ -4,6 +4,7 @@ import {
   adminContentSecurityPolicy,
   adminHeaders,
   contentSecurityPolicy,
+  mediaHeaders,
   publicHeaders,
 } from '../../src/lib/security-headers';
 
@@ -76,5 +77,20 @@ describe('the admin policy', () => {
 
   it('may be framed by itself, for the live preview', () => {
     expect(header(adminHeaders, 'X-Frame-Options')).toBe('SAMEORIGIN');
+  });
+});
+
+describe('the media policy', () => {
+  // A file's own response headers govern whether it can be framed at all.
+  // The site-wide 'none' is about other sites framing this one — it is not
+  // this site framing its own file, which the paper page's inline PDF does.
+  it('lets a file be framed by this site, unlike every other response', () => {
+    const csp = header(mediaHeaders, 'Content-Security-Policy') ?? '';
+    expect(csp).toContain("frame-ancestors 'self'");
+    expect(csp).not.toContain("frame-ancestors 'none'");
+  });
+
+  it('still blocks it from being framed by anyone else', () => {
+    expect(header(mediaHeaders, 'X-Frame-Options')).toBe('SAMEORIGIN');
   });
 });

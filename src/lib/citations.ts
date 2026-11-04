@@ -50,17 +50,21 @@ function sentence(value?: string | null): string {
 }
 
 export function buildApa(input: CitationInput): string {
+  // The bracketed tag travels with the title, not the venue — an unpublished
+  // working paper stays "[Working paper]" whether or not it also names the
+  // institution that produced it; the two facts are independent.
+  const title = input.title?.trim() || MISSING;
+  const statusTag =
+    input.status && input.status !== 'published' ? ` [${statusLabel(input.status)}]` : '';
+  const titleSentence = `${title}${statusTag}.`;
+
   const parts = [
     `${formatApaAuthors(authorNames(input))} (${input.year ?? 'n.d.'}).`,
-    sentence(input.title),
+    titleSentence,
   ];
 
   const venue = input.venue?.trim();
-  if (venue) {
-    parts.push(sentence(venue));
-  } else if (input.status && input.status !== 'published') {
-    parts.push(`${statusLabel(input.status)}.`);
-  }
+  if (venue) parts.push(sentence(venue));
 
   const url = doiUrl(input.doi);
   if (url) parts.push(url);

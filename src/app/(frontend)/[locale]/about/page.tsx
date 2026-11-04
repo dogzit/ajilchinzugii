@@ -144,6 +144,11 @@ export default async function AboutPage({ params }: Props) {
             {partners.map((partner) => {
               const logo = typeof partner.logo === 'object' ? partner.logo : null;
               const logoSrc = mediaSrc(logo?.url);
+
+              // With a logo: the mark plus a name caption below it. Without
+              // one, the name is the only thing to show — rendering it twice
+              // (once as a text stand-in for the mark, once as the caption)
+              // just repeated it.
               const mark = logoSrc ? (
                 <Image
                   src={logoSrc}
@@ -173,7 +178,9 @@ export default async function AboutPage({ params }: Props) {
                   ) : (
                     mark
                   )}
-                  <span className="text-ink-muted text-sm">{partner.name}</span>
+                  {logoSrc ? (
+                    <span className="text-ink-muted text-sm">{partner.name}</span>
+                  ) : null}
                 </li>
               );
             })}

@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { sql } from '@payloadcms/db-postgres';
 import { getPayload } from 'payload';
 import config from '../payload.config';
 import { isDemoValue, isPlaceholder } from '../lib/placeholder';
@@ -797,13 +798,41 @@ const PARTNERS = [
   {
     name: 'Ministry of Family, Labour and Social Protection',
     url: 'https://mlsp.gov.mn',
+    logoFile: 'ministry_logo.webp',
+    logoAlt: {
+      mn: 'Монгол Улсын Засгийн газрын сүлд',
+      en: 'Government of Mongolia emblem',
+    },
   },
-  { name: 'Confederation of Mongolian Trade Unions', url: 'https://cmtu.mn' },
-  { name: 'Stoic NGO', url: undefined },
+  {
+    name: 'Confederation of Mongolian Trade Unions',
+    url: 'https://cmtu.mn',
+    logoFile: 'cmtu_log.png',
+    logoAlt: {
+      mn: 'Монголын Үйлдвэрчний Эвлэлүүдийн Холбооны лого',
+      en: 'Confederation of Mongolian Trade Unions logo',
+    },
+  },
+  {
+    name: 'Stoic NGO',
+    url: undefined,
+    logoFile: 'stoic_logo.png',
+    logoAlt: { mn: 'Stoic ТББ-ын лого', en: 'Stoic NGO logo' },
+  },
   { name: 'Federation of Mongolian Education and Science Unions', url: undefined },
-  { name: 'Zorig Foundation', url: undefined },
+  {
+    name: 'Zorig Foundation',
+    url: undefined,
+    logoFile: 'zorigfoundation_logo.jpg',
+    logoAlt: { mn: 'Зориг сангийн лого', en: 'Zorig Foundation logo' },
+  },
   { name: 'Alham Project', url: undefined },
-  { name: 'NUM Career Center', url: undefined },
+  {
+    name: 'NUM Career Center',
+    url: undefined,
+    logoFile: 'numcareer_logo.png',
+    logoAlt: { mn: 'МУИС Карьерийн төвийн лого', en: 'NUM Career Center logo' },
+  },
 ];
 
 const TEAM = [
@@ -1189,6 +1218,49 @@ const seed = async () => {
     logger.info('Research paper already has a PDF attached — left untouched');
   }
 
+  // citations is localized (it quotes the localized title), but the
+  // beforeChange hook that fills it in only reliably sees the current
+  // locale's title when that locale's update explicitly includes it. Any
+  // update that patches only other fields (abstract sync, PDF attach) can
+  // leave one locale's citation empty or stale — so re-touch title per
+  // locale here, unconditionally, to guarantee both are correct.
+  const paperForCitations = await payload.find({
+    collection: 'papers',
+    where: { slug: { equals: PAPER.slug } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  const citationPaperId = paperForCitations.docs[0]?.id;
+  if (citationPaperId) {
+    for (const locale of ['mn', 'en'] as const) {
+      await payload.update({
+        collection: 'papers',
+        id: citationPaperId,
+        locale,
+        overrideAccess: true,
+        draft: false,
+        data: { title: PAPER.title[locale] },
+      });
+    }
+    logger.info('Recomputed citations for both locales');
+
+    // Payload's Local API update() with draft:false has not reliably kept
+    // this document published across these locale-scoped partial updates —
+    // empirically confirmed: it silently reverts _status to 'draft', which
+    // makes getPapers()'s `_status: published` filter drop it entirely (the
+    // page then renders "Nothing here yet" despite the data being correct).
+    // Forcing it directly is the reliable fix; versions/drafts stay on.
+    const db = (
+      payload.db as unknown as {
+        drizzle: { execute: (q: unknown) => Promise<unknown> };
+      }
+    ).drizzle;
+    await db.execute(
+      sql`update papers set _status = 'published' where id = ${citationPaperId}`,
+    );
+    logger.info('Forced the paper back to published');
+  }
+
   // ── Partners ─────────────────────────────────────────────────────────
   for (const partner of PARTNERS) {
     const existing = await payload.find({
@@ -1207,6 +1279,54 @@ const seed = async () => {
       logger.info(`Created partner "${partner.name}"`);
     } else {
       logger.info(`Partner "${partner.name}" already exists — left untouched`);
+    }
+
+    if ('logoFile' in partner && partner.logoFile) {
+      const current = await payload.find({
+        collection: 'partners',
+        where: { name: { equals: partner.name } },
+        limit: 1,
+        overrideAccess: true,
+      });
+      const partnerDoc = current.docs[0];
+      if (partnerDoc && !partnerDoc.logo) {
+        const logoPath = path.resolve(process.cwd(), 'public', partner.logoFile);
+        if (existsSync(logoPath)) {
+          const logoBytes = await readFile(logoPath);
+          const mimetype = partner.logoFile.endsWith('.webp')
+            ? 'image/webp'
+            : partner.logoFile.endsWith('.jpg')
+              ? 'image/jpeg'
+              : 'image/png';
+          const logoMedia = await payload.create({
+            collection: 'media',
+            locale: 'mn',
+            overrideAccess: true,
+            data: {
+              alt: { mn: partner.logoAlt!.mn, en: partner.logoAlt!.en },
+              subject: 'none',
+            },
+            file: {
+              data: logoBytes,
+              mimetype,
+              name: partner.logoFile,
+              size: logoBytes.length,
+            },
+          });
+
+          await payload.update({
+            collection: 'partners',
+            id: partnerDoc.id,
+            overrideAccess: true,
+            data: { logo: logoMedia.id },
+          });
+          logger.info(`Attached logo for "${partner.name}"`);
+        } else {
+          logger.info(
+            `No local logo file for "${partner.name}" at ${logoPath} — skipping`,
+          );
+        }
+      }
     }
   }
 
@@ -1247,8 +1367,8 @@ const seed = async () => {
   // No photos were given for anyone above — never invented, per CLAUDE.md
   // rule 4. Logos and member photos still need to come through /admin.
   logger.info(
-    'Reminder: logo files and written permission to show each partner logo are still ' +
-      'needed (Ministry, Confederation and Stoic), and Stoic’s website URL is still pending.',
+    'Reminder: no logo yet for Federation of Mongolian Education and Science Unions or ' +
+      'Alham Project, and Stoic’s website URL is still pending.',
   );
   logger.info('Organisation content seed complete.');
 };

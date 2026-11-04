@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageHeader } from '@/components/page-header';
 import { Link } from '@/components/link';
+import { PaperArticle } from '@/components/paper-article';
 import type { Locale } from '@/i18n/routing';
 import { getPapers } from '@/lib/cms';
 import { localeHref } from '@/lib/locale-href';
@@ -45,6 +46,12 @@ export default async function ResearchPage({ params }: Props) {
 
       {papers.length === 0 ? (
         <p className="text-ink-muted mt-10 max-w-[65ch]">{t('common.nothingYet')}</p>
+      ) : papers.length === 1 ? (
+        // One paper: show it in full here instead of making the reader click
+        // through to a list of one.
+        <div className="mt-10">
+          <PaperArticle paper={papers[0]!} t={t} headingLevel="h2" />
+        </div>
       ) : (
         <ul className="mt-10 flex flex-col">
           {papers.map((paper) => (
