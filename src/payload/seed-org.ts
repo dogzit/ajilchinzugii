@@ -750,8 +750,123 @@ const POLICY = {
       en: 'Submitted through the Confederation of Mongolian Trade Unions for parliamentary discussion.',
     },
   ],
+  /**
+   * Table 7.1 of the research paper: each change, the gap it closes and the
+   * evidence behind it. The third column is the point of the table — a
+   * proposal a reader cannot trace back to a finding is just an opinion.
+   */
+  proposals: [
+    {
+      mn: {
+        change:
+          'Бүртгэл: ажил олгогч бүр 18 хүрээгүй ажилтан бүрийг ажилд авснаасаа хойш 7 хоногийн дотор орон нутгийн хөдөлмөрийн албанд онлайнаар бүртгүүлнэ — нас, цагийн хуваарь, үүрэг, эцэг эхийн бичгээр өгсөн зөвшөөрлийн хамт.',
+        gap: 'Эдгээр хүүхэд хаана ажиллаж байгааг хэн ч мэдэхгүй.',
+        evidence: '10,900 хүүхэд, тэдний 72.8% нь 2–9 ажилтантай газарт.',
+      },
+      en: {
+        change:
+          'Register: every employer records each worker under 18 with the local labour office within 7 days of hiring, online, with their age, hours, tasks and a parent’s written consent.',
+        gap: 'No one knows where these children work.',
+        evidence: '10,900 children, 72.8% of them in workplaces of 2–9 people.',
+      },
+    },
+    {
+      mn: {
+        change:
+          'Шалгалт: бүртгэлтэй ажлын байранд урьдчилан мэдэгдэлгүй шалгалт хийх боломжтой болно.',
+        gap: 'Урьдчилан мэдэгдэх журам, цөөн байцаагч хоёр шалгагдах магадлалыг тэгд ойртуулдаг.',
+        evidence: 'Ойролцоогоор 1.3 сая ажилтанд 66 байцаагч ногдоно.',
+      },
+      en: {
+        change: 'Inspect: workplaces on the register can be inspected without notice.',
+        gap: 'Advance notice and too few inspectors keep the chance of being caught near zero.',
+        evidence: '66 inspectors for about 1.3 million workers.',
+      },
+    },
+    {
+      mn: {
+        change:
+          'Торгууль: хуулийн насанд хүрээгүй, 7 хоногт 30 цагаас илүү, аюултай ажилд, эсвэл бүртгэлгүйгээр ажилласан хүүхэд бүрт сарын хамгийн бага цалингийн үржвэрээр тогтоосон торгууль — давтан зөрчилд хоёр дахин нэмэгдэнэ.',
+        gap: 'Хамгийн бага насны хязгаарыг зөрчиж хүүхэд ажиллуулсан тохиолдолд ямар ч торгууль байдаггүй.',
+        evidence: '82% нь дор хаяж нэг хуулийн хязгаарыг зөрчдөг.',
+      },
+      en: {
+        change:
+          'Penalise: a fine for each child employed under age, over 30 hours a week, in hazardous work or unregistered, set as a multiple of the monthly minimum wage and doubled for repeat violations.',
+        gap: 'There is no penalty for employing a child under the minimum age.',
+        evidence: '82% break at least one legal limit.',
+      },
+    },
+    {
+      mn: {
+        change: 'Хөнгөн ажлын жагсаалт: төр 13–14 насны хүүхдэд зөвшөөрөгдсөн хөнгөн ажлын жагсаалтыг нийтэлнэ.',
+        gap: 'Ажил олгогч, гэр бүл хоёулаа бага насны өсвөр үе юу хийж болохыг мэдэхгүй.',
+        evidence: '9.6% нь 13–14 настай бөгөөд 7 хоногт 14 ба түүнээс дээш цаг ажилладаг.',
+      },
+      en: {
+        change:
+          'Light work list: the state publishes a list of permitted light work for 13–14-year-olds.',
+        gap: 'Employers and families do not know what younger teens are allowed to do.',
+        evidence: '9.6% are 13–14 and work 14 or more hours a week.',
+      },
+    },
+    {
+      mn: {
+        change:
+          'Тооллого: хүүхдийн хөдөлмөрийн судалгаа бүр гэр бүлээсээ гадуур ажил олгогчдод ажилладаг хүүхдийг тусдаа үзүүлэлтээр мэдээлж, бүртгэлийн жилийн нийт дүнг нийтэлнэ.',
+        gap: 'Энэ бүлэг үндсэн статистикт огт харагддаггүй.',
+        evidence: 'Энэ судалгаа тухайн тоог анхдагч өгөгдлөөс өөрөө бүтээхээс өөр аргагүй байсан.',
+      },
+      en: {
+        change:
+          'Count: each child labour survey reports children working for outside employers as its own figure, and the register’s yearly totals are published.',
+        gap: 'The group is invisible in the headline statistics.',
+        evidence: 'This paper had to build the figure from the microdata itself.',
+      },
+    },
+  ],
+  seo: {
+    mn: {
+      title: 'Бодлого — Насанд хүрээгүй ажилтны хамгаалал',
+      description:
+        'Монголын Хөдөлмөрийн тухай хуульд оруулах таван өөрчлөлт: бүртгэл, шалгалт, торгууль, хөнгөн ажлын жагсаалт, тооллого. Саналын өнөөгийн байдал, огноотой нь.',
+    },
+    en: {
+      title: 'Policy — the Minor Workers Protection Amendment',
+      description:
+        'Five changes to Mongolia’s Labour Law: register, inspect, penalise, publish a light-work list and count. Where the proposal stands, with its dates and sources.',
+    },
+  },
   status: 'submitted' as const,
   statusDate: '2026-10-28',
+};
+
+/**
+ * The published addresses of the sources the methodology names.
+ *
+ * Every one was opened and confirmed to resolve before being written here —
+ * a URL is a fact to be checked, not guessed. The organisation's own case
+ * log has no entry because it has no public address, and never will.
+ */
+const SOURCE_URLS: Record<string, string> = {
+  'National Statistics Office of Mongolia (nso.mn)': 'https://nada.nso.mn/en/catalog/58',
+  'International Labour Organization (ilo.org)':
+    'https://www.ilo.org/publications/child-labour-mongolia-child-labour-survey-results-2021-2022',
+  'U.S. Department of Labor, Bureau of International Labor Affairs (dol.gov/agencies/ilab)':
+    'https://www.dol.gov/agencies/ilab/resources/reports/child-labor/mongolia',
+};
+
+const METHODOLOGY_SEO = {
+  mn: {
+    title: 'Аргачлал — тоо бүр хэрхэн гарсан бэ',
+    description:
+      'Нийтэлсэн тоо бүрийн тодорхойлолт, тоолох журам, эх сурвалж, хязгаарлалт. Таваас цөөн хэрэгт тулгуурласан тоог хэзээ ч тоогоор харуулдаггүй.',
+  },
+  en: {
+    title: 'Methodology — how every figure is counted',
+    description:
+      'The definitions, counting rules, sources and limits behind every figure we publish. A figure resting on fewer than five cases is never shown as a number.',
+  },
 };
 
 // ── Research paper ──────────────────────────────────────────────────────
@@ -790,6 +905,150 @@ const PAPER = {
     mn: '2021–22 оны Үндэсний хүүхдийн хөдөлмөрийн судалгаанд тулгуурласан, Монголд ажил эрхэлдэг хүүхдүүдийн тухай судалгааны ажил.',
     en: 'A working paper on children working for outside employers in Mongolia, based on the 2021–22 National Child Labour Survey.',
   },
+  /**
+   * The paper's own headline figures, each naming the passage it is read
+   * from so a reader can open the PDF above and check it.
+   *
+   * These are national survey estimates from a published paper. They are not
+   * the organisation's impact figures — those come only from the Google
+   * Sheet pipeline and are suppressed below five cases (CLAUDE.md rules 1
+   * and 2). Nothing here is ever rendered as an impact figure, and the
+   * source line under each one says where it came from.
+   *
+   * The first three are what the home page shows, so they are ordered to
+   * carry the argument: how many there are, how much of it is illegal, and
+   * how much more dangerous it is than the work it is compared with.
+   */
+  findings: [
+    {
+      mn: {
+        value: '10,900',
+        label:
+          'Долоо хоногийн дунджаар Монголд гэр бүлээсээ гадуур ажил олгогчдод ажилладаг 5–17 насны хүүхэд',
+        source: 'Хураангуй, 5.1 бүлэг',
+      },
+      en: {
+        value: '10,900',
+        label:
+          'Children aged 5–17 in Mongolia working for an employer outside their own family in an average week',
+        source: 'Abstract and Section 5.1',
+      },
+    },
+    {
+      mn: {
+        value: '82%',
+        label:
+          'Тэдний Хөдөлмөрийн тухай хуулийн дор хаяж нэг хязгаарыг зөрчдөг хувь — ойролцоогоор 8,860 хүүхэд',
+        source: '5.2 бүлэг',
+      },
+      en: {
+        value: '82%',
+        label:
+          'Of them break at least one limit in the Labour Law — about 8,860 children',
+        source: 'Section 5.2',
+      },
+    },
+    {
+      mn: {
+        value: '+38.6 нэгж хувь',
+        label:
+          'Ижил нас, хүйс, газар, улиралтай гэр бүлийн ажилтантай харьцуулахад аюултай ажил хийх магадлалын зөрүү',
+        source: 'Хүснэгт 5.1',
+      },
+      en: {
+        value: '+38.6 pp',
+        label:
+          'More likely to do hazardous work than a family worker of the same age, sex, place and season',
+        source: 'Table 5.1',
+      },
+    },
+    {
+      mn: {
+        value: '+15.3 цаг',
+        label: 'Долоо хоногт илүү ажиллах цаг, ижил нөхцөлтэй гэр бүлийн ажилтантай харьцуулахад',
+        source: 'Хүснэгт 5.1',
+      },
+      en: {
+        value: '+15.3 h',
+        label: 'More hours worked a week than a comparable family worker',
+        source: 'Table 5.1',
+      },
+    },
+    {
+      mn: {
+        value: '14.3%',
+        label:
+          'Цалин авдаг хүүхдийн цагийн хамгийн бага хөлс болох 2,500 төгрөгөөс доогуур олдог хувь',
+        source: '5.4 бүлэг',
+      },
+      en: {
+        value: '14.3%',
+        label: 'Of those paid earn below the minimum of MNT 2,500 an hour',
+        source: 'Section 5.4',
+      },
+    },
+    {
+      mn: {
+        value: '66',
+        label:
+          'Ойролцоогоор 1.3 сая ажилтанд ногдох хөдөлмөрийн хяналтын байцаагчийн тоо (2024)',
+        source: '2-р бүлэг',
+      },
+      en: {
+        value: '66',
+        label: 'Labour inspectors for about 1.3 million workers (2024)',
+        source: 'Chapter 2',
+      },
+    },
+  ],
+  /**
+   * Figure 5.1 of the paper: the share of working children exposed to each
+   * hazard, by who they work for. Weighted shares, so both columns are
+   * percentages of their own group and do not sum to anything.
+   *
+   * Rows are given in the paper's order; the chart re-sorts them by the size
+   * of the gap, so an editor adding a row does not have to think about it.
+   */
+  comparison: {
+    mn: {
+      title: 'Аюулын төрөл тус бүрт өртсөн ажил эрхэлдэг хүүхдийн хувь, хэнд ажилладгаар нь',
+      groupALabel: 'Гадны ажил олгогчид',
+      groupBLabel: 'Өөрийн гэр бүлд',
+      note: 'Эх сурвалж: 2021–22 оны Үндэсний хүүхдийн хөдөлмөрийн судалгааны анхдагч өгөгдөл, жигнэсэн, зохиогчийн тооцоо (Зураг 5.1). Түүвэр: гадны ажил олгогчид ажилладаг 294, гэр бүлийн 6,190 хүүхэд — ядрах, бэртэх, хүчирхийллийн үзүүлэлтэд ойролцоогоор 250 ба 5,750.',
+    },
+    en: {
+      title:
+        'Share of working children aged 5–17 exposed to each hazard, by who they work for',
+      groupALabel: 'Outside employer',
+      groupBLabel: 'Own family',
+      note: 'Source: National Child Labour Survey 2021–22 microdata, weighted, author’s analysis (Figure 5.1). The sample is 294 outside-employer and 6,190 family workers — about 250 and 5,750 for tiredness, injury and abuse.',
+    },
+    rows: [
+      {
+        groupA: 62.7,
+        groupB: 25.9,
+        mn: 'Аюултай ажил (аль нэг хэлбэрээр)',
+        en: 'Hazardous work (any)',
+      },
+      { groupA: 34, groupB: 3.5, mn: '7 хоногт 30 цагаас илүү', en: 'Over 30 hours a week' },
+      { groupA: 46.2, groupB: 24.4, mn: 'Аюултай нөхцөл', en: 'Hazardous condition' },
+      { groupA: 14, groupB: 0.3, mn: '16 кг ба түүнээс дээш ачаа', en: 'Load of 16 kg or more' },
+      { groupA: 11.7, groupB: 3.2, mn: 'Ажил дээрээ бэртсэн', en: 'Injured at work' },
+      {
+        groupA: 7.9,
+        groupB: 0.1,
+        mn: 'Уул уурхай эсвэл барилга',
+        en: 'Mining or construction',
+      },
+      { groupA: 12.6, groupB: 6.8, mn: 'Ажил дээрээ хэт ядарсан', en: 'Too tired at work' },
+      {
+        groupA: 4.1,
+        groupB: 2.9,
+        mn: 'Шийтгүүлсэн эсвэл хүчирхийлэлд өртсөн',
+        en: 'Punished or abused',
+      },
+    ],
+  },
 };
 
 // ── Partners ────────────────────────────────────────────────────────────
@@ -821,15 +1080,16 @@ const PARTNERS = [
   },
   { name: 'Federation of Mongolian Education and Science Unions', url: undefined },
   {
+    // zorigfoundation.org 301s here; this is the address that resolves.
     name: 'Zorig Foundation',
-    url: undefined,
+    url: 'https://www.zorigsan.mn',
     logoFile: 'zorigfoundation_logo.jpg',
     logoAlt: { mn: 'Зориг сангийн лого', en: 'Zorig Foundation logo' },
   },
   { name: 'Alham Project', url: undefined },
   {
     name: 'NUM Career Center',
-    url: undefined,
+    url: 'https://career.num.edu.mn',
     logoFile: 'numcareer_logo.png',
     logoAlt: { mn: 'МУИС Карьерийн төвийн лого', en: 'NUM Career Center logo' },
   },
@@ -1034,6 +1294,57 @@ const seed = async () => {
     logger.info('Methodology "what is measured" already filled in — left untouched');
   }
 
+  // ── Methodology: the addresses its sources live at ───────────────────
+  // A source a reader cannot open is a claim, not a source. Only rows that
+  // are still missing a URL are touched, and only ones whose title matches
+  // exactly — a renamed row is an editor's decision, not a typo to correct.
+  const sourcesNow = await payload.findGlobal({
+    slug: 'methodology',
+    locale: 'mn',
+    overrideAccess: true,
+  });
+  const sourceRows = sourcesNow?.sources ?? [];
+  const missingUrls = sourceRows.filter(
+    (row) => !row.url && SOURCE_URLS[row.title as string],
+  );
+
+  if (missingUrls.length > 0) {
+    await payload.updateGlobal({
+      slug: 'methodology',
+      locale: 'mn',
+      overrideAccess: true,
+      data: {
+        sources: sourceRows.map((row) => ({
+          ...row,
+          url: row.url ?? SOURCE_URLS[row.title as string] ?? null,
+        })) as never,
+      },
+    });
+    logger.info(`Filled in ${missingUrls.length} source URL(s) on Methodology`);
+  } else {
+    logger.info('Methodology source URLs already set — left untouched');
+  }
+
+  // ── Methodology: SEO ─────────────────────────────────────────────────
+  if (needsRealContent(sourcesNow?.seo?.metaTitle)) {
+    for (const locale of ['mn', 'en'] as const) {
+      await payload.updateGlobal({
+        slug: 'methodology',
+        locale,
+        overrideAccess: true,
+        data: {
+          seo: {
+            metaTitle: METHODOLOGY_SEO[locale].title,
+            metaDescription: METHODOLOGY_SEO[locale].description,
+          },
+        },
+      });
+    }
+    logger.info('Seeded Methodology SEO');
+  } else {
+    logger.info('Methodology SEO already filled in — left untouched');
+  }
+
   // ── Policy ───────────────────────────────────────────────────────────
   const policy = await payload.findGlobal({
     slug: 'policy',
@@ -1091,6 +1402,67 @@ const seed = async () => {
     logger.info('Seeded Policy global with the Minor Workers Protection Amendment');
   } else {
     logger.info('Policy global already filled in — left untouched');
+  }
+
+  // ── Policy: the proposal table, and its SEO ──────────────────────────
+  // Written separately from the block above so a database seeded by an
+  // earlier run of this script still gets them.
+  const policyNow = await payload.findGlobal({
+    slug: 'policy',
+    locale: 'mn',
+    overrideAccess: true,
+  });
+
+  if (!policyNow?.proposals?.length) {
+    const mnProposals = POLICY.proposals.map((p) => p.mn);
+
+    await payload.updateGlobal({
+      slug: 'policy',
+      locale: 'mn',
+      overrideAccess: true,
+      data: { proposals: mnProposals },
+    });
+
+    const savedProposals = await payload.findGlobal({
+      slug: 'policy',
+      locale: 'mn',
+      overrideAccess: true,
+    });
+
+    await payload.updateGlobal({
+      slug: 'policy',
+      locale: 'en',
+      overrideAccess: true,
+      data: {
+        proposals: withIds(
+          POLICY.proposals.map((p) => p.en),
+          savedProposals?.proposals,
+        ) as never,
+      },
+    });
+
+    logger.info('Seeded Policy with the five proposed changes and their evidence');
+  } else {
+    logger.info('Policy proposals already filled in — left untouched');
+  }
+
+  if (needsRealContent(policyNow?.seo?.metaTitle)) {
+    for (const locale of ['mn', 'en'] as const) {
+      await payload.updateGlobal({
+        slug: 'policy',
+        locale,
+        overrideAccess: true,
+        data: {
+          seo: {
+            metaTitle: POLICY.seo[locale].title,
+            metaDescription: POLICY.seo[locale].description,
+          },
+        },
+      });
+    }
+    logger.info('Seeded Policy SEO');
+  } else {
+    logger.info('Policy SEO already filled in — left untouched');
   }
 
   // ── Research paper ───────────────────────────────────────────────────
@@ -1216,6 +1588,93 @@ const seed = async () => {
     }
   } else if (paperDoc?.pdf) {
     logger.info('Research paper already has a PDF attached — left untouched');
+  }
+
+  // ── The paper's own findings, and its comparison chart ───────────────
+  // Sits before the citation block below so the forced publish at the end
+  // covers these writes too.
+  const paperForFindings = await payload.find({
+    collection: 'papers',
+    where: { slug: { equals: PAPER.slug } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  const findingsPaper = paperForFindings.docs[0];
+
+  if (findingsPaper && !findingsPaper.findings?.length) {
+    await payload.update({
+      collection: 'papers',
+      id: findingsPaper.id,
+      locale: 'mn',
+      overrideAccess: true,
+      draft: false,
+      data: {
+        findings: PAPER.findings.map((f) => f.mn),
+        comparison: {
+          ...PAPER.comparison.mn,
+          rows: PAPER.comparison.rows.map((row) => ({
+            label: row.mn,
+            groupA: row.groupA,
+            groupB: row.groupB,
+          })),
+        },
+      },
+    });
+
+    const savedPaper = await payload.findByID({
+      collection: 'papers',
+      id: findingsPaper.id,
+      locale: 'mn',
+      overrideAccess: true,
+    });
+
+    await payload.update({
+      collection: 'papers',
+      id: findingsPaper.id,
+      locale: 'en',
+      overrideAccess: true,
+      draft: false,
+      data: {
+        findings: withIds(
+          PAPER.findings.map((f) => f.en),
+          savedPaper?.findings,
+        ) as never,
+        comparison: {
+          ...PAPER.comparison.en,
+          rows: withIds(
+            PAPER.comparison.rows.map((row) => ({
+              label: row.en,
+              groupA: row.groupA,
+              groupB: row.groupB,
+            })),
+            savedPaper?.comparison?.rows,
+          ) as never,
+        },
+      },
+    });
+
+    logger.info(
+      `Seeded ${PAPER.findings.length} key findings and the ${PAPER.comparison.rows.length}-row comparison chart`,
+    );
+  } else if (findingsPaper?.findings?.length) {
+    logger.info('Paper findings already filled in — left untouched');
+  }
+
+  // ── Point the policy at the paper it rests on ────────────────────────
+  const policyBase = await payload.findGlobal({
+    slug: 'policy',
+    locale: 'mn',
+    overrideAccess: true,
+    depth: 0,
+  });
+
+  if (findingsPaper && !policyBase?.basedOn) {
+    await payload.updateGlobal({
+      slug: 'policy',
+      overrideAccess: true,
+      data: { basedOn: findingsPaper.id },
+    });
+    logger.info('Linked the policy proposal to the paper it rests on');
   }
 
   // citations is localized (it quotes the localized title), but the

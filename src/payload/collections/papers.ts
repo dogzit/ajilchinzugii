@@ -219,6 +219,116 @@ export const Papers: CollectionConfig = {
           : 'https:// -ээр эхлэх бүтэн хаяг / a full http(s) URL is required.',
     },
     {
+      name: 'findings',
+      type: 'array',
+      label: 'Гол үр дүн / Key findings',
+      admin: {
+        description:
+          'Энэ өгүүллийн өөрийн нийтэлсэн тоо, хаанаас авсан хэсгийн хамт. Эдгээр нь байгууллагын хэргийн бүртгэлийн тоо БИШ — тэд зөвхөн хүснэгтээс ирнэ. The paper’s own published figures, each with the place in the paper it is read from. These are not the organisation’s impact figures, which come only from the sheet.',
+      },
+      labels: { singular: 'Үр дүн / Finding', plural: 'Гол үр дүн / Key findings' },
+      fields: [
+        {
+          name: 'value',
+          type: 'text',
+          required: true,
+          // Localized because the unit is: "+38.6 нэгж хувь" and "+38.6 pp"
+          // are the same figure, and "+15.3 цаг" / "+15.3 h" is the same
+          // again. The digits do not change; the words after them do.
+          localized: true,
+          label: 'Тоо / Figure',
+          admin: {
+            description:
+              'Өгүүлэлд бичигдсэн яг тэр хэлбэрээр, нэгжтэй нь: 10,900 · 82% · +38.6 нэгж хувь. Exactly as the paper writes it, with its unit.',
+          },
+        },
+        {
+          name: 'label',
+          type: 'text',
+          required: true,
+          localized: true,
+          label: 'Юуны тоо вэ / What it counts',
+        },
+        {
+          name: 'source',
+          type: 'text',
+          required: true,
+          localized: true,
+          label: 'Өгүүллийн аль хэсэг / Where in the paper',
+          admin: {
+            description:
+              'Уншигч нээж шалгах хэсэг: «Хураангуй», «5.3 бүлэг», «Хүснэгт 5.1». The passage a reader can open and check: “Abstract”, “Section 5.3”, “Table 5.1”.',
+          },
+        },
+      ],
+    },
+    {
+      name: 'comparison',
+      type: 'group',
+      label: 'Харьцуулалтын график / Comparison chart',
+      admin: {
+        description:
+          'Хоёр бүлгийг үзүүлэлт тус бүрээр харьцуулсан график. Мөр нэмэхгүй бол график огт гарахгүй. A chart comparing two groups measure by measure. With no rows it is not rendered at all.',
+      },
+      fields: [
+        {
+          name: 'title',
+          type: 'text',
+          localized: true,
+          label: 'Графикийн гарчиг / Chart title',
+        },
+        {
+          name: 'groupALabel',
+          type: 'text',
+          localized: true,
+          label: 'Нэгдүгээр бүлэг / First group',
+        },
+        {
+          name: 'groupBLabel',
+          type: 'text',
+          localized: true,
+          label: 'Хоёрдугаар бүлэг / Second group',
+        },
+        {
+          name: 'note',
+          type: 'textarea',
+          localized: true,
+          label: 'Эх сурвалжийн тэмдэглэл / Source note',
+        },
+        {
+          name: 'rows',
+          type: 'array',
+          label: 'Мөрүүд / Rows',
+          labels: { singular: 'Мөр / Row', plural: 'Мөрүүд / Rows' },
+          fields: [
+            {
+              name: 'label',
+              type: 'text',
+              required: true,
+              localized: true,
+              label: 'Үзүүлэлт / Measure',
+            },
+            {
+              name: 'groupA',
+              type: 'number',
+              required: true,
+              min: 0,
+              max: 100,
+              label: 'Нэгдүгээр бүлэг (%) / First group (%)',
+            },
+            {
+              name: 'groupB',
+              type: 'number',
+              required: true,
+              min: 0,
+              max: 100,
+              label: 'Хоёрдугаар бүлэг (%) / Second group (%)',
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'citations',
       type: 'group',
       label: 'Эшлэл (автоматаар) / Citations (generated)',

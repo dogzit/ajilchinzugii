@@ -49,6 +49,49 @@ export const Policy: GlobalConfig = {
       label: 'Бүрэн эх / Full text',
     },
     {
+      name: 'proposals',
+      type: 'array',
+      label: 'Саналууд / The proposed changes',
+      admin: {
+        description:
+          'Өөрчлөлт бүр аль цоорхойг нөхөж байгаа, ямар нотолгоонд тулгуурласныг хамт бичнэ — иймээс л уншигч санал бүрийг шалгаж чадна. Each change says which gap it closes and what evidence stands behind it, which is what lets a reader check it.',
+      },
+      labels: { singular: 'Санал / Change', plural: 'Саналууд / Changes' },
+      fields: [
+        {
+          name: 'change',
+          type: 'textarea',
+          required: true,
+          localized: true,
+          label: 'Өөрчлөлт / The change',
+        },
+        {
+          name: 'gap',
+          type: 'textarea',
+          required: true,
+          localized: true,
+          label: 'Нөхөж буй цоорхой / The gap it closes',
+        },
+        {
+          name: 'evidence',
+          type: 'textarea',
+          required: true,
+          localized: true,
+          label: 'Нотолгоо / The evidence behind it',
+        },
+      ],
+    },
+    {
+      name: 'basedOn',
+      type: 'relationship',
+      relationTo: 'papers',
+      label: 'Аль судалгаанд тулгуурласан / The paper this rests on',
+      admin: {
+        description:
+          'Сонгосон бол бодлогын хуудас тухайн судалгаа руу холбогдоно. Нотолгоогүй санал бол санал биш. When set, the policy page links to that paper. A proposal with no evidence behind it is not a proposal.',
+      },
+    },
+    {
       name: 'status',
       type: 'select',
       required: true,

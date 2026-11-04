@@ -38,6 +38,17 @@ export function formatCompact(value: number, locale: Locale): string {
   return `${formatNumber(rounded, locale)}${suffix}`;
 }
 
+/**
+ * A share, as a percentage: 62.7 → "62.7%".
+ *
+ * The number arrives already expressed in percent (the way a survey reports
+ * it), so it is formatted rather than multiplied — scaling it here would
+ * quietly turn 62.7% into 6,270%.
+ */
+export function formatPercent(value: number, locale: Locale): string {
+  return `${formatNumber(value, locale)}%`;
+}
+
 /** 2026-09-30 → "2026 оны 9 сарын 30" / "30 September 2026". */
 export function formatDate(
   value: string | null | undefined,

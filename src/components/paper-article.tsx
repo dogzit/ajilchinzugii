@@ -1,7 +1,9 @@
 import { CitationBlock } from '@/components/citation-block';
+import { ComparisonChart } from '@/components/comparison-chart';
 import { RichText } from '@/components/rich-text';
 import type { Paper } from '@/payload-types';
 import type { getTranslations } from 'next-intl/server';
+import type { Locale } from '@/i18n/routing';
 import { isRichTextEmpty } from '@/lib/format';
 
 type T = Awaited<ReturnType<typeof getTranslations>>;
@@ -39,13 +41,23 @@ function ResourceLink({
 export function PaperArticle({
   paper,
   t,
+  locale,
   headingLevel: Heading = 'h1',
 }: {
   paper: Paper;
   t: T;
+  locale: Locale;
   headingLevel?: 'h1' | 'h2';
 }) {
   const pdf = typeof paper.pdf === 'object' && paper.pdf ? paper.pdf : null;
+  const findings = (paper.findings ?? []).filter(
+    (finding) => finding.value && finding.label,
+  );
+  const comparisonRows = (paper.comparison?.rows ?? []).filter(
+    (row) => typeof row.groupA === 'number' && typeof row.groupB === 'number',
+  );
+  const groupALabel = paper.comparison?.groupALabel;
+  const groupBLabel = paper.comparison?.groupBLabel;
 
   return (
     <article>
@@ -87,6 +99,59 @@ export function PaperArticle({
           <div className="mt-3">
             <RichText data={paper.abstract} />
           </div>
+        </section>
+      ) : null}
+
+      {findings.length > 0 ? (
+        <section aria-labelledby={`findings-${paper.id}`} className="mt-12">
+          <h2 id={`findings-${paper.id}`} className="text-xl">
+            {t('research.findingsHeading')}
+          </h2>
+          <p className="text-ink-muted mt-2 max-w-[65ch] text-sm">
+            {t('research.findingsNote')}
+          </p>
+
+          {/* A definition list, not a grid of cards: each figure is a term
+              and the passage it is read from is part of its description, so
+              a reader can take any one of them back to the paper. */}
+          <dl className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+            {findings.map((finding) => (
+              <div
+                key={finding.id ?? finding.value}
+                className="border-border bg-surface flex flex-col gap-1.5 rounded-3xl border p-5"
+              >
+                <dt className="num font-display text-ink text-3xl leading-none">
+                  {finding.value}
+                </dt>
+                <dd className="flex flex-col gap-1.5">
+                  <span className="text-ink-soft block text-sm leading-snug">
+                    {finding.label}
+                  </span>
+                  <span className="text-ink-muted block text-xs">{finding.source}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ) : null}
+
+      {comparisonRows.length > 0 && groupALabel && groupBLabel ? (
+        <section aria-labelledby={`comparison-${paper.id}`} className="mt-12">
+          <h2 id={`comparison-${paper.id}`} className="text-xl">
+            {paper.comparison?.title ?? t('research.comparisonHeading')}
+          </h2>
+          <ComparisonChart
+            id={`comparison-${paper.id}`}
+            rows={comparisonRows.map((row) => ({
+              label: row.label,
+              groupA: row.groupA,
+              groupB: row.groupB,
+            }))}
+            groupALabel={groupALabel}
+            groupBLabel={groupBLabel}
+            note={paper.comparison?.note}
+            locale={locale}
+          />
         </section>
       ) : null}
 

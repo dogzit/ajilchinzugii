@@ -34,3 +34,17 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .lighthouseci/
+
+# local env for wrangler/next dev — secrets, never committed
+.dev.vars
+
+# Source files for one-time seeding only. The paper PDF and the client's
+# photographs are uploaded to R2 by the seed script and live there; a copy on
+# disk is transient. Keeping them untracked also keeps raw camera files (with
+# their EXIF) out of the deployed public/ folder — see CLAUDE.md rule 4.
+/Batbayar_Children_Outside_Employers_NUM.pdf
+*.HEIC
+*.heic
+
+# scratch scripts (underscore-prefixed) — not part of the project
+scripts/_*.ts

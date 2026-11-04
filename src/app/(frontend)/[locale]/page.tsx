@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CtaBand } from '@/components/home/cta-band';
 import { Hero } from '@/components/home/hero';
 import { PartnersMarquee } from '@/components/home/partners-marquee';
-import { Story } from '@/components/home/story';
+import { Evidence } from '@/components/home/evidence';
 import { TrustStrip } from '@/components/home/trust-strip';
 import { WhatWeDo } from '@/components/home/what-we-do';
 import { SectionHeader } from '@/components/ui/section-header';
@@ -11,7 +11,7 @@ import { StatCard } from '@/components/ui/stat-card';
 import { ButtonLink } from '@/components/ui/button';
 import { isDemoContent } from '@/components/demo-banner';
 import type { Locale } from '@/i18n/routing';
-import { getPartners, getSite } from '@/lib/cms';
+import { getPapers, getPartners, getSite } from '@/lib/cms';
 import { pillars } from '@/lib/home-content';
 import { localeHref } from '@/lib/locale-href';
 import { publishable } from '@/lib/placeholder';
@@ -42,11 +42,12 @@ export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, site, impact, partners] = await Promise.all([
+  const [t, site, impact, partners, papers] = await Promise.all([
     getTranslations(),
     getSite(locale),
     getImpact(locale),
     getPartners(locale),
+    getPapers(locale),
   ]);
 
   // Four at most: a front page that leads with everything leads with nothing.
@@ -55,6 +56,20 @@ export default async function HomePage({ params }: Props) {
   // fetch — never a second, quietly different source.
   const featured = headline[0] ?? null;
   const updated = formatDateTime(impact.fetchedAt, locale);
+
+  // The front page shows the newest paper's own headline findings. They are
+  // published survey estimates with a passage named under each one, never the
+  // organisation's case-log figures — those come only from the sheet, in the
+  // band above, and are suppressed below five cases.
+  const evidencePaper = papers.find((paper) => (paper.findings ?? []).length > 0) ?? null;
+  const evidence = (evidencePaper?.findings ?? [])
+    .filter((finding) => finding.value && finding.label && finding.source)
+    .slice(0, 3)
+    .map((finding) => ({
+      value: finding.value,
+      label: finding.label,
+      source: finding.source,
+    }));
 
   const statLabels = {
     suppressed: t('impact.suppressed'),
@@ -75,7 +90,6 @@ export default async function HomePage({ params }: Props) {
         primaryCta={t('home.heroPrimaryCta')}
         secondaryCta={t('home.heroSecondaryCta')}
         trustLine={t('home.heroTrust')}
-        imageNote={t('home.heroImageNote')}
         sampleLabel={isDemoContent(site.missionLine) ? t('demo.tag') : null}
         featured={featured}
         featuredLabels={{ suppressed: statLabels.suppressed, asOf: statLabels.asOf }}
@@ -164,14 +178,14 @@ export default async function HomePage({ params }: Props) {
         </div>
       </section>
 
-      <Story
-        eyebrow={t('home.storyEyebrow')}
-        heading={t('home.storyHeading')}
-        quote={t('home.storyQuote')}
-        caption={t('home.storyCaption')}
-        linkLabel={t('home.storyLink')}
-        href={localeHref(locale, '/impact')}
-        imageNote={t('home.storyImageNote')}
+      <Evidence
+        eyebrow={t('home.evidenceEyebrow')}
+        heading={t('home.evidenceHeading')}
+        quote={t('home.evidenceQuote')}
+        caption={t('home.evidenceCaption')}
+        findings={evidence}
+        linkLabel={t('home.evidenceLink')}
+        href={localeHref(locale, evidencePaper ? `/research/${evidencePaper.slug}` : '/research')}
       />
 
       <CtaBand

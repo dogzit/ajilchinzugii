@@ -135,7 +135,6 @@
     "heroPrimaryCta": "See our impact",
     "heroSecondaryCta": "Work with us",
     "heroTrust": "No personal data collected · Every figure links to its method",
-    "heroImageNote": "[PLACEHOLDER: a consented, non-identifiable photograph or illustration]",
     "trustHeading": "Why these figures can be trusted",
     "trustProtectedTitle": "Identities stay protected",
     "trustProtectedBody": "A figure resting on fewer than five cases is never shown as a number — small numbers can identify a person.",
@@ -144,16 +143,15 @@
     "trustHonestTitle": "Honest about results",
     "trustHonestBody": "What was proposed and what was adopted are kept apart. What did not work is published too.",
     "workEyebrow": "WHAT WE DO",
-    "storyEyebrow": "ONE STORY",
-    "storyHeading": "In a young worker’s own words",
-    "storyQuote": "[PLACEHOLDER: a quote given with recorded consent. This section stays empty until the real words are supplied.]",
-    "storyCaption": "[PLACEHOLDER: a young worker, 2026]",
-    "storyLink": "Read their story",
-    "storyImageNote": "[PLACEHOLDER: a consented photograph]",
     "ctaHeading": "Let’s protect young workers together.",
     "ctaBody": "Researchers, organisations, funders, journalists — we are ready to work with any of them.",
     "ctaPrimary": "Get in touch",
-    "ctaSecondary": "See the data and code"
+    "ctaSecondary": "See the data and code",
+    "evidenceEyebrow": "THE EVIDENCE",
+    "evidenceHeading": "What the research found",
+    "evidenceQuote": "In the end, the question is not whether a child is working. It is whether anyone knows.",
+    "evidenceCaption": "Children Working for Outside Employers in Mongolia (2026), Chapter 9. National estimates from the 2021–22 National Child Labour Survey — not this organisation’s own case figures.",
+    "evidenceLink": "Read the paper"
   },
   "methodology": {
     "sourcesHeading": "Sources",
@@ -185,7 +183,12 @@
       "preprint": "Preprint",
       "under-review": "Under review",
       "published": "Published"
-    }
+    },
+    "findingsHeading": "Key findings",
+    "findingsNote": "Figures from this paper, each with the passage it is read from. These are national survey estimates, not the organisation’s own case figures.",
+    "comparisonHeading": "Comparison",
+    "measure": "Measure",
+    "chartSummary": "{groupA} compared with {groupB} across {count} measures. The widest gap is {measure}: {valueA} against {valueB}. The same figures follow as a table."
   },
   "policy": {
     "statusHeading": "Status",
@@ -198,7 +201,13 @@
       "under-review": "Under review",
       "adopted": "Adopted",
       "rejected": "Rejected"
-    }
+    },
+    "proposalsHeading": "What is proposed",
+    "proposalsLead": "Each change, the gap it closes, and the evidence behind it.",
+    "proposalChange": "The change",
+    "proposalGap": "The gap it closes",
+    "proposalEvidence": "The evidence",
+    "basedOn": "Read the research behind this: {title}"
   },
   "about": {
     "teamHeading": "Team",

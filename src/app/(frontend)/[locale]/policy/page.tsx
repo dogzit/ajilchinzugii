@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { Link } from '@/components/link';
 import { PageHeader } from '@/components/page-header';
 import { RichText } from '@/components/rich-text';
 import { StatusBadge } from '@/components/status-badge';
 import type { Locale } from '@/i18n/routing';
 import { getPolicy } from '@/lib/cms';
 import { formatDate, isRichTextEmpty, richTextHeadings } from '@/lib/format';
+import { localeHref } from '@/lib/locale-href';
 import { JsonLd } from '@/components/json-ld';
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
 import { buildPageMetadata } from '@/lib/seo/metadata';
@@ -36,6 +38,13 @@ export default async function PolicyPage({ params }: Props) {
     String(b.date).localeCompare(String(a.date)),
   );
   const headings = richTextHeadings(policy.fullText);
+  const proposals = (policy.proposals ?? []).filter(
+    (proposal) => proposal.change && proposal.gap && proposal.evidence,
+  );
+  // Only a paper that is actually published can be linked to: an unpublished
+  // one would 404 for the reader this page is trying to convince.
+  const basedOn =
+    typeof policy.basedOn === 'object' && policy.basedOn?.slug ? policy.basedOn : null;
 
   return (
     <div className="shell max-w-[62rem] py-14 md:py-20">
@@ -67,6 +76,68 @@ export default async function PolicyPage({ params }: Props) {
           <p className="text-ink-soft mt-6 max-w-[65ch] text-lg">{policy.summary}</p>
         ) : null}
       </section>
+
+      {proposals.length > 0 ? (
+        <section aria-labelledby="proposals" className="mt-14">
+          <h2 id="proposals" className="text-xl">
+            {t('policy.proposalsHeading')}
+          </h2>
+          <p className="text-ink-muted mt-2 max-w-[65ch] text-sm">
+            {t('policy.proposalsLead')}
+          </p>
+
+          {/* A real table, because the three columns are the argument: what
+              changes, what it fixes, and what says so. A reader who only
+              accepts the first two columns has not been given a reason. */}
+          <div className="border-border mt-6 overflow-x-auto rounded-3xl border">
+            <table className="w-full min-w-[42rem] border-collapse text-sm">
+              <caption className="sr-only">{t('policy.proposalsHeading')}</caption>
+              <thead>
+                <tr className="bg-surface-tint text-ink-muted">
+                  <th scope="col" className="p-4 text-start font-medium">
+                    {t('policy.proposalChange')}
+                  </th>
+                  <th scope="col" className="p-4 text-start font-medium">
+                    {t('policy.proposalGap')}
+                  </th>
+                  <th scope="col" className="p-4 text-start font-medium">
+                    {t('policy.proposalEvidence')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {proposals.map((proposal, index) => (
+                  <tr
+                    key={proposal.id ?? index}
+                    className="border-border bg-surface border-t align-top"
+                  >
+                    <th
+                      scope="row"
+                      className="text-ink p-4 text-start font-semibold max-w-[22rem]"
+                    >
+                      {proposal.change}
+                    </th>
+                    <td className="text-ink-soft p-4">{proposal.gap}</td>
+                    <td className="text-ink-soft num p-4">{proposal.evidence}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {basedOn ? (
+            <p className="mt-5">
+              <Link
+                href={localeHref(locale, `/research/${basedOn.slug}`)}
+                className="text-accent-text hover:text-ink inline-flex items-center gap-1.5 text-sm font-medium underline-offset-4 hover:underline"
+              >
+                {t('policy.basedOn', { title: basedOn.title })}
+                <span aria-hidden="true">→</span>
+              </Link>
+            </p>
+          ) : null}
+        </section>
+      ) : null}
 
       {history.length > 0 ? (
         <section aria-labelledby="history" className="mt-14">

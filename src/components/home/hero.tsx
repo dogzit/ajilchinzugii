@@ -24,7 +24,6 @@ export function Hero({
   primaryCta,
   secondaryCta,
   trustLine,
-  imageNote,
   sampleLabel,
   featured,
   featuredLabels,
@@ -37,7 +36,6 @@ export function Hero({
   primaryCta: string;
   secondaryCta: string;
   trustLine: string;
-  imageNote: string;
   sampleLabel?: string | null;
   featured?: LocalizedMetric | null;
   featuredLabels: { suppressed: string; asOf: (date: string) => string };
@@ -90,12 +88,13 @@ export function Hero({
                 className="object-cover"
               />
             ) : (
-              <>
-                <HexOutlines />
-                <p className="text-ink-muted absolute inset-x-0 bottom-0 p-6 text-xs leading-relaxed">
-                  {imageNote}
-                </p>
-              </>
+              /* Until the organisation has a photograph it can publish, the
+                 panel carries the mark itself rather than a caption
+                 apologising for the gap. Photographs of working teens need a
+                 recorded consent from the teen and a parent (CLAUDE.md rule
+                 4), so this is not a placeholder waiting on a file — it is
+                 what the page shows when there is nothing consented to show. */
+              <HexOutlines />
             )}
           </div>
 
@@ -113,7 +112,7 @@ export function Hero({
   );
 }
 
-/** Faint honeycomb, drawn rather than fetched. Purely a holding pattern. */
+/** Faint honeycomb, drawn rather than fetched — the bee, at the size of a wall. */
 function HexOutlines() {
   const cells = [];
   const r = 26;

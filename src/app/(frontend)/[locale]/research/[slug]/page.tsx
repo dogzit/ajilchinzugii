@@ -74,7 +74,7 @@ export default async function PaperPage({ params }: Props) {
         </Link>
       </p>
 
-      <PaperArticle paper={paper} t={t} headingLevel="h1" />
+      <PaperArticle paper={paper} t={t} locale={locale} headingLevel="h1" />
     </div>
   );
 }

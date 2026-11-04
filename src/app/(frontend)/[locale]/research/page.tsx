@@ -50,7 +50,7 @@ export default async function ResearchPage({ params }: Props) {
         // One paper: show it in full here instead of making the reader click
         // through to a list of one.
         <div className="mt-10">
-          <PaperArticle paper={papers[0]!} t={t} headingLevel="h2" />
+          <PaperArticle paper={papers[0]!} t={t} locale={locale} headingLevel="h2" />
         </div>
       ) : (
         <ul className="mt-10 flex flex-col">

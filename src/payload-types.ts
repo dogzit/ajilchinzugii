@@ -176,6 +176,40 @@ export interface Paper {
   codeUrl?: string | null;
   dataUrl?: string | null;
   /**
+   * Энэ өгүүллийн өөрийн нийтэлсэн тоо, хаанаас авсан хэсгийн хамт. Эдгээр нь байгууллагын хэргийн бүртгэлийн тоо БИШ — тэд зөвхөн хүснэгтээс ирнэ. The paper’s own published figures, each with the place in the paper it is read from. These are not the organisation’s impact figures, which come only from the sheet.
+   */
+  findings?:
+    | {
+        /**
+         * Өгүүлэлд бичигдсэн яг тэр хэлбэрээр, нэгжтэй нь: 10,900 · 82% · +38.6 нэгж хувь. Exactly as the paper writes it, with its unit.
+         */
+        value: string;
+        label: string;
+        /**
+         * Уншигч нээж шалгах хэсэг: «Хураангуй», «5.3 бүлэг», «Хүснэгт 5.1». The passage a reader can open and check: “Abstract”, “Section 5.3”, “Table 5.1”.
+         */
+        source: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Хоёр бүлгийг үзүүлэлт тус бүрээр харьцуулсан график. Мөр нэмэхгүй бол график огт гарахгүй. A chart comparing two groups measure by measure. With no rows it is not rendered at all.
+   */
+  comparison?: {
+    title?: string | null;
+    groupALabel?: string | null;
+    groupBLabel?: string | null;
+    note?: string | null;
+    rows?:
+      | {
+          label: string;
+          groupA: number;
+          groupB: number;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
    * Хадгалах болгонд дээрх талбаруудаас автоматаар бүрддэг. Generated from the fields above every time the paper is saved.
    */
   citations?: {
@@ -486,6 +520,30 @@ export interface PapersSelect<T extends boolean = true> {
   pdf?: T;
   codeUrl?: T;
   dataUrl?: T;
+  findings?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        source?: T;
+        id?: T;
+      };
+  comparison?:
+    | T
+    | {
+        title?: T;
+        groupALabel?: T;
+        groupBLabel?: T;
+        note?: T;
+        rows?:
+          | T
+          | {
+              label?: T;
+              groupA?: T;
+              groupB?: T;
+              id?: T;
+            };
+      };
   citations?:
     | T
     | {
@@ -853,6 +911,21 @@ export interface Policy {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Өөрчлөлт бүр аль цоорхойг нөхөж байгаа, ямар нотолгоонд тулгуурласныг хамт бичнэ — иймээс л уншигч санал бүрийг шалгаж чадна. Each change says which gap it closes and what evidence stands behind it, which is what lets a reader check it.
+   */
+  proposals?:
+    | {
+        change: string;
+        gap: string;
+        evidence: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Сонгосон бол бодлогын хуудас тухайн судалгаа руу холбогдоно. Нотолгоогүй санал бол санал биш. When set, the policy page links to that paper. A proposal with no evidence behind it is not a proposal.
+   */
+  basedOn?: (number | null) | Paper;
   status: 'drafted' | 'submitted' | 'under-review' | 'adopted' | 'rejected';
   statusDate: string;
   /**
@@ -1003,6 +1076,15 @@ export interface MethodologySelect<T extends boolean = true> {
 export interface PolicySelect<T extends boolean = true> {
   summary?: T;
   fullText?: T;
+  proposals?:
+    | T
+    | {
+        change?: T;
+        gap?: T;
+        evidence?: T;
+        id?: T;
+      };
+  basedOn?: T;
   status?: T;
   statusDate?: T;
   history?:

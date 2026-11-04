@@ -31,7 +31,11 @@ export const getMethodology = cache(async (locale: Locale): Promise<Methodology>
 
 export const getPolicy = cache(async (locale: Locale): Promise<Policy> => {
   const payload = await client();
-  return payload.findGlobal({ slug: 'policy', locale, depth: 0 });
+  // Depth 1 so `basedOn` arrives as the paper itself, not an id — the page
+  // needs its slug and title to link to it. Papers read access is
+  // `publishedOrStaff`, so a draft paper comes back empty here rather than
+  // giving the public page a link that would 404.
+  return payload.findGlobal({ slug: 'policy', locale, depth: 1 });
 });
 
 export const getPapers = cache(async (locale: Locale): Promise<Paper[]> => {
