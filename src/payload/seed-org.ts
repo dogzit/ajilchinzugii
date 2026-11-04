@@ -761,20 +761,24 @@ const PAPER = {
     mn: 'Монгол дахь гэр бүлээсээ гадуур ажил олгогчдод ажилладаг хүүхдүүд: 2021–22 оны Үндэсний хүүхдийн хөдөлмөрийн судалгааны нотолгоо',
     en: 'Children Working for Outside Employers in Mongolia: Evidence from the 2021–22 National Child Labour Survey',
   },
+  // Matches the PDF's own abstract (page 3) word for word in English, kept
+  // in the author's first-person voice rather than paraphrased, since the
+  // PDF is the primary source now attached to this entry.
   abstract: {
     mn: [
-      'Монголд 5–17 насны ойролцоогоор 10,900 хүүхэд долоо хоногийн дунджаар өөрийн гэр бүлээс гадна хэн нэгэнд ажил хийдэг бөгөөд тэдний 82%, өөрөөр хэлбэл ойролцоогоор 8,860 хүүхэд Хөдөлмөрийн тухай хуулийн дор хаяж нэг хязгаарыг зөрчиж байна. 2021–22 оны Үндэсний хүүхдийн хөдөлмөрийн судалгааны (23,876 хүүхэд, 13,144 өрх) анхдагч өгөгдлийг ашиглан, өгүүлэл эдгээр хүүхэд хэн болох, тэдний ажил гэр бүлдээ туслаж байгаа хүүхдүүдийнхээс юугаар ялгаатай болохыг судлав.',
-      'Ижил нас, хүйс, аймаг, суурин газрын төрөл, судалгааны улиралтай гэр бүлийн ажилтантай харьцуулахад тэд аюултай ажил хийх магадлал 38.6 нэгж хувиар, 7 хоногт 30 цагаас (хуулийн дээд хязгаар) илүү ажиллах магадлал 32.5 нэгж хувиар өндөр байна. Тэд 7 хоногт 15.3 цагаар илүү ажиллаж, гэртээ 1.4 цагаар бага хичээллэдэг бөгөөд цалинтай ажилладаг хүүхдийн 14.3% нь хамгийн бага цагийн хөлсөөс доогуур орлого олдог.',
-      'Орлого буурсан нь энэ байдлыг тайлбарлахгүй: орлого буурсан өрхийн 200-гийн 1-ээс бага нь хүүхэд ажиллаж эхэлсэн гэж хэлсэн. Харин өгөгдөл хэнд ч бараг хяналтаар тэнцдэггүй хуулийг илэрхийлж байна: ойролцоогоор 1.3 сая ажилтанд ногдож 66 хөдөлмөрийн байцаагч байгаа бөгөөд хамгийн бага насны хязгаарыг зөрчиж хүүхэд ажиллуулсан тохиолдолд торгууль байдаггүй. Өгүүлэл насанд хүрээгүй ажилтны бүртгэл, урьдчилан мэдэгдэлгүй шалгалт, хуулиас гадуур ажилласан хүүхэд бүрт торгууль тогтоохыг санал болгож байна.',
+      'Долоо хоногийн дунджаар Монголд 5–17 насны ойролцоогоор 10,900 хүүхэд өөрийн гэр бүлээс гадна хэн нэгэнд ажилладаг. Тэдний 84% нь хүүхдийн хөдөлмөрт тооцогдож, 82%, өөрөөр хэлбэл ойролцоогоор 8,860 хүүхэд Хөдөлмөрийн тухай хуулийн дор хаяж нэг хязгаарыг зөрчдөг. Би эдгээр хүүхдүүд хэн болох, тэдний ажил өөрийн гэр бүлдээ туслаж байгаа хүүхдүүдийнхээс юугаар ялгаатай болохыг 2021–22 оны Үндэсний хүүхдийн хөдөлмөрийн судалгааны (23,876 хүүхэд, 13,144 өрх) анхдагч өгөгдлийг ашиглан тогтоохоор зорьсон.',
+      'Ялгаа нь том байна. Ижил нас, хүйс, аймаг, суурин газрын төрөл, судалгааны улиралтай гэр бүлийн ажилтантай харьцуулахад, гадны ажил олгогчдод ажилладаг хүүхдүүд аюултай ажил хийх магадлал 38.6 нэгж хувиар, 7 хоногт 30 цагаас (хуулийн дээд хязгаар) илүү ажиллах магадлал 32.5 нэгж хувиар өндөр байна. Тэд 7 хоногт 15.3 цагаар илүү ажиллаж, гэртээ 1.4 цагаар бага хичээллэдэг. Цалинтай ажилладаг хүүхдийн 14.3% нь хамгийн бага цагийн хөлсөөс доогуур орлого олдог.',
+      'Миний анхны таамаглал бол хүнд хэцүү үе хүүхдийг ажилд түлхэж байгаа гэсэн явдал байв. Гэвч өгөгдөл үүнтэй санал нийлсэнгүй. Орлого буурсан өрхийн 200-гийн 1-ээс бага нь хүүхэд ажиллаж эхэлсэн гэж хэлсэн. Харин өгөгдөл хэнд ч бараг хяналтаар тэнцдэггүй хуулийг илэрхийлж байна. Монголд ойролцоогоор 1.3 сая ажилтанд ногдож 66 хөдөлмөрийн байцаагч байгаа бөгөөд хамгийн бага насны хязгаарыг зөрчиж хүүхэд ажиллуулсан тохиолдолд торгууль байдаггүй. Би насанд хүрээгүй ажилтны бүртгэл, урьдчилан мэдэгдэлгүй шалгалт, хуулиас гадуур ажилласан хүүхэд бүрт торгууль тогтоохыг санал болгож байна.',
     ],
     en: [
-      'In an average week, about 10,900 children aged 5–17 in Mongolia work for someone outside their own family, and 82%, about 8,860 children, break at least one limit in the Labour Law. Using the microdata of the 2021–22 National Child Labour Survey (23,876 children in 13,144 households), the paper asks who these children are and how their work differs from that of children who help their own families.',
-      'Compared with family workers of the same age and sex, in the same aimag, type of place and survey quarter, they are 38.6 percentage points more likely to do hazardous work and 32.5 points more likely to work more than 30 hours a week, the legal maximum. They work 15.3 more hours a week, study 1.4 fewer hours a week at home, and 14.3% of those paid earn less than the minimum hourly wage.',
-      'Hard times do not explain this: fewer than 1 in 200 households whose income fell said a child started working. The data point instead to a law that almost nobody checks, with 66 labour inspectors for about 1.3 million workers and no penalty for employing a child under the minimum age. The paper proposes a register of employed minors, unannounced inspections and a fine for each child employed outside the law.',
+      'In an average week, about 10,900 children aged 5–17 in Mongolia work for someone outside their own family. 84% of them are in child labour, and 82%, about 8,860 children, break at least one limit in the Labour Law. I set out to find who these children are and how their work differs from that of children who help their own families, using the microdata of the 2021–22 National Child Labour Survey (23,876 children in 13,144 households).',
+      'The difference is large. Compared with family workers of the same age and sex, in the same aimag, type of place and survey quarter, children working for outside employers are 38.6 percentage points more likely to do hazardous work and 32.5 points more likely to work more than 30 hours a week, the legal maximum. They work 15.3 more hours a week and study 1.4 fewer hours a week at home. Of those who are paid, 14.3% earn less than the minimum hourly wage.',
+      'My first guess was that hard times push children into work. The data did not agree. Fewer than 1 in 200 households whose income fell said a child started working. What the data points to instead is a law that almost nobody checks. Mongolia has 66 labour inspectors for about 1.3 million workers and no penalty for employing a child under the minimum age. I propose a register of employed minors, unannounced inspections and a fine for each child employed outside the law.',
     ],
   },
   authors: [{ name: 'Erdenebat Batbayar' }],
   year: 2026,
+  venue: 'National University of Mongolia, Department of Economics',
   dataUrl: 'https://nada.nso.mn/en/catalog/58',
   status: 'working-paper' as const,
   seoTitle: {
@@ -1079,6 +1083,7 @@ const seed = async () => {
         abstract: richText(PAPER.abstract.mn),
         authors: PAPER.authors,
         year: PAPER.year,
+        venue: PAPER.venue,
         dataUrl: PAPER.dataUrl,
         status: PAPER.status,
         seo: { metaTitle: PAPER.seoTitle.mn, metaDescription: PAPER.seoDescription.mn },
@@ -1102,6 +1107,30 @@ const seed = async () => {
     logger.info(`Created research paper "${PAPER.slug}"`);
   } else {
     logger.info('Research paper already exists — left untouched');
+
+    // The paper was created before venue was captured, and before the
+    // abstract was corrected to match the PDF's own wording exactly
+    // (it previously paraphrased a secondhand summary). An empty venue is
+    // the signal that this sync hasn't run yet — once it has, or an editor
+    // has touched the paper in /admin, this leaves it alone.
+    const existing = existingPaper.docs[0];
+    if (existing && !existing.venue) {
+      await payload.update({
+        collection: 'papers',
+        id: existing.id,
+        locale: 'mn',
+        overrideAccess: true,
+        data: { abstract: richText(PAPER.abstract.mn), venue: PAPER.venue },
+      });
+      await payload.update({
+        collection: 'papers',
+        id: existing.id,
+        locale: 'en',
+        overrideAccess: true,
+        data: { abstract: richText(PAPER.abstract.en) },
+      });
+      logger.info('Synced the abstract to the PDF’s own wording, and set venue');
+    }
   }
 
   // The PDF itself is attached separately so re-running this script after
