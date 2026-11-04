@@ -28,9 +28,6 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     display: 'minimal-ui',
     background_color: pageBackground.light,
     theme_color: pageBackground.light,
-    icons: [
-      { src: '/icon.svg', type: 'image/svg+xml', sizes: 'any' },
-      { src: '/logo.png', type: 'image/png', sizes: '512x512', purpose: 'any' },
-    ],
+    icons: [{ src: '/logo.png', type: 'image/png', sizes: '244x244', purpose: 'any' }],
   };
 }

@@ -128,7 +128,13 @@ export async function buildRootMetadata(
     description,
     applicationName: siteName,
     manifest: '/manifest.webmanifest',
-    icons: { icon: '/icon.svg', apple: '/logo.png' },
+    icons: {
+      icon: [
+        { url: '/icon-light.png', media: '(prefers-color-scheme: light)' },
+        { url: '/icon-dark.png', media: '(prefers-color-scheme: dark)' },
+      ],
+      apple: '/logo.png',
+    },
     alternates: { languages: languageAlternates('/') },
     openGraph: {
       type: 'website',

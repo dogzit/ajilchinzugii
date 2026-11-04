@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { getPayload } from 'payload';
 import config from '../payload.config';
 import { isDemoValue, isPlaceholder } from '../lib/placeholder';
@@ -692,6 +695,8 @@ const SITE = {
   },
   city: { mn: 'Улаанбаатар', en: 'Ulaanbaatar' },
   foundingDate: '2026-06-01',
+  contactEmail: 'ajilchinzugii.contact@gmail.com',
+  legalName: 'Ajilchin Zugii NGO',
   seoTitle: 'Ajilchin Zugii',
   seoDescription: {
     mn: 'Ажилчин Зөгий бол ажил эрхэлдэг өсвөр насныханд зориулсан ТББ. Бид тэдэнд шударга хөлс, аюулгүй нөхцөл, сургуульд хамрагдах цагийг хамгаалж өгдөг.',
@@ -791,6 +796,25 @@ const PARTNERS = [
   },
   { name: 'Confederation of Mongolian Trade Unions', url: 'https://cmtu.mn' },
   { name: 'Stoic NGO', url: undefined },
+  { name: 'Federation of Mongolian Education and Science Unions', url: undefined },
+  { name: 'Zorig Foundation', url: undefined },
+  { name: 'Alham Project', url: undefined },
+  { name: 'NUM Career Center', url: undefined },
+];
+
+const TEAM = [
+  {
+    name: 'Erdenebat',
+    role: { mn: 'Үүсгэн байгуулагч, Гүйцэтгэх захирал', en: 'Founder, CEO' },
+  },
+  {
+    name: 'Ariuntuguldur',
+    role: { mn: 'Үйл ажиллагааны менежер', en: 'Operations Lead' },
+  },
+  {
+    name: 'Zolbayar',
+    role: { mn: 'Технологийн захирал', en: 'Chief Technology Officer' },
+  },
 ];
 
 const seed = async () => {
@@ -831,38 +855,37 @@ const seed = async () => {
   // Demo text ("ЖИШЭЭ: ...") in legalName or contactEmail would otherwise
   // render on the About page and in structured data as if it were real —
   // publishable() hides it from metadata/JSON-LD, but the About page reads
-  // these fields directly. Replace it with the TBD marker instead, since no
-  // real legal name or contact email was given yet.
+  // these fields directly.
   const siteCurrent = await payload.findGlobal({
     slug: 'site',
     locale: 'mn',
     overrideAccess: true,
   });
 
-  if (isDemoValue(siteCurrent?.organization?.legalName)) {
+  if (siteCurrent?.organization?.legalName !== SITE.legalName) {
     for (const locale of ['mn', 'en'] as const) {
       await payload.updateGlobal({
         slug: 'site',
         locale,
         overrideAccess: true,
-        data: { organization: { legalName: TBD } },
+        data: { organization: { legalName: SITE.legalName } },
       });
     }
-    logger.info('Cleared demo legal name to TBD — still pending from the client');
+    logger.info('Set the real legal name');
   }
 
-  if (isDemoValue(siteCurrent?.contactEmail)) {
+  if (siteCurrent?.contactEmail !== SITE.contactEmail) {
     await payload.updateGlobal({
       slug: 'site',
       overrideAccess: true,
-      data: { contactEmail: process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'tbd@example.org' },
+      data: { contactEmail: SITE.contactEmail },
     });
-    logger.info('Cleared demo contact email — still pending from the client');
+    logger.info('Set the real contact email');
   }
 
-  // Contact email, legal name and social links were not provided by the
-  // client yet, so they are intentionally left as whatever they currently
-  // are (TBD placeholder or editor-entered) rather than guessed here.
+  // Legal name and social links were not provided by the client yet, so
+  // they are intentionally left as whatever they currently are (TBD
+  // placeholder or editor-entered) rather than guessed here.
 
   // ── Methodology ──────────────────────────────────────────────────────
   const methodology = await payload.findGlobal({
@@ -1081,6 +1104,59 @@ const seed = async () => {
     logger.info('Research paper already exists — left untouched');
   }
 
+  // The PDF itself is attached separately so re-running this script after
+  // the local copy of the file is gone (it only ever lives on disk long
+  // enough to upload once) still works — it just skips this step.
+  const paperForPdf = await payload.find({
+    collection: 'papers',
+    where: { slug: { equals: PAPER.slug } },
+    limit: 1,
+    overrideAccess: true,
+  });
+  const paperDoc = paperForPdf.docs[0];
+
+  if (paperDoc && !paperDoc.pdf) {
+    const pdfPath = path.resolve(
+      process.cwd(),
+      'Batbayar_Children_Outside_Employers_NUM.pdf',
+    );
+    if (existsSync(pdfPath)) {
+      const pdfBytes = await readFile(pdfPath);
+      const pdfMedia = await payload.create({
+        collection: 'media',
+        overrideAccess: true,
+        data: {
+          alt: {
+            mn: `${PAPER.title.mn} — PDF`,
+            en: `${PAPER.title.en} — PDF`,
+          },
+          subject: 'none',
+        },
+        file: {
+          data: pdfBytes,
+          mimetype: 'application/pdf',
+          name: 'children-working-for-outside-employers-in-mongolia.pdf',
+          size: pdfBytes.length,
+        },
+      });
+
+      await payload.update({
+        collection: 'papers',
+        id: paperDoc.id,
+        overrideAccess: true,
+        data: { pdf: pdfMedia.id },
+      });
+
+      logger.info('Attached the research paper PDF (metadata stripped on upload)');
+    } else {
+      logger.info(
+        `No local PDF found at ${pdfPath} — skipping attach (already done, or not provided yet)`,
+      );
+    }
+  } else if (paperDoc?.pdf) {
+    logger.info('Research paper already has a PDF attached — left untouched');
+  }
+
   // ── Partners ─────────────────────────────────────────────────────────
   for (const partner of PARTNERS) {
     const existing = await payload.find({
@@ -1102,8 +1178,42 @@ const seed = async () => {
     }
   }
 
-  // Team and member photos are intentionally left untouched: no team member
-  // names, roles or photos were given, and none may be invented.
+  // ── Team ─────────────────────────────────────────────────────────────
+  // confirmedAdult18Plus is required to save or list a Team row at all
+  // (CLAUDE.md rule 4): these are named leadership roles (CEO, Operations
+  // Lead, CTO), not members, so the confirmation is safe to set here.
+  for (const member of TEAM) {
+    const existing = await payload.find({
+      collection: 'team',
+      where: { name: { equals: member.name } },
+      limit: 1,
+      overrideAccess: true,
+    });
+
+    if (existing.totalDocs === 0) {
+      const created = await payload.create({
+        collection: 'team',
+        locale: 'mn',
+        overrideAccess: true,
+        data: { name: member.name, role: member.role.mn, confirmedAdult18Plus: true },
+      });
+
+      await payload.update({
+        collection: 'team',
+        id: created.id,
+        locale: 'en',
+        overrideAccess: true,
+        data: { role: member.role.en },
+      });
+
+      logger.info(`Created team member "${member.name}"`);
+    } else {
+      logger.info(`Team member "${member.name}" already exists — left untouched`);
+    }
+  }
+
+  // No photos were given for anyone above — never invented, per CLAUDE.md
+  // rule 4. Logos and member photos still need to come through /admin.
   logger.info(
     'Reminder: logo files and written permission to show each partner logo are still ' +
       'needed (Ministry, Confederation and Stoic), and Stoic’s website URL is still pending.',
