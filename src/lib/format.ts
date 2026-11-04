@@ -49,6 +49,25 @@ export function formatPercent(value: number, locale: Locale): string {
   return `${formatNumber(value, locale)}%`;
 }
 
+/**
+ * A file size, so a reader knows what a download will cost them before they
+ * tap it on a phone: 219050 → "214 KB" / "214 КБ".
+ *
+ * Binary units, because that is what a file manager will show for the same
+ * file. Anything under a megabyte stays whole — "0.2 MB" tells nobody
+ * anything.
+ */
+export function formatBytes(bytes: number, locale: Locale): string {
+  const kb = bytes / 1024;
+  const unit = locale === 'mn' ? ['КБ', 'МБ'] : ['KB', 'MB'];
+
+  // A file smaller than a kilobyte still rounds up to 1: "0 KB" reads as an
+  // empty download, and no file worth linking to is empty.
+  return kb < 1024
+    ? `${formatNumber(Math.max(1, Math.round(kb)), locale)} ${unit[0]}`
+    : `${formatNumber(Math.round((kb / 1024) * 10) / 10, locale)} ${unit[1]}`;
+}
+
 /** 2026-09-30 → "2026 оны 9 сарын 30" / "30 September 2026". */
 export function formatDate(
   value: string | null | undefined,

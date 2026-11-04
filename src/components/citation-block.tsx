@@ -54,7 +54,18 @@ export function CitationBlock({
                 failedLabel={t('common.copyFailed')}
               />
             </div>
-            <pre className="num border-border bg-surface-tint text-ink max-w-full overflow-x-auto rounded-2xl border px-4 py-3 text-sm select-all">
+            {/* A BibTeX entry is one long line, so the block scrolls
+                sideways. A scrollable region that cannot be focused can only
+                be scrolled with a pointer, which leaves a keyboard user
+                unable to read the end of their own citation — hence the
+                tabindex and the name that tells them what they have landed
+                on. */}
+            <pre
+              tabIndex={0}
+              role="region"
+              aria-label={t('research.bibtex')}
+              className="num border-border bg-surface-tint text-ink max-w-full overflow-x-auto rounded-2xl border px-4 py-3 text-sm select-all"
+            >
               <code>{bibtex}</code>
             </pre>
           </div>

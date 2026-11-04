@@ -5,7 +5,7 @@ import { JsonLd } from '@/components/json-ld';
 import { PaperArticle } from '@/components/paper-article';
 import { Link } from '@/components/link';
 import { routing, type Locale } from '@/i18n/routing';
-import { getPaper, getPaperSlugs } from '@/lib/cms';
+import { getPaper, getPaperSlugs, getPolicy } from '@/lib/cms';
 import { localeHref } from '@/lib/locale-href';
 import { lexicalText } from '@/lib/format';
 import {
@@ -45,8 +45,19 @@ export default async function PaperPage({ params }: Props) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const [t, paper] = await Promise.all([getTranslations(), getPaper(slug, locale)]);
+  const [t, paper, policy] = await Promise.all([
+    getTranslations(),
+    getPaper(slug, locale),
+    getPolicy(locale),
+  ]);
   if (!paper) notFound();
+
+  // Only when the submission names this very paper. A paper that nothing
+  // was built on should not imply that something was.
+  const policyHref =
+    typeof policy.basedOn === 'object' && policy.basedOn?.slug === slug
+      ? localeHref(locale, '/policy')
+      : null;
 
   const abstract = lexicalText(paper.abstract?.root as never).trim();
 
@@ -74,7 +85,13 @@ export default async function PaperPage({ params }: Props) {
         </Link>
       </p>
 
-      <PaperArticle paper={paper} t={t} locale={locale} headingLevel="h1" />
+      <PaperArticle
+        paper={paper}
+        t={t}
+        locale={locale}
+        headingLevel="h1"
+        policyHref={policyHref}
+      />
     </div>
   );
 }

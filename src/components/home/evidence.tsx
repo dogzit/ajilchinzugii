@@ -52,9 +52,13 @@ export function Evidence({
           {findings.map((finding) => (
             <div
               key={finding.value + finding.label}
-              className="border-border bg-surface flex items-baseline gap-5 rounded-3xl border p-5 sm:p-6"
+              // Stacked on a phone, side by side from `sm` up. A figure
+              // carries its unit ("+38.6 нэгж хувь"), so it is long enough
+              // that a `shrink-0` column beside it pushed the label off a
+              // 360px screen and the whole page scrolled sideways.
+              className="border-border bg-surface flex flex-col gap-2 rounded-3xl border p-5 sm:flex-row sm:items-baseline sm:gap-5 sm:p-6"
             >
-              <dt className="num font-display text-ink shrink-0 text-3xl leading-none sm:text-4xl">
+              <dt className="num font-display text-ink text-3xl leading-none sm:shrink-0 sm:text-4xl">
                 {finding.value}
               </dt>
               <dd className="flex flex-col gap-1">

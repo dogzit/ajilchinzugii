@@ -101,6 +101,9 @@ export default async function AboutPage({ params }: Props) {
             {team.map((member) => {
               const photo = typeof member.photo === 'object' ? member.photo : null;
               const photoSrc = mediaSrc(photo?.url);
+              const profiles = (member.profiles ?? []).filter(
+                (profile) => profile.label && profile.url,
+              );
               return (
                 <li
                   key={member.id}
@@ -123,6 +126,30 @@ export default async function AboutPage({ params }: Props) {
                       <div className="mt-1 text-sm">
                         <RichText data={member.bio} />
                       </div>
+                    ) : null}
+
+                    {/* Where a reader can go and check this person's work for
+                        themselves. The same instinct as the citations on the
+                        research page: a claim about expertise should be
+                        followed, not taken. A row with no label in this
+                        language would be a link with nothing to click on, so
+                        it is left out rather than shown empty. */}
+                    {profiles.length > 0 ? (
+                      <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                        {profiles.map((profile) => (
+                          <li key={profile.id ?? profile.url}>
+                            <a
+                              href={profile.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-accent-text decoration-accent-mark hover:text-ink text-sm underline underline-offset-4"
+                            >
+                              {profile.label}
+                              <span className="sr-only"> {t('common.openInNewTab')}</span>
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
                     ) : null}
                   </div>
                 </li>

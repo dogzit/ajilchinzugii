@@ -350,6 +350,19 @@ export interface Team {
   } | null;
   photo?: (number | null) | Media;
   /**
+   * Уншигч тухайн хүний ажлыг шалгах боломжтой хаяг: ResearchGate, ORCID, хувийн вэб. Зөвхөн ажлынх, хувийн сошиал хаяг биш. A page where a reader can check this person’s work: ResearchGate, ORCID, a portfolio. Professional pages only, not personal social accounts.
+   */
+  profiles?:
+    | {
+        /**
+         * Холбоос дээр харагдах үг: «ResearchGate», «Портфолио». The words the link is shown as: “ResearchGate”, “Portfolio”.
+         */
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
    * Шаардлагатай. Үүнгүйгээр хадгалагдахгүй, нийтэд харагдахгүй. Required. Without it the person is not saved and not listed.
    */
   confirmedAdult18Plus: boolean;
@@ -569,6 +582,13 @@ export interface TeamSelect<T extends boolean = true> {
   role?: T;
   bio?: T;
   photo?: T;
+  profiles?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
   confirmedAdult18Plus?: T;
   seo?:
     | T
@@ -770,6 +790,10 @@ export interface Site {
    * Нэг өгүүлбэр. Нүүр хуудсан дээр харагдана. One sentence. Shown on the home page.
    */
   missionLine: string;
+  /**
+   * Хэн нэгний царай таних боломжтой зураг оруулахгүй. Хүүхдийн зургийг зөвхөн бичгээр зөвшөөрөлтэйгөөр (Media-д бүртгэгдсэн) оруулна. Хоосон бол нүүр хуудас зөгийн сархинагийн тэмдгийг харуулна. No picture in which a person can be recognised. A photograph of a minor may only be used with a recorded written consent, which the Media collection enforces. Left empty, the home page shows the honeycomb mark instead.
+   */
+  heroImage?: (number | null) | Media;
   /**
    * Сонгож болох текст хэлбэрээр харагдана. Холбоо барих форм хэзээ ч нэмэхгүй. Shown as selectable text. No contact form is ever added.
    */
@@ -984,6 +1008,7 @@ export interface ImpactSnapshot {
  */
 export interface SiteSelect<T extends boolean = true> {
   missionLine?: T;
+  heroImage?: T;
   contactEmail?: T;
   socialLinks?:
     | T

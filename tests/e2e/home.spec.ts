@@ -24,7 +24,7 @@ test.describe('the home page', () => {
       'trust',
       'what-we-do',
       'figures',
-      'story',
+      'evidence',
       'cta',
       'partners',
     ]) {

@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import {
+  formatBytes,
   formatDate,
   formatMonth,
   formatNumber,
@@ -20,6 +21,25 @@ describe('numbers', () => {
   it('keeps whole numbers whole', () => {
     expect(formatNumber(42, 'en')).toBe('42');
     expect(formatNumber(0, 'en')).toBe('0');
+  });
+});
+
+describe('file sizes', () => {
+  it('rounds to whole kilobytes and names the unit in each language', () => {
+    expect(formatBytes(219_050, 'en')).toBe('214 KB');
+    expect(formatBytes(219_050, 'mn')).toBe('214 КБ');
+  });
+
+  it('switches to megabytes only past a full megabyte', () => {
+    expect(formatBytes(1024 * 1023, 'en')).toBe('1,023 KB');
+    expect(formatBytes(1024 * 1024, 'en')).toBe('1 MB');
+    expect(formatBytes(1024 * 1024 * 2.5, 'en')).toBe('2.5 MB');
+  });
+
+  it('never reports a real file as nothing', () => {
+    // A 400-byte file is 0.39 KB; rounding it to "0 KB" would tell the
+    // reader the download is empty.
+    expect(formatBytes(400, 'en')).not.toBe('0 KB');
   });
 });
 

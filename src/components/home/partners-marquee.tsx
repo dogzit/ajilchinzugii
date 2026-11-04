@@ -35,7 +35,12 @@ function Logo({ partner, locale }: { partner: Partner; locale: Locale }) {
       className="h-9 w-auto object-contain opacity-60 grayscale transition duration-200 group-hover:opacity-100 group-hover:grayscale-0 sm:h-10"
     />
   ) : (
-    <span className="text-ink-muted group-hover:text-ink text-sm whitespace-nowrap opacity-70 transition group-hover:opacity-100">
+    // No `opacity` here, unlike the logos above: dimming a logo is a
+    // design choice, dimming words is a contrast failure. `ink-muted` at 70%
+    // came out at 3.57:1 on cream, under the 4.5:1 that rule 7 requires of
+    // text. A partner with no logo file yet is read as a name, so the name
+    // has to be as readable as any other sentence on the page.
+    <span className="text-ink-soft group-hover:text-ink text-sm whitespace-nowrap transition">
       {partner.name}
     </span>
   );

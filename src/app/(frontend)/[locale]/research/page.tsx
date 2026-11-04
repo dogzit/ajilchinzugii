@@ -4,7 +4,7 @@ import { PageHeader } from '@/components/page-header';
 import { Link } from '@/components/link';
 import { PaperArticle } from '@/components/paper-article';
 import type { Locale } from '@/i18n/routing';
-import { getPapers } from '@/lib/cms';
+import { getPapers, getPolicy } from '@/lib/cms';
 import { localeHref } from '@/lib/locale-href';
 import { JsonLd } from '@/components/json-ld';
 import { breadcrumbJsonLd } from '@/lib/seo/jsonld';
@@ -28,7 +28,14 @@ export default async function ResearchPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const [t, papers] = await Promise.all([getTranslations(), getPapers(locale)]);
+  const [t, papers, policy] = await Promise.all([
+    getTranslations(),
+    getPapers(locale),
+    getPolicy(locale),
+  ]);
+
+  const policySlug =
+    typeof policy.basedOn === 'object' ? (policy.basedOn?.slug ?? null) : null;
 
   return (
     <div className="shell max-w-[62rem] py-14 md:py-20">
@@ -50,7 +57,17 @@ export default async function ResearchPage({ params }: Props) {
         // One paper: show it in full here instead of making the reader click
         // through to a list of one.
         <div className="mt-10">
-          <PaperArticle paper={papers[0]!} t={t} locale={locale} headingLevel="h2" />
+          <PaperArticle
+            paper={papers[0]!}
+            t={t}
+            locale={locale}
+            headingLevel="h2"
+            policyHref={
+              policySlug && policySlug === papers[0]!.slug
+                ? localeHref(locale, '/policy')
+                : null
+            }
+          />
         </div>
       ) : (
         <ul className="mt-10 flex flex-col">

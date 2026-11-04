@@ -4,6 +4,8 @@ import * as migration_20261102_142158 from './20261102_142158';
 import * as migration_20261104_154007 from './20261104_154007';
 import * as migration_20261104_161754_paper_findings_policy_proposals from './20261104_161754_paper_findings_policy_proposals';
 import * as migration_20261104_162639_localize_finding_value from './20261104_162639_localize_finding_value';
+import * as migration_20261104_204321_site_hero_image from './20261104_204321_site_hero_image';
+import * as migration_20261104_205225_team_profiles from './20261104_205225_team_profiles';
 
 export const migrations = [
   {
@@ -34,6 +36,16 @@ export const migrations = [
   {
     up: migration_20261104_162639_localize_finding_value.up,
     down: migration_20261104_162639_localize_finding_value.down,
-    name: '20261104_162639_localize_finding_value'
+    name: '20261104_162639_localize_finding_value',
+  },
+  {
+    up: migration_20261104_204321_site_hero_image.up,
+    down: migration_20261104_204321_site_hero_image.down,
+    name: '20261104_204321_site_hero_image',
+  },
+  {
+    up: migration_20261104_205225_team_profiles.up,
+    down: migration_20261104_205225_team_profiles.down,
+    name: '20261104_205225_team_profiles'
   },
 ];

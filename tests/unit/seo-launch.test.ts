@@ -15,10 +15,10 @@ import mn from '../../messages/mn.json';
 
 const catalogues = { mn, en };
 
-/** Matching lines under src/, or '' — git grep exits 1 when it finds none. */
-function grep(pattern: string): string {
+/** Matching lines under the given paths, or '' — git grep exits 1 on none. */
+function grep(pattern: string, paths: string[] = ['src']): string {
   try {
-    return execFileSync('git', ['grep', '-In', '-E', pattern, '--', 'src'], {
+    return execFileSync('git', ['grep', '-In', '-E', pattern, '--', ...paths], {
       encoding: 'utf8',
       cwd: process.cwd(),
     }).trim();
@@ -29,11 +29,30 @@ function grep(pattern: string): string {
 }
 
 describe('the domain', () => {
-  it('appears nowhere in the source', () => {
+  // Seed files carry other organisations' addresses as content — a partner's
+  // website, a team member's profile page. Those are not this site's domain
+  // and must not be rewritten when it moves, so the hostname ban does not
+  // reach them. Everything that builds a URL still answers to it.
+  const code = [
+    'src',
+    ':!src/payload/seed-org.ts',
+    ':!src/payload/seed-demo.ts',
+    ':!src/payload/seed.ts',
+  ];
+
+  it('appears nowhere in the code that builds URLs', () => {
     // Every public URL is built from NEXT_PUBLIC_SITE_URL (CLAUDE.md rule 9).
     // A hostname in the source is how a deployment ends up telling Google
     // that the preview URL is the real site.
-    const hits = grep('vercel\\.app|ajilchinzugii\\.(com|mn)');
+    const hits = grep('vercel\\.app|ajilchinzugii\\.(com|mn)', code);
+
+    expect(hits).toBe('');
+  });
+
+  it('is not written into seed content either', () => {
+    // The exemption above is for other people's addresses only. This site's
+    // own domain is still env-only, wherever it is written.
+    const hits = grep('ajilchinzugii\\.(com|mn)');
 
     expect(hits).toBe('');
   });

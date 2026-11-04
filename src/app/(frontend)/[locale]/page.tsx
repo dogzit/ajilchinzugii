@@ -57,6 +57,15 @@ export default async function HomePage({ params }: Props) {
   const featured = headline[0] ?? null;
   const updated = formatDateTime(impact.fetchedAt, locale);
 
+  // The hero picture is optional on purpose: with nothing set the hero draws
+  // its own mark rather than reaching for a stock photograph. Alt text is a
+  // group of two required strings, not a localized field, so that a missing
+  // translation cannot slip through (rule 7).
+  const heroMedia = typeof site.heroImage === 'object' ? site.heroImage : null;
+  const heroImage = heroMedia
+    ? { url: heroMedia.url, alt: heroMedia.alt?.[locale] ?? '' }
+    : null;
+
   // The front page shows the newest paper's own headline findings. They are
   // published survey estimates with a passage named under each one, never the
   // organisation's case-log figures — those come only from the sheet, in the
@@ -93,6 +102,7 @@ export default async function HomePage({ params }: Props) {
         sampleLabel={isDemoContent(site.missionLine) ? t('demo.tag') : null}
         featured={featured}
         featuredLabels={{ suppressed: statLabels.suppressed, asOf: statLabels.asOf }}
+        image={heroImage}
       />
 
       <TrustStrip

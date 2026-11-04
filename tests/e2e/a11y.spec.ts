@@ -16,6 +16,24 @@ const analyse = (page: Page) =>
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
     .analyze();
 
+/**
+ * Pages fade in (`page-enter`, opacity 0.4 → 1). Sampled mid-fade, every
+ * colour on the page is blended with the one behind it and axe reports
+ * contrast failures that no reader would ever see — and reports them
+ * differently on each run, which is worse than reporting them wrongly.
+ *
+ * So wait until every finite animation has finished. The endless ones (the
+ * partner marquee) are left running on purpose: they drift `transform`, which
+ * changes no colour, and waiting for them would wait forever.
+ */
+const settle = (page: Page) =>
+  page.waitForFunction(() =>
+    document
+      .getAnimations()
+      .filter((animation) => animation.playState === 'running')
+      .every((animation) => animation.effect?.getTiming().iterations === Infinity),
+  );
+
 const describeViolations = (
   violations: Awaited<ReturnType<typeof analyse>>['violations'],
 ) =>
@@ -37,6 +55,7 @@ for (const scheme of schemes) {
       for (const path of paths) {
         test(`${locale}${path} has no WCAG violations`, async ({ page }) => {
           await page.goto(`/${locale}${path === '/' ? '' : path}`);
+          await settle(page);
           const { violations } = await analyse(page);
 
           expect(violations.length, `\n  ${describeViolations(violations)}\n`).toBe(0);

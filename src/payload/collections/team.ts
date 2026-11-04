@@ -1,5 +1,6 @@
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
+import { isHttpUrl } from '../../lib/validators';
 import { confirmedAdultsOrStaff, isStaff } from '../access';
 import { seoField } from '../fields/seo';
 import { revalidateLocalizedPaths } from '../hooks/revalidate';
@@ -60,6 +61,42 @@ export const Team: CollectionConfig = {
       relationTo: 'media',
       label: 'Зураг / Photo',
       filterOptions: { mimeType: { contains: 'image' } },
+    },
+    {
+      name: 'profiles',
+      type: 'array',
+      label: 'Мэргэжлийн хуудас / Professional profiles',
+      labels: {
+        singular: 'Хуудас / Profile',
+        plural: 'Мэргэжлийн хуудас / Professional profiles',
+      },
+      admin: {
+        description:
+          'Уншигч тухайн хүний ажлыг шалгах боломжтой хаяг: ResearchGate, ORCID, хувийн вэб. Зөвхөн ажлынх, хувийн сошиал хаяг биш. A page where a reader can check this person’s work: ResearchGate, ORCID, a portfolio. Professional pages only, not personal social accounts.',
+      },
+      fields: [
+        {
+          name: 'label',
+          type: 'text',
+          required: true,
+          localized: true,
+          label: 'Нэр / Label',
+          admin: {
+            description:
+              'Холбоос дээр харагдах үг: «ResearchGate», «Портфолио». The words the link is shown as: “ResearchGate”, “Portfolio”.',
+          },
+        },
+        {
+          name: 'url',
+          type: 'text',
+          required: true,
+          label: 'Хаяг / URL',
+          validate: (value: unknown) =>
+            typeof value === 'string' && isHttpUrl(value)
+              ? true
+              : 'https:// -ээр эхлэх бүтэн хаяг / a full http(s) URL is required.',
+        },
+      ],
     },
     {
       name: 'confirmedAdult18Plus',

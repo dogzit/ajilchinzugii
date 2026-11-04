@@ -31,6 +31,17 @@ export const Site: GlobalConfig = {
       },
     },
     {
+      name: 'heroImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Нүүр хуудасны зураг / Home page picture',
+      filterOptions: { mimeType: { contains: 'image' } },
+      admin: {
+        description:
+          'Хэн нэгний царай таних боломжтой зураг оруулахгүй. Хүүхдийн зургийг зөвхөн бичгээр зөвшөөрөлтэйгөөр (Media-д бүртгэгдсэн) оруулна. Хоосон бол нүүр хуудас зөгийн сархинагийн тэмдгийг харуулна. No picture in which a person can be recognised. A photograph of a minor may only be used with a recorded written consent, which the Media collection enforces. Left empty, the home page shows the honeycomb mark instead.',
+      },
+    },
+    {
       name: 'contactEmail',
       type: 'email',
       required: true,

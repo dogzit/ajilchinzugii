@@ -1051,6 +1051,19 @@ const PAPER = {
   },
 };
 
+// ── Home page picture ───────────────────────────────────────────────────
+
+const HERO_IMAGE = {
+  file: 'workshop-hall.webp',
+  // The alt text describes the room, never a person: no school, no names, no
+  // ages. "Seen from behind" is the honest description and also the reason
+  // this frame is the one that could be published.
+  alt: {
+    mn: 'Сургуулийн танхимд залуучууд ар талаасаа харагдан, илтгэл сонсож суугаа нь.',
+    en: 'Young people seated in a school hall, seen from behind, listening to a presentation.',
+  },
+} as const;
+
 // ── Partners ────────────────────────────────────────────────────────────
 
 const PARTNERS = [
@@ -1099,6 +1112,14 @@ const TEAM = [
   {
     name: 'Erdenebat',
     role: { mn: 'Үүсгэн байгуулагч, Гүйцэтгэх захирал', en: 'Founder, CEO' },
+    // The author page for the paper this site is built around, so a reader
+    // who wants the work rather than the claim has somewhere to go.
+    profiles: [
+      {
+        label: { mn: 'ResearchGate', en: 'ResearchGate' },
+        url: 'https://www.researchgate.net/profile/Erdenebat-Batbayar-2',
+      },
+    ],
   },
   {
     name: 'Ariuntuguldur',
@@ -1107,8 +1128,34 @@ const TEAM = [
   {
     name: 'Zolbayar',
     role: { mn: 'Технологийн захирал', en: 'Chief Technology Officer' },
+    profiles: [
+      {
+        label: { mn: 'Портфолио', en: 'Portfolio' },
+        url: 'https://zoloodev-portfolio.vercel.app/',
+      },
+    ],
   },
 ];
+
+/**
+ * The same profile rows addressed in a second locale.
+ *
+ * Payload keeps one row per array entry and localizes the fields inside it.
+ * An update that leaves out a row's `id` is read as a brand new row, so the
+ * first locale's text is dropped along with the row it replaced — which is
+ * how "ResearchGate" in English quietly emptied the Mongolian label.
+ */
+function localeRows(
+  saved: { id?: string | null }[] | null | undefined,
+  source: { label: { mn: string; en: string }; url: string }[] | undefined,
+  locale: 'mn' | 'en',
+) {
+  return (source ?? []).map((profile, index) => ({
+    id: saved?.[index]?.id ?? undefined,
+    label: profile.label[locale],
+    url: profile.url,
+  }));
+}
 
 const seed = async () => {
   const payload = await getPayload({ config });
@@ -1179,6 +1226,40 @@ const seed = async () => {
   // Legal name and social links were not provided by the client yet, so
   // they are intentionally left as whatever they currently are (TBD
   // placeholder or editor-entered) rather than guessed here.
+
+  // ── Home page picture ────────────────────────────────────────────────
+  // One frame out of the photographs the organisation took at a school
+  // session. It was chosen and cropped so that no one in it can be
+  // recognised — the room is seen from the back and every face is turned
+  // away — which is why it can carry `subject: 'none'` honestly and needs
+  // no consent record (CLAUDE.md rule 4). The originals are not in the
+  // repository: most of them do show faces, and those stay unpublished.
+  if (!siteCurrent?.heroImage) {
+    const heroPath = path.resolve(process.cwd(), 'public', HERO_IMAGE.file);
+    if (existsSync(heroPath)) {
+      const heroBytes = await readFile(heroPath);
+      const heroMedia = await payload.create({
+        collection: 'media',
+        overrideAccess: true,
+        data: { alt: HERO_IMAGE.alt, subject: 'none' },
+        file: {
+          data: heroBytes,
+          mimetype: 'image/webp',
+          name: HERO_IMAGE.file,
+          size: heroBytes.length,
+        },
+      });
+
+      await payload.updateGlobal({
+        slug: 'site',
+        overrideAccess: true,
+        data: { heroImage: heroMedia.id },
+      });
+      logger.info('Attached the home page picture');
+    } else {
+      logger.info(`No home page picture at ${heroPath} — skipping`);
+    }
+  }
 
   // ── Methodology ──────────────────────────────────────────────────────
   const methodology = await payload.findGlobal({
@@ -1806,7 +1887,15 @@ const seed = async () => {
         collection: 'team',
         locale: 'mn',
         overrideAccess: true,
-        data: { name: member.name, role: member.role.mn, confirmedAdult18Plus: true },
+        data: {
+          name: member.name,
+          role: member.role.mn,
+          confirmedAdult18Plus: true,
+          profiles: member.profiles?.map((profile) => ({
+            label: profile.label.mn,
+            url: profile.url,
+          })),
+        },
       });
 
       await payload.update({
@@ -1814,12 +1903,58 @@ const seed = async () => {
         id: created.id,
         locale: 'en',
         overrideAccess: true,
-        data: { role: member.role.en },
+        data: {
+          role: member.role.en,
+          // The row ids from the Mongolian write, so this updates those rows
+          // instead of replacing them. An array row written without its id is
+          // a new row, and the label just saved in the other locale goes with
+          // the row it replaced.
+          profiles: localeRows(created.profiles, member.profiles, 'en'),
+        },
       });
 
       logger.info(`Created team member "${member.name}"`);
     } else {
       logger.info(`Team member "${member.name}" already exists — left untouched`);
+    }
+
+    // Profiles are attached separately, because a member created by an
+    // earlier run of this script predates the field. Only ever added when
+    // the member has none: an editor who removed a link on purpose should
+    // not find it back after the next seed.
+    if (member.profiles?.length) {
+      const current = await payload.find({
+        collection: 'team',
+        where: { name: { equals: member.name } },
+        limit: 1,
+        overrideAccess: true,
+      });
+      const memberDoc = current.docs[0];
+
+      if (memberDoc && !memberDoc.profiles?.length) {
+        const withMn = await payload.update({
+          collection: 'team',
+          id: memberDoc.id,
+          locale: 'mn',
+          overrideAccess: true,
+          data: {
+            profiles: member.profiles.map((profile) => ({
+              label: profile.label.mn,
+              url: profile.url,
+            })),
+          },
+        });
+
+        await payload.update({
+          collection: 'team',
+          id: memberDoc.id,
+          locale: 'en',
+          overrideAccess: true,
+          data: { profiles: localeRows(withMn.profiles, member.profiles, 'en') },
+        });
+
+        logger.info(`Attached professional profiles for "${member.name}"`);
+      }
     }
   }
 

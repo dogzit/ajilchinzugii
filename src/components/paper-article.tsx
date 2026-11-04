@@ -1,10 +1,12 @@
 import { CitationBlock } from '@/components/citation-block';
 import { ComparisonChart } from '@/components/comparison-chart';
+import { Icon } from '@/components/ui/icon';
+import { Link } from '@/components/link';
 import { RichText } from '@/components/rich-text';
 import type { Paper } from '@/payload-types';
 import type { getTranslations } from 'next-intl/server';
 import type { Locale } from '@/i18n/routing';
-import { isRichTextEmpty } from '@/lib/format';
+import { formatBytes, isRichTextEmpty } from '@/lib/format';
 
 type T = Awaited<ReturnType<typeof getTranslations>>;
 
@@ -43,11 +45,14 @@ export function PaperArticle({
   t,
   locale,
   headingLevel: Heading = 'h1',
+  policyHref,
 }: {
   paper: Paper;
   t: T;
   locale: Locale;
   headingLevel?: 'h1' | 'h2';
+  /** Set when the policy submission names this paper as its evidence. */
+  policyHref?: string | null;
 }) {
   const pdf = typeof paper.pdf === 'object' && paper.pdf ? paper.pdf : null;
   const findings = (paper.findings ?? []).filter(
@@ -58,6 +63,28 @@ export function PaperArticle({
   );
   const groupALabel = paper.comparison?.groupALabel;
   const groupBLabel = paper.comparison?.groupBLabel;
+
+  const hasAbstract = !isRichTextEmpty(paper.abstract);
+  const hasComparison = comparisonRows.length > 0 && groupALabel && groupBLabel;
+  const hasCitation = Boolean(paper.citations?.apa || paper.citations?.bibtex);
+
+  // Built from the sections that this paper actually has, so the nav never
+  // offers a link to an anchor that is not on the page. Below two entries it
+  // is not a table of contents, it is clutter, so it does not render.
+  const contents = [
+    hasAbstract ? { id: `abstract-${paper.id}`, label: t('research.abstractHeading') } : null,
+    findings.length > 0
+      ? { id: `findings-${paper.id}`, label: t('research.findingsHeading') }
+      : null,
+    // The generic label, not the chart's own title: a title that describes
+    // the measure in full is right above the chart and far too long for a
+    // row of jump links.
+    hasComparison
+      ? { id: `comparison-${paper.id}`, label: t('research.comparisonHeading') }
+      : null,
+    pdf?.url ? { id: `full-text-${paper.id}`, label: t('research.fullTextHeading') } : null,
+    hasCitation ? { id: 'citation', label: t('research.citationHeading') } : null,
+  ].filter((entry): entry is { id: string; label: string } => Boolean(entry));
 
   return (
     <article>
@@ -80,7 +107,17 @@ export function PaperArticle({
       {pdf?.url || paper.codeUrl || paper.dataUrl ? (
         <div className="mt-6 flex flex-wrap gap-3">
           {pdf?.url ? (
-            <ResourceLink href={pdf.url} label={t('research.pdf')} download />
+            <ResourceLink
+              href={pdf.url}
+              // The size is on the button, not in a tooltip: a reader on a
+              // phone decides whether to spend the data before tapping.
+              label={
+                pdf.filesize
+                  ? `${t('research.pdf')} · ${formatBytes(pdf.filesize, locale)}`
+                  : t('research.pdf')
+              }
+              download
+            />
           ) : null}
           {paper.codeUrl ? (
             <ResourceLink href={paper.codeUrl} label={t('research.code')} />
@@ -91,7 +128,35 @@ export function PaperArticle({
         </div>
       ) : null}
 
-      {!isRichTextEmpty(paper.abstract) ? (
+      {contents.length > 2 ? (
+        <nav aria-labelledby={`contents-${paper.id}`} className="mt-8">
+          <h2
+            id={`contents-${paper.id}`}
+            className="num text-ink-muted text-xs tracking-widest uppercase"
+          >
+            {t('policy.tocHeading')}
+          </h2>
+          <ol className="mt-3 flex flex-wrap gap-x-2 gap-y-2">
+            {contents.map((entry, index) => (
+              <li key={entry.id} className="flex items-center gap-2">
+                {index > 0 ? (
+                  <span aria-hidden="true" className="text-border-strong">
+                    ·
+                  </span>
+                ) : null}
+                <a
+                  href={`#${entry.id}`}
+                  className="text-accent-text decoration-accent-mark hover:text-ink text-sm underline underline-offset-4"
+                >
+                  {entry.label}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      ) : null}
+
+      {hasAbstract ? (
         <section aria-labelledby={`abstract-${paper.id}`} className="mt-10">
           <h2 id={`abstract-${paper.id}`} className="text-xl">
             {t('research.abstractHeading')}
@@ -135,7 +200,7 @@ export function PaperArticle({
         </section>
       ) : null}
 
-      {comparisonRows.length > 0 && groupALabel && groupBLabel ? (
+      {hasComparison ? (
         <section aria-labelledby={`comparison-${paper.id}`} className="mt-12">
           <h2 id={`comparison-${paper.id}`} className="text-xl">
             {paper.comparison?.title ?? t('research.comparisonHeading')}
@@ -153,6 +218,27 @@ export function PaperArticle({
             locale={locale}
           />
         </section>
+      ) : null}
+
+      {/* The other half of the argument. The policy page already links back
+          here for its evidence; without this link a reader who arrives at the
+          paper never learns that anything was asked for on the strength of
+          it. Rendered only when the submission actually names this paper. */}
+      {policyHref ? (
+        <aside className="border-accent-mark bg-surface-tint mt-12 rounded-3xl border p-6 sm:p-7">
+          <p className="text-ink-soft max-w-[55ch] text-sm leading-relaxed">
+            {t('research.policyLead')}
+          </p>
+          <p className="mt-4">
+            <Link
+              href={policyHref}
+              className="text-accent-text hover:text-ink inline-flex items-center gap-1.5 text-sm font-medium"
+            >
+              {t('research.policyLink')}
+              <Icon name="arrow-right" className="h-4 w-4" />
+            </Link>
+          </p>
+        </aside>
       ) : null}
 
       {pdf?.url ? (

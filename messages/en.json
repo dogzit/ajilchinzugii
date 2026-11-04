@@ -188,7 +188,9 @@
     "findingsNote": "Figures from this paper, each with the passage it is read from. These are national survey estimates, not the organisation’s own case figures.",
     "comparisonHeading": "Comparison",
     "measure": "Measure",
-    "chartSummary": "{groupA} compared with {groupB} across {count} measures. The widest gap is {measure}: {valueA} against {valueB}. The same figures follow as a table."
+    "chartSummary": "{groupA} compared with {groupB} across {count} measures. The widest gap is {measure}: {valueA} against {valueB}. The same figures follow as a table.",
+    "policyLead": "This paper is the evidence behind the organisation’s policy submission. The policy page sets out each change asked for and the gap it closes.",
+    "policyLink": "The policy proposal this supports"
   },
   "policy": {
     "statusHeading": "Status",
