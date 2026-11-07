@@ -1087,11 +1087,19 @@ const PARTNERS = [
   },
   {
     name: 'Stoic NGO',
-    url: undefined,
+    url: 'https://academy.stoic.education',
     logoFile: 'stoic_logo.png',
     logoAlt: { mn: 'Stoic ТББ-ын лого', en: 'Stoic NGO logo' },
   },
-  { name: 'Federation of Mongolian Education and Science Unions', url: undefined },
+  {
+    name: 'Federation of Mongolian Education and Science Unions',
+    url: undefined,
+    logoFile: 'fmesu_logo.webp',
+    logoAlt: {
+      mn: 'Монголын Боловсрол, Шинжлэх Ухааны Үйлдвэрчний Эвлэлүүдийн Холбооны лого',
+      en: 'Federation of Mongolian Education and Science Unions logo',
+    },
+  },
   {
     // zorigfoundation.org 301s here; this is the address that resolves.
     name: 'Zorig Foundation',
@@ -1827,6 +1835,21 @@ const seed = async () => {
       logger.info(`Created partner "${partner.name}"`);
     } else {
       logger.info(`Partner "${partner.name}" already exists — left untouched`);
+
+      // Except for an address that arrived after the row did — several
+      // partners were seeded before their website was known. Only filled
+      // when there is none, so an editor who corrected a URL by hand does
+      // not find this script putting the old one back.
+      const current = existing.docs[0];
+      if (partner.url && current && !current.url) {
+        await payload.update({
+          collection: 'partners',
+          id: current.id,
+          overrideAccess: true,
+          data: { url: partner.url },
+        });
+        logger.info(`Set the website address for "${partner.name}"`);
+      }
     }
 
     if ('logoFile' in partner && partner.logoFile) {
@@ -1992,10 +2015,6 @@ const seed = async () => {
 
   // No photos were given for anyone above — never invented, per CLAUDE.md
   // rule 4. Logos and member photos still need to come through /admin.
-  logger.info(
-    'Reminder: no logo yet for Federation of Mongolian Education and Science Unions, ' +
-      'and Stoic’s website URL is still pending.',
-  );
   logger.info('Organisation content seed complete.');
 };
 
