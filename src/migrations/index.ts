@@ -6,6 +6,7 @@ import * as migration_20261104_161754_paper_findings_policy_proposals from './20
 import * as migration_20261104_162639_localize_finding_value from './20261104_162639_localize_finding_value';
 import * as migration_20261104_204321_site_hero_image from './20261104_204321_site_hero_image';
 import * as migration_20261104_205225_team_profiles from './20261104_205225_team_profiles';
+import * as migration_20261106_054542_team_slug from './20261106_054542_team_slug';
 
 export const migrations = [
   {
@@ -46,6 +47,11 @@ export const migrations = [
   {
     up: migration_20261104_205225_team_profiles.up,
     down: migration_20261104_205225_team_profiles.down,
-    name: '20261104_205225_team_profiles'
+    name: '20261104_205225_team_profiles',
+  },
+  {
+    up: migration_20261106_054542_team_slug.up,
+    down: migration_20261106_054542_team_slug.down,
+    name: '20261106_054542_team_slug'
   },
 ];

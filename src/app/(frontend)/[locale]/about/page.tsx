@@ -2,11 +2,13 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CopyButton } from '@/components/copy-button';
+import { Link } from '@/components/link';
 import { PageHeader } from '@/components/page-header';
 import { RichText } from '@/components/rich-text';
 import type { Locale } from '@/i18n/routing';
 import { getPartners, getSite, getTeam } from '@/lib/cms';
 import { formatDate, isRichTextEmpty } from '@/lib/format';
+import { localeHref } from '@/lib/locale-href';
 import { mediaSrc } from '@/lib/media';
 import { JsonLd } from '@/components/json-ld';
 import { breadcrumbJsonLd, personJsonLd } from '@/lib/seo/jsonld';
@@ -120,7 +122,18 @@ export default async function AboutPage({ params }: Props) {
                     />
                   ) : null}
                   <div className="flex flex-col gap-1">
-                    <p className="text-ink font-semibold">{member.name}</p>
+                    {/* The name is the link to the person's own page. The
+                        whole card is not: the card already holds profile
+                        links of its own, and a link inside a link is not a
+                        thing a browser can represent. */}
+                    <p className="font-semibold">
+                      <Link
+                        href={localeHref(locale, `/team/${member.slug}`)}
+                        className="text-ink decoration-accent-mark underline-offset-4 hover:underline"
+                      >
+                        {member.name}
+                      </Link>
+                    </p>
                     <p className="text-ink-muted text-sm">{member.role}</p>
                     {!isRichTextEmpty(member.bio) ? (
                       <div className="mt-1 text-sm">
@@ -172,42 +185,48 @@ export default async function AboutPage({ params }: Props) {
               const logo = typeof partner.logo === 'object' ? partner.logo : null;
               const logoSrc = mediaSrc(logo?.url);
 
-              // With a logo: the mark plus a name caption below it. Without
-              // one, the name is the only thing to show — rendering it twice
-              // (once as a text stand-in for the mark, once as the caption)
-              // just repeated it.
-              const mark = logoSrc ? (
-                <Image
-                  src={logoSrc}
-                  alt={logo?.alt?.[locale] ?? partner.name}
-                  width={128}
-                  height={48}
-                  sizes="128px"
-                  className="h-12 w-auto object-contain"
-                />
-              ) : (
-                <span className="text-ink">{partner.name}</span>
-              );
-
               return (
                 <li
                   key={partner.id}
-                  className="border-border bg-surface flex flex-col gap-3 rounded-3xl border p-5"
+                  className="border-border bg-surface flex items-center gap-4 rounded-3xl border p-5"
                 >
+                  {/* Every mark gets the same box, whatever shape its file
+                      is. The logos are drawn on canvases of their own — some
+                      square, some wide, each with its own padding — so left
+                      to size themselves they landed at a different place and
+                      a different size in every card. A fixed box with
+                      `object-contain` puts them all on one line.
+
+                      The box is kept even when there is no logo yet, so the
+                      names still line up across the row, but it carries no
+                      background: an empty grey tile would read as a broken
+                      image rather than as a logo nobody has sent us. */}
+                  <span className="flex h-12 w-16 shrink-0 items-center justify-start">
+                    {logoSrc ? (
+                      <Image
+                        src={logoSrc}
+                        alt={logo?.alt?.[locale] ?? partner.name}
+                        width={128}
+                        height={96}
+                        sizes="64px"
+                        className="max-h-12 w-auto max-w-16 rounded-md object-contain object-left"
+                      />
+                    ) : null}
+                  </span>
+
                   {partner.url ? (
                     <a
                       href={partner.url}
-                      rel="noreferrer"
-                      className="hover:decoration-accent-mark underline-offset-4 hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-ink decoration-accent-mark text-sm underline-offset-4 hover:underline"
                     >
-                      {mark}
+                      {partner.name}
+                      <span className="sr-only"> {t('common.openInNewTab')}</span>
                     </a>
                   ) : (
-                    mark
+                    <span className="text-ink text-sm">{partner.name}</span>
                   )}
-                  {logoSrc ? (
-                    <span className="text-ink-muted text-sm">{partner.name}</span>
-                  ) : null}
                 </li>
               );
             })}

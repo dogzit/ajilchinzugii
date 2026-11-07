@@ -1,6 +1,6 @@
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import type { CollectionConfig } from 'payload';
-import { isHttpUrl } from '../../lib/validators';
+import { isHttpUrl, isSlug, slugify } from '../../lib/validators';
 import { confirmedAdultsOrStaff, isStaff } from '../access';
 import { seoField } from '../fields/seo';
 import { revalidateLocalizedPaths } from '../hooks/revalidate';
@@ -31,8 +31,27 @@ export const Team: CollectionConfig = {
     delete: isStaff,
   },
   hooks: {
-    afterChange: [async () => revalidateLocalizedPaths(['/about'])],
-    afterDelete: [async () => revalidateLocalizedPaths(['/about'])],
+    beforeValidate: [
+      ({ data }) => {
+        if (!data) return data;
+        // Not localized: /team/<slug> has to be the same path in both
+        // languages, or the language switch cannot keep the reader on the
+        // person they were reading about.
+        if (!data.slug && typeof data.name === 'string') {
+          data.slug = slugify(data.name);
+        }
+        return data;
+      },
+    ],
+    // The member's own page as well as the list they appear on.
+    afterChange: [
+      async ({ doc }) =>
+        revalidateLocalizedPaths(['/about', `/team/${doc.slug}`].filter(Boolean)),
+    ],
+    afterDelete: [
+      async ({ doc }) =>
+        revalidateLocalizedPaths(['/about', `/team/${doc.slug}`].filter(Boolean)),
+    ],
   },
   fields: [
     {
@@ -40,6 +59,23 @@ export const Team: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'Нэр / Name',
+    },
+    {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      index: true,
+      label: 'Slug (URL)',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Хаягийн хэсэг: /team/<slug>. Нийтэлсний дараа солихгүй — линк эвдэрнэ. Кирилл нэрийг латинаар бичнэ. Part of the address: /team/<slug>. Do not change it after publishing — links break. Write a Cyrillic name out in latin letters.',
+      },
+      validate: (value: unknown) =>
+        typeof value === 'string' && isSlug(value)
+          ? true
+          : 'Зөвхөн жижиг латин үсэг, тоо, зураас / lowercase latin letters, numbers and hyphens only.',
     },
     {
       name: 'role',

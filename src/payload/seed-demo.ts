@@ -500,15 +500,26 @@ const run = async () => {
   logger.info('partners: 2, with logos');
 
   // ── Team: adults only, and plainly not real people ───────────────────────
-  for (const [name, roleMn, roleEn, initials, tint] of [
+  for (const [name, roleMn, roleEn, initials, tint, slug] of [
     [
       'А. Жишээбаатар',
       'Үүсгэн байгуулагч, захирал',
       'Founder and director',
       'АЖ',
       '#8a5505',
+      // Written out in latin, and marked as demo: a slug is a URL, and
+      // `slugify` would leave a Cyrillic name in Cyrillic, which the slug
+      // validator rejects.
+      'demo-jisheebaatar',
     ],
-    ['Б. Жишээмаа', 'Хуулийн зөвлөх', 'Legal adviser', 'БЖ', '#3a352d'],
+    [
+      'Б. Жишээмаа',
+      'Хуулийн зөвлөх',
+      'Legal adviser',
+      'БЖ',
+      '#3a352d',
+      'demo-jisheemaa',
+    ],
   ] as const) {
     const png = await avatarPng(initials, tint);
     const photo = await payload.create({
@@ -531,6 +542,7 @@ const run = async () => {
       overrideAccess: true,
       data: {
         name: `${MARK_MN}: ${name}`,
+        slug,
         role: roleMn,
         photo: photo.id,
         confirmedAdult18Plus: true,

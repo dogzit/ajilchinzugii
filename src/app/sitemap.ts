@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { routing } from '@/i18n/routing';
-import { getMethodology, getPapers, getPolicy, getSite } from '@/lib/cms';
+import { getMethodology, getPapers, getPolicy, getSite, getTeam } from '@/lib/cms';
 import { absoluteUrl, languageAlternates } from '@/lib/seo/urls';
 
 /**
@@ -29,9 +29,12 @@ const date = (value?: string | null): Date | undefined => {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // One read per locale: a paper's title and dates are localized.
-  const [papersByLocale, site, methodology, policy] = await Promise.all([
+  const [papersByLocale, teamByLocale, site, methodology, policy] = await Promise.all([
     Promise.all(
       routing.locales.map(async (locale) => [locale, await getPapers(locale)] as const),
+    ),
+    Promise.all(
+      routing.locales.map(async (locale) => [locale, await getTeam(locale)] as const),
     ),
     getSite(routing.defaultLocale),
     getMethodology(routing.defaultLocale),
@@ -75,6 +78,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         lastModified: paper.updatedAt ? new Date(paper.updatedAt) : undefined,
         changeFrequency: 'yearly',
         priority: 0.6,
+        alternates: { languages: languageAlternates(path) },
+      });
+    }
+  }
+
+  // Only the members the About page itself lists: `getTeam` filters to
+  // confirmed adults, so a row that must not be public cannot reach the
+  // sitemap either (rule 4).
+  for (const [locale, team] of teamByLocale) {
+    for (const member of team) {
+      if (!member.slug) continue;
+      const path = `/team/${member.slug}`;
+      entries.push({
+        url: absoluteUrl(locale, path),
+        lastModified: member.updatedAt ? new Date(member.updatedAt) : undefined,
+        changeFrequency: 'yearly',
+        priority: 0.4,
         alternates: { languages: languageAlternates(path) },
       });
     }

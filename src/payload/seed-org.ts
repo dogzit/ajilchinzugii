@@ -1099,7 +1099,12 @@ const PARTNERS = [
     logoFile: 'zorigfoundation_logo.jpg',
     logoAlt: { mn: 'Зориг сангийн лого', en: 'Zorig Foundation logo' },
   },
-  { name: 'Alham Project', url: undefined },
+  {
+    name: 'Alham Project',
+    url: undefined,
+    logoFile: 'alham_logo.png',
+    logoAlt: { mn: 'Алхам төслийн лого', en: 'Alham Project logo' },
+  },
   {
     name: 'NUM Career Center',
     url: 'https://career.num.edu.mn',
@@ -1111,6 +1116,7 @@ const PARTNERS = [
 const TEAM = [
   {
     name: 'Erdenebat',
+    slug: 'erdenebat',
     role: { mn: 'Үүсгэн байгуулагч, Гүйцэтгэх захирал', en: 'Founder, CEO' },
     // The author page for the paper this site is built around, so a reader
     // who wants the work rather than the claim has somewhere to go.
@@ -1123,10 +1129,12 @@ const TEAM = [
   },
   {
     name: 'Ariuntuguldur',
+    slug: 'ariuntuguldur',
     role: { mn: 'Үйл ажиллагааны менежер', en: 'Operations Lead' },
   },
   {
     name: 'Zolbayar',
+    slug: 'zolbayar',
     role: { mn: 'Технологийн захирал', en: 'Chief Technology Officer' },
     profiles: [
       {
@@ -1889,6 +1897,7 @@ const seed = async () => {
         overrideAccess: true,
         data: {
           name: member.name,
+          slug: member.slug,
           role: member.role.mn,
           confirmedAdult18Plus: true,
           profiles: member.profiles?.map((profile) => ({
@@ -1916,6 +1925,29 @@ const seed = async () => {
       logger.info(`Created team member "${member.name}"`);
     } else {
       logger.info(`Team member "${member.name}" already exists — left untouched`);
+    }
+
+    // Members created before the slug field existed have none, and without
+    // one their page has no address. Filled in once, then left alone: the
+    // slug is the URL, and changing it later breaks every link to it.
+    {
+      const current = await payload.find({
+        collection: 'team',
+        where: { name: { equals: member.name } },
+        limit: 1,
+        overrideAccess: true,
+      });
+      const memberDoc = current.docs[0];
+
+      if (memberDoc && !memberDoc.slug) {
+        await payload.update({
+          collection: 'team',
+          id: memberDoc.id,
+          overrideAccess: true,
+          data: { slug: member.slug },
+        });
+        logger.info(`Set the slug for "${member.name}"`);
+      }
     }
 
     // Profiles are attached separately, because a member created by an
@@ -1961,8 +1993,8 @@ const seed = async () => {
   // No photos were given for anyone above — never invented, per CLAUDE.md
   // rule 4. Logos and member photos still need to come through /admin.
   logger.info(
-    'Reminder: no logo yet for Federation of Mongolian Education and Science Unions or ' +
-      'Alham Project, and Stoic’s website URL is still pending.',
+    'Reminder: no logo yet for Federation of Mongolian Education and Science Unions, ' +
+      'and Stoic’s website URL is still pending.',
   );
   logger.info('Organisation content seed complete.');
 };

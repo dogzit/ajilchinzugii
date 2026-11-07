@@ -93,6 +93,42 @@ export const getTeam = cache(async (locale: Locale): Promise<Team[]> => {
   return docs;
 });
 
+/**
+ * One member by slug, or null.
+ *
+ * The adult filter is repeated here rather than trusted to the route: a page
+ * that can be reached by guessing a slug must apply the same rule the list
+ * does, or it becomes the way around it (rule 4).
+ */
+export const getTeamMember = cache(
+  async (slug: string, locale: Locale): Promise<Team | null> => {
+    const payload = await client();
+    const { docs } = await payload.find({
+      collection: 'team',
+      locale,
+      depth: 1,
+      limit: 1,
+      where: {
+        and: [{ slug: { equals: slug } }, { confirmedAdult18Plus: { equals: true } }],
+      },
+    });
+    return docs[0] ?? null;
+  },
+);
+
+/** Every listed member's slug, for `generateStaticParams`. */
+export const getTeamSlugs = cache(async (): Promise<string[]> => {
+  const payload = await client();
+  const { docs } = await payload.find({
+    collection: 'team',
+    depth: 0,
+    limit: 500,
+    select: { slug: true },
+    where: { confirmedAdult18Plus: { equals: true } },
+  });
+  return docs.map((doc) => doc.slug).filter(Boolean);
+});
+
 export const getPartners = cache(async (locale: Locale): Promise<Partner[]> => {
   const payload = await client();
   const { docs } = await payload.find({

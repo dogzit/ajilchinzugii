@@ -243,5 +243,10 @@
     "title": "Something went wrong",
     "lead": "This page could not be shown. Please try again.",
     "retry": "Try again"
+  },
+  "team": {
+    "backToAbout": "About us",
+    "bioHeading": "Biography",
+    "profilesHeading": "Professional profiles"
   }
 }

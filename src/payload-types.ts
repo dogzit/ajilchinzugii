@@ -332,6 +332,10 @@ export interface Media {
 export interface Team {
   id: number;
   name: string;
+  /**
+   * Хаягийн хэсэг: /team/<slug>. Нийтэлсний дараа солихгүй — линк эвдэрнэ. Кирилл нэрийг латинаар бичнэ. Part of the address: /team/<slug>. Do not change it after publishing — links break. Write a Cyrillic name out in latin letters.
+   */
+  slug: string;
   role: string;
   bio?: {
     root: {
@@ -579,6 +583,7 @@ export interface PapersSelect<T extends boolean = true> {
  */
 export interface TeamSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   role?: T;
   bio?: T;
   photo?: T;
