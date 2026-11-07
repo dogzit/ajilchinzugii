@@ -61,6 +61,23 @@ for (const scheme of schemes) {
           expect(violations.length, `\n  ${describeViolations(violations)}\n`).toBe(0);
         });
       }
+
+      // A member's page is built from the CMS, so there is no fixed path to
+      // put in the list above. The scan follows whoever the About page
+      // actually links to, which keeps it honest as the team changes.
+      test(`${locale} team member page has no WCAG violations`, async ({ page }) => {
+        await page.goto(`/${locale}/about`);
+        const first = page
+          .locator('section[aria-labelledby="team"] li a[href*="/team/"]')
+          .first();
+        test.skip((await first.count()) === 0, 'no team members listed');
+
+        await first.click();
+        await settle(page);
+        const { violations } = await analyse(page);
+
+        expect(violations.length, `\n  ${describeViolations(violations)}\n`).toBe(0);
+      });
     }
   });
 }
