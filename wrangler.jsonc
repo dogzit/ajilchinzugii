@@ -24,15 +24,10 @@
     }
   ],
 
-  // A bucket of its own for the incremental cache. Deliberately not the
-  // media bucket: that one is served publicly, and rendered pages are not
-  // something to hand out at a guessable key.
-  "r2_buckets": [
-    {
-      "binding": "NEXT_INC_CACHE_R2_BUCKET",
-      "bucket_name": "ajilchinzugii-next-cache"
-    }
-  ],
+  // No R2 incremental-cache binding. Its presence is what makes
+  // `opennextjs-cloudflare deploy` run its "Populating remote R2 incremental
+  // cache" step, which hangs indefinitely with this account's API token —
+  // no error, no progress, object_count stays 0. See open-next.config.ts.
 
   // Resizing and format conversion for next/image, which Vercel used to do
   // and the Workers runtime cannot: `sharp` is a native binary and does not
