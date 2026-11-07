@@ -1,5 +1,10 @@
 import type { CollectionConfig } from 'payload';
 import { consentErrorMessage, mediaSubjects, missingConsent } from '../../lib/consent';
+import {
+  stripImageMetadata,
+  strippableImageTypes,
+  UnstrippableImageError,
+} from '../../lib/exif';
 import { anonymiseFileName } from '../../lib/filenames';
 import { stripPdfMetadata } from '../../lib/pdf';
 import { anyone, isStaff } from '../access';
@@ -42,9 +47,15 @@ export const Media: CollectionConfig = {
     delete: isStaff,
   },
   upload: {
-    mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'application/pdf'],
-    // Never copy EXIF/GPS/IPTC into any derivative, and re-encode the original
-    // through sharp so the stored "original" carries no metadata either.
+    // AVIF is not accepted as an upload. Its metadata cannot be removed
+    // without a full ISOBMFF rewrite, and on Workers there is no `sharp` to
+    // re-encode it away, so an AVIF original would reach the public bucket
+    // carrying whatever the camera wrote (rule 4). AVIF *derivatives* are
+    // still generated below, from an already-clean original.
+    mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
+    // Keeps sharp from copying metadata into any derivative it generates.
+    // The original is cleaned in the hook below, which does not depend on
+    // sharp being present at all.
     withMetadata: false,
     formatOptions: { format: 'webp', options: { quality: 82 } },
     focalPoint: false,
@@ -95,12 +106,30 @@ export const Media: CollectionConfig = {
         if ((operation === 'create' || operation === 'update') && req.file) {
           req.file.name = anonymiseFileName(req.file.name);
 
-          // Images are re-encoded by sharp, which drops their metadata. A PDF
-          // is stored as uploaded, so its Info dictionary and XMP packet have
-          // to be cleared here or the author's name travels with the file.
-          if (req.file.mimetype === 'application/pdf') {
+          // Every stored file is cleaned here, before it reaches the bucket.
+          //
+          // This used to rely on sharp re-encoding each image, which dropped
+          // the metadata as a side effect. sharp is a native binary and
+          // cannot run on Cloudflare Workers, so on that runtime the original
+          // would have been stored exactly as uploaded — GPS coordinates and
+          // all. Doing it explicitly means the guarantee holds wherever the
+          // site runs, and holds for the original rather than only for the
+          // derivatives (rule 4).
+          const type = req.file.mimetype;
+
+          if (type === 'application/pdf') {
+            // A PDF keeps an Info dictionary and an XMP packet: a report
+            // exported from Word travels with the author's name in it.
             req.file.data = await stripPdfMetadata(req.file.data);
             req.file.size = req.file.data.length;
+          } else if ((strippableImageTypes as readonly string[]).includes(type)) {
+            req.file.data = Buffer.from(stripImageMetadata(req.file.data, type));
+            req.file.size = req.file.data.length;
+          } else {
+            // The upload list above should already have turned this away.
+            // Refusing here too means the bucket's guarantee rests on this
+            // hook alone: nothing is stored that was not cleaned first.
+            throw new UnstrippableImageError(type);
           }
         }
       },
