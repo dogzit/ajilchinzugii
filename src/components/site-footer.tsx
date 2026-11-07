@@ -4,7 +4,6 @@ import { otherLocale, type Locale } from '@/i18n/routing';
 import { LanguageSwitch } from '@/components/language-switch';
 import { NavLinks } from '@/components/nav-links';
 import { SiteWordmark } from '@/components/site-wordmark';
-import { ThemeSwitch } from '@/components/theme-switch';
 import { contactEmail as contactEmailFromEnv } from '@/lib/site';
 import { filledIn } from '@/lib/placeholder';
 
@@ -110,15 +109,6 @@ export function SiteFooter({
               className="mt-3"
             />
           </section>
-
-          <ThemeSwitch
-            legend={t('theme.label')}
-            labels={{
-              auto: t('theme.auto'),
-              light: t('theme.light'),
-              dark: t('theme.dark'),
-            }}
-          />
         </div>
       </div>
 

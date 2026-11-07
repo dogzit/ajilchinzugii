@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/components/link';
+import type { Media } from '@/payload-types';
 import type { Locale } from '@/i18n/routing';
 import { localeHref } from '@/lib/locale-href';
 import { otherLocale } from '@/i18n/routing';
@@ -22,8 +23,13 @@ import { Icon } from '@/components/ui/icon';
  * `<details>` would hide the bar itself whenever the menu was closed, which
  * is exactly what the browser is supposed to do with a collapsed element.
  */
-export function SiteHeader({ locale }: { locale: Locale }) {
-  const logo = undefined;
+export function SiteHeader({
+  locale,
+  logo,
+}: {
+  locale: Locale;
+  logo?: number | Media | null;
+}) {
   const t = useTranslations();
   const other = otherLocale[locale];
 

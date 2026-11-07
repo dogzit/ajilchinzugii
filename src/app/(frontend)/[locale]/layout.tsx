@@ -92,7 +92,7 @@ export default async function LocaleLayout({
           line={t('demo.banner')}
           secondaryLine={t('demo.bannerEn')}
         />
-        <SiteHeader locale={locale} />
+        <SiteHeader locale={locale} logo={site.logo} />
         <main id="main" tabIndex={-1} className="flex-1">
           {children}
         </main>
@@ -101,6 +101,7 @@ export default async function LocaleLayout({
           contactEmail={site.contactEmail}
           socialLinks={site.socialLinks}
           city={site.organization?.addressCity}
+          logo={site.logo}
         />
         <Analytics />
       </body>

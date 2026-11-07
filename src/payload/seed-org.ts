@@ -4,6 +4,7 @@ import path from 'node:path';
 import { sql } from '@payloadcms/db-postgres';
 import { getPayload } from 'payload';
 import config from '../payload.config';
+import { isRichTextEmpty } from '../lib/format';
 import { isDemoValue, isPlaceholder } from '../lib/placeholder';
 
 /** True when the field is still empty, a TBD placeholder, or leftover demo text. */
@@ -1051,6 +1052,16 @@ const PAPER = {
   },
 };
 
+// ── Logo ────────────────────────────────────────────────────────────────
+
+const SITE_LOGO = {
+  file: 'logo.png',
+  alt: {
+    mn: 'Ажилчин Зөгий — лого',
+    en: 'Ajilchin Zögii logo',
+  },
+} as const;
+
 // ── Home page picture ───────────────────────────────────────────────────
 
 const HERO_IMAGE = {
@@ -1129,6 +1140,28 @@ const TEAM = [
     name: 'Erdenebat',
     slug: 'erdenebat',
     role: { mn: 'Үүсгэн байгуулагч, Гүйцэтгэх захирал', en: 'Founder, CEO' },
+    // Written by him about himself. The Mongolian is a translation of that
+    // English, not a second draft: it says the same things in the same order
+    // and invents nothing. Worth a read by the client before it stands as
+    // the organisation's own Mongolian voice.
+    bio: {
+      mn: [
+        'Эрдэнэбат Батбаяр 2026 онд Монголын хөдөлмөр эрхэлж буй өсвөр үеийнхэнд нэгдсэн дуу хоолой өгөх зорилгоор «Ажилчин Зөгий»-г үүсгэн байгуулсан. Тэрээр энэ асуудлыг биеэрээ мэдэрсэн: олон жилийн турш хичээл заагч, англи хэлний багш, мөн усан онгоцон дээр тогооч, кассчнаар ажилласан. Эдгээр ажил нь олон залуу амьдралын нөхцөл байдлаасаа шалтгаалан хөдөлмөр эрхэлдэг гэдгийг түүнд ойлгуулжээ. Тэдэнд хэрэгтэй зүйл бол ажиллаж байх хугацаандаа хамгаалал авах явдал болохоос нүднээс далд түлхэх хориг биш. «Ажилчин Зөгий» яг энэ байр сууринаас эхэлж, цалин, цагийн хуваарь, нөхцөлөө дангаараа тохирч чаддаггүй өсвөр үеийнхэнд тусалдаг. Өнөөдөр ТББ хэлбэрээр үйл ажиллагаа явуулж байгаа бөгөөд урт хугацаанд залуу ажилчдын үйлдвэрчний эвлэл болох зорилготой.',
+        'Эрдэнэбат Монгол Улсын Их Сургуулийн Эдийн засгийн тэнхимд судалгааны туслахаар ажилладаг. Түүний үндсэн судалгаа нь үндэсний түүврийн судалгааны өгөгдөлд тулгуурлан Монгол дахь хүүхдийн хөдөлмөрийг үнэндээ юу бий болгодгийг шалгасан бөгөөд үр дүн нь түгээмэл таамаглалуудыг эргэлзээнд оруулж байна. Эдийн засгийн цочрол, бага орлого хүлээж байснаас бага нөлөөтэй байсан бол өрхийн мал сүрэг, усны хүртээмж хавьгүй их нөлөөтэй нь тогтоогдсон. Хүүхдийн хөдөлмөрийн ихээхэн хэсэг, ялангуяа охидын хийдэг гэрийн ажил тоологдолгүй үлддэг. Гэр бүлээсээ гадуурх ажил олгогчид ажилладаг хүүхдүүд хамгийн хүнд, ихэвчлэн хуулиар зөвшөөрөгдсөнөөс давсан нөхцөлд ажилладаг. Мөн тэрээр Улаанбаатар, хөдөө орон нутгийн цалингийн зөрүүг судалсан.',
+        'Түүний судалгаа шууд хуулийн санал болон хувирсан. Эрдэнэбат насанд хүрээгүй хүмүүсийн хөдөлмөрлөх нөхцөлийг сайжруулах, тэднийг аюултай ажлаас хол байлгах зорилгоор Монгол Улсын Хөдөлмөрийн тухай хуульд нэмэлт, өөрчлөлт оруулах төсөл боловсруулжээ. Үүнийг Монголын Үйлдвэрчний Эвлэлүүдийн Холбоо (МҮЭХ)-оор дамжуулан парламентад хэлэлцүүлэхээр өргөн барьсан бөгөөд судалгааныхаа үр дүнг хөдөлмөрийн асуудал эрхэлсэн яаманд танилцуулсан. Тэрээр мөн тус яаманд хөдөлмөр эрхлэлт, хөдөлмөрийн бодлогын чиглэлээр ажиллаж байсан. Энэ санааг «Хэн ч тоолдоггүй хүүхдүүд» нэртэй TEDx илтгэлээрээ ч хүргэсэн. «Ажилчин Зөгий» нь Гэр бүл, хөдөлмөр, нийгмийн хамгааллын яам, МҮЭХ болон Stoic ТББ-тай хамтран ажилладаг.',
+        'Хүүхдийн хөдөлмөрөөс гадна Эрдэнэбат залуучуудад зохистой ажил олох, түүндээ тогтвортой ажиллахад нь туслах «Алхам» залуучуудын хөдөлмөр эрхлэлтийн төслийг удирддаг. Мөн Монголын өсвөр үеийнхний дийлэнх нь шаардлагатай мэдээлэлгүйгээр мэргэжлээ сонгодог гэсэн байр сууринаас үүдэлтэй карьерын мэдээллийн төсөл болох Suljee ТББ-ыг үүсгэн байгуулсан. Түүнчлэн 12Scholars хөтөлбөрийн сургалтыг зохион байгуулахад тусалдаг.',
+        'Тэрээр Олон улсын эдийн засгийн олимпиадад Монгол Улсыг төлөөлж, эдийн засгийн улсын уралдаануудад шагнал хүртсэн бөгөөд одоо сурагчдыг эдийн засгийн улсын олимпиадад бэлтгэдэг.',
+        'Эрдэнэбат Улаанбаатар дахь New Era International School-ийн чөлөөт жилийн суралцагч. «Ажилчин Зөгий»-д хийж буй ажил нь байгууллагынх нь эрхэм зорилготой нийцдэг: хөдөлмөр эрхэлж буй залуучуудыг нэг нэгдсэн дуу хоолойд нэгтгэж, эрхээ мэддэг, хөдөлмөрөө зохицуулах хуулийг төлөвшүүлдэг, улс орноо зохистой хөдөлмөр рүү хөтөлдөг залуу ажилчдын үеийг бий болгох.',
+      ],
+      en: [
+        'Erdenebat Batbayar founded Ajilchin Zugii in 2026 to give Mongolia’s working teenagers a collective voice. He knows the problem first-hand: for years he worked as a tutor, an English teacher, and a cook and cashier aboard a ship. Those jobs taught him that many young people work because their circumstances require it. What they need is protection while they work, not a ban that pushes them out of sight. Ajilchin Zugii starts from that position and helps teenagers who can’t negotiate pay, hours or conditions on their own. It operates as an NGO today, with the long-term goal of becoming a trade union for young workers.',
+        'Erdenebat is a research assistant in the Department of Economics at the National University of Mongolia. His main study uses national survey data to test what actually drives child labour in Mongolia, and the results challenge common assumptions. Economic shocks and low income turned out to matter less than expected, while a family’s herd and its access to water mattered far more. Much of children’s work, especially the household work girls do, goes uncounted. Children working for outside employers face the harshest conditions, often beyond what the law allows. He has also studied the wage gap between Ulaanbaatar and the countryside.',
+        'His research led directly to a legal proposal. Erdenebat drafted an amendment to Mongolia’s Labour Law to improve working conditions for minors and keep them out of dangerous work. He submitted it through the Confederation of Mongolian Trade Unions (CMTU) for parliamentary discussion, and he has shared his findings with the labour ministry, where he also worked on employment and labour policy. He took the same message to a TEDx stage in a talk called “The Children No One Counts.” Ajilchin Zugii partners with the Ministry of Family, Labour and Social Protection, the CMTU and Stoic NGO.',
+        'Beyond child labour, Erdenebat leads the Alham Youth Employment Project, which helps young people find and keep decent work. He also founded Suljee NGO, a career-information project built on the view that most Mongolian teenagers choose careers without the information they need. He also helps run training for the 12Scholars program.',
+        'He has represented Mongolia at the International Economics Olympiad, won national recognition in economics competitions, and now coaches students for the national economics olympiad.',
+        'Erdenebat is a gap-year student at New Era International School in Ulaanbaatar. His work for Ajilchin Zugii follows its mission: to unite working youth into one collective voice and raise a generation of young workers who know their rights, shape the laws that govern their labour, and lead the nation toward dignified work.',
+      ],
+    },
     // The author page for the paper this site is built around, so a reader
     // who wants the work rather than the claim has somewhere to go.
     profiles: [
@@ -1245,6 +1278,36 @@ const seed = async () => {
   // Legal name and social links were not provided by the client yet, so
   // they are intentionally left as whatever they currently are (TBD
   // placeholder or editor-entered) rather than guessed here.
+
+  // ── Logo ─────────────────────────────────────────────────────────────
+  // Until this is set the header and the footer spell the name out in type
+  // with a honey dot beside it, which is the fallback, not the brand.
+  if (!siteCurrent?.logo) {
+    const logoPath = path.resolve(process.cwd(), 'public', SITE_LOGO.file);
+    if (existsSync(logoPath)) {
+      const logoBytes = await readFile(logoPath);
+      const logoMedia = await payload.create({
+        collection: 'media',
+        overrideAccess: true,
+        data: { alt: SITE_LOGO.alt, subject: 'none' },
+        file: {
+          data: logoBytes,
+          mimetype: 'image/png',
+          name: SITE_LOGO.file,
+          size: logoBytes.length,
+        },
+      });
+
+      await payload.updateGlobal({
+        slug: 'site',
+        overrideAccess: true,
+        data: { logo: logoMedia.id },
+      });
+      logger.info('Attached the site logo');
+    } else {
+      logger.info(`No logo file at ${logoPath} — skipping`);
+    }
+  }
 
   // ── Home page picture ────────────────────────────────────────────────
   // One frame out of the photographs the organisation took at a school
@@ -1926,6 +1989,7 @@ const seed = async () => {
           slug: member.slug,
           role: member.role.mn,
           confirmedAdult18Plus: true,
+          ...(member.bio ? { bio: richText([...member.bio.mn]) } : {}),
           profiles: member.profiles?.map((profile) => ({
             label: profile.label.mn,
             url: profile.url,
@@ -1940,6 +2004,7 @@ const seed = async () => {
         overrideAccess: true,
         data: {
           role: member.role.en,
+          ...(member.bio ? { bio: richText([...member.bio.en]) } : {}),
           // The row ids from the Mongolian write, so this updates those rows
           // instead of replacing them. An array row written without its id is
           // a new row, and the label just saved in the other locale goes with
@@ -1973,6 +2038,33 @@ const seed = async () => {
           data: { slug: member.slug },
         });
         logger.info(`Set the slug for "${member.name}"`);
+      }
+    }
+
+    // The biography, for a member who was created before it was written.
+    // Only when there is none: an editor's own wording in /admin outranks
+    // anything this script carries.
+    if (member.bio) {
+      const current = await payload.find({
+        collection: 'team',
+        where: { name: { equals: member.name } },
+        limit: 1,
+        locale: 'mn',
+        overrideAccess: true,
+      });
+      const memberDoc = current.docs[0];
+
+      if (memberDoc && isRichTextEmpty(memberDoc.bio)) {
+        for (const locale of ['mn', 'en'] as const) {
+          await payload.update({
+            collection: 'team',
+            id: memberDoc.id,
+            locale,
+            overrideAccess: true,
+            data: { bio: richText([...member.bio[locale]]) },
+          });
+        }
+        logger.info(`Wrote the biography for "${member.name}"`);
       }
     }
 

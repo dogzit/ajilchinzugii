@@ -31,6 +31,17 @@ export const Site: GlobalConfig = {
       },
     },
     {
+      name: 'logo',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Лого / Logo',
+      filterOptions: { mimeType: { contains: 'image' } },
+      admin: {
+        description:
+          'Толгой болон хөл хэсэгт байгууллагын нэрний оронд харагдана. Хоосон бол нэр нь үсгээр бичигдэнэ. Өндөр нь тогтмол, өргөн нь дагана. Shown in the header and the footer in place of the organisation’s name. Left empty, the name is set in type instead. The height is fixed and the width follows.',
+      },
+    },
+    {
       name: 'heroImage',
       type: 'upload',
       relationTo: 'media',

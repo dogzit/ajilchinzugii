@@ -796,6 +796,10 @@ export interface Site {
    */
   missionLine: string;
   /**
+   * Толгой болон хөл хэсэгт байгууллагын нэрний оронд харагдана. Хоосон бол нэр нь үсгээр бичигдэнэ. Өндөр нь тогтмол, өргөн нь дагана. Shown in the header and the footer in place of the organisation’s name. Left empty, the name is set in type instead. The height is fixed and the width follows.
+   */
+  logo?: (number | null) | Media;
+  /**
    * Хэн нэгний царай таних боломжтой зураг оруулахгүй. Хүүхдийн зургийг зөвхөн бичгээр зөвшөөрөлтэйгөөр (Media-д бүртгэгдсэн) оруулна. Хоосон бол нүүр хуудас зөгийн сархинагийн тэмдгийг харуулна. No picture in which a person can be recognised. A photograph of a minor may only be used with a recorded written consent, which the Media collection enforces. Left empty, the home page shows the honeycomb mark instead.
    */
   heroImage?: (number | null) | Media;
@@ -1013,6 +1017,7 @@ export interface ImpactSnapshot {
  */
 export interface SiteSelect<T extends boolean = true> {
   missionLine?: T;
+  logo?: T;
   heroImage?: T;
   contactEmail?: T;
   socialLinks?:
