@@ -34,12 +34,7 @@ export function SiteFooter({
       <div className="shell grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2">
           <p className="font-display text-ink flex items-center gap-2.5 text-lg">
-            <SiteWordmark
-              logo={logo}
-              name={t('site.name')}
-              locale={locale}
-              size="footer"
-            />
+            <SiteWordmark logo={logo} name={t('site.name')} size="footer" />
           </p>
           <p className="text-ink-muted mt-3 max-w-[42ch] text-sm">
             {t('footer.contactNote')}

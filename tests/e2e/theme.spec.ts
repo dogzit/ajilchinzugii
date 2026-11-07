@@ -30,12 +30,30 @@ const painted = (page: Page) =>
     getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(),
   );
 
-const group = (page: Page) => page.getByRole('group', { name: /харагдац|appearance/i });
-/** Light, dark, auto — the order they are offered in. */
-const option = (page: Page, name: 'light' | 'dark' | 'auto') =>
-  group(page)
-    .getByRole('button')
-    .nth({ light: 0, dark: 1, auto: 2 }[name]);
+/**
+ * The header toggle, the only appearance control on the page now that the
+ * footer's three-way group is gone. Its accessible name changes with the
+ * state it is in, so it is matched on the word they all share.
+ */
+const toggle = (page: Page) =>
+  page.getByRole('button', { name: /харагдац|appearance/i });
+
+/** What the document says it is set to; light leaves no mark at all. */
+const chosen = (page: Page) =>
+  page.evaluate(() => document.documentElement.dataset.theme ?? 'light');
+
+/**
+ * One button that steps light → dark → auto, so choosing is pressing until
+ * the document agrees. Three presses come back to the start, so this cannot
+ * spin.
+ */
+async function choose(page: Page, theme: 'light' | 'dark' | 'auto') {
+  for (let press = 0; press < 3; press += 1) {
+    if ((await chosen(page)) === theme) return;
+    await toggle(page).click();
+  }
+  throw new Error(`the toggle never reached ${theme}`);
+}
 
 test.describe('a first visit', () => {
   test.use({ colorScheme: 'dark' });
@@ -53,7 +71,7 @@ test.describe('a first visit', () => {
 test.describe('a chosen theme', () => {
   test('survives a reload', async ({ page }) => {
     await page.goto('/mn');
-    await option(page, 'dark').click();
+    await choose(page, 'dark');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
     await page.reload();
@@ -64,7 +82,7 @@ test.describe('a chosen theme', () => {
 
   test('survives a language switch, and the reload after it', async ({ page }) => {
     await page.goto('/mn/methodology');
-    await option(page, 'dark').click();
+    await choose(page, 'dark');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
     await page.getByTestId('language-switch').first().click();
@@ -80,7 +98,7 @@ test.describe('a chosen theme', () => {
 
   test('survives moving between pages', async ({ page }) => {
     await page.goto('/mn');
-    await option(page, 'dark').click();
+    await choose(page, 'dark');
 
     await page
       .getByRole('navigation', { name: 'Үндсэн цэс' })
@@ -92,22 +110,22 @@ test.describe('a chosen theme', () => {
 
   test('is kept by the switch itself after a language switch', async ({ page }) => {
     await page.goto('/mn');
-    await option(page, 'dark').click();
+    await choose(page, 'dark');
 
     await page.getByTestId('language-switch').first().click();
     await expect(page).toHaveURL('/en');
 
     // The control must agree with the colours on screen, or the reader is
-    // told they are on light while reading a dark page.
-    await expect(option(page, 'dark')).toHaveAttribute('aria-pressed', 'true');
-    await expect(option(page, 'light')).toHaveAttribute('aria-pressed', 'false');
+    // told they are on light while reading a dark page. The toggle says so
+    // in its own name: it offers the step *after* the one in force.
+    await expect(toggle(page)).toHaveAttribute('aria-label', /dark\.|харанхуй\./i);
   });
 });
 
 test.describe('auto', () => {
   test('follows the system setting, both ways', async ({ page }) => {
     await page.goto('/mn');
-    await option(page, 'auto').click();
+    await choose(page, 'auto');
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'auto');
 
     await page.emulateMedia({ colorScheme: 'dark' });
@@ -122,7 +140,7 @@ test.describe('auto', () => {
   }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/mn');
-    await option(page, 'auto').click();
+    await choose(page, 'auto');
 
     await page.getByTestId('language-switch').first().click();
     await expect(page).toHaveURL('/en');
@@ -142,7 +160,7 @@ test('the console stays clean through a themed language switch', async ({ page }
   page.on('pageerror', (error) => complaints.push(error.message));
 
   await page.goto('/mn/methodology');
-  await option(page, 'dark').click();
+  await choose(page, 'dark');
   await page.getByTestId('language-switch').first().click();
   await expect(page).toHaveURL('/en/methodology');
   await page.reload();

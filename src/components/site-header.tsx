@@ -40,7 +40,7 @@ export function SiteHeader({
           href={localeHref(locale, '/')}
           className="font-display text-ink me-auto flex items-center gap-2 text-sm whitespace-nowrap sm:gap-2.5 sm:text-lg"
         >
-          <SiteWordmark logo={logo} name={t('site.name')} locale={locale} />
+          <SiteWordmark logo={logo} name={t('site.name')} />
         </Link>
 
         <nav aria-label={t('a11y.primaryNav')} className="me-2 hidden min-[860px]:block">

@@ -15,43 +15,35 @@ const logo = (overrides: Partial<Media> = {}): Media =>
 
 describe('the wordmark', () => {
   it('sets the name in type when no logo has been uploaded', () => {
-    render(<SiteWordmark logo={null} name="Ажилчин Зөгий" locale="mn" />);
+    render(<SiteWordmark logo={null} name="Ажилчин Зөгий" />);
     expect(screen.getByText('Ажилчин Зөгий')).toBeInTheDocument();
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 
-  it('shows the uploaded logo instead', () => {
-    render(<SiteWordmark logo={logo()} name="Ажилчин Зөгий" locale="mn" />);
-    expect(screen.getByRole('img')).toHaveAttribute('alt', 'Ажилчин Зөгий лого');
+  it('keeps the name beside the logo', () => {
+    // The mark is a glyph, not a wordmark: on its own it names nothing.
+    render(<SiteWordmark logo={logo()} name="Ажилчин Зөгий" />);
+    expect(screen.getByText('Ажилчин Зөгий')).toBeInTheDocument();
+    expect(screen.getByRole('presentation')).toBeInTheDocument();
   });
 
-  it('falls back to the organisation name when the alt text is empty', () => {
-    render(
-      <SiteWordmark
-        logo={logo({ alt: { mn: '   ', en: '' } } as Partial<Media>)}
-        name="Ажилчин Зөгий"
-        locale="mn"
-      />,
-    );
-    // A logo that leaves the link to the front page unnamed is worse than none.
-    expect(screen.getByRole('img')).toHaveAttribute('alt', 'Ажилчин Зөгий');
-  });
-
-  it('takes the alt text of the language being read', () => {
-    render(<SiteWordmark logo={logo()} name="Ajilchin Zogii" locale="en" />);
-    expect(screen.getByRole('img')).toHaveAttribute('alt', 'Ajilchin Zogii logo');
+  it('leaves the logo decorative, because the name is already there', () => {
+    // Alt text on the image would have the link read the name twice.
+    render(<SiteWordmark logo={logo()} name="Ажилчин Зөгий" />);
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.getByRole('presentation')).toHaveAttribute('alt', '');
   });
 
   it('keeps its height and lets the width follow the file', () => {
-    render(<SiteWordmark logo={logo()} name="Ажилчин Зөгий" locale="mn" />);
-    const image = screen.getByRole('img');
+    render(<SiteWordmark logo={logo()} name="Ажилчин Зөгий" />);
+    const image = screen.getByRole('presentation');
     // 480x120 at 28px tall is 112px wide; the header never shifts.
     expect(image).toHaveAttribute('height', '28');
     expect(image).toHaveAttribute('width', '112');
   });
 
   it('is unreferenced when the upload has not been resolved', () => {
-    render(<SiteWordmark logo={7} name="Ажилчин Зөгий" locale="mn" />);
+    render(<SiteWordmark logo={7} name="Ажилчин Зөгий" />);
     expect(screen.getByText('Ажилчин Зөгий')).toBeInTheDocument();
   });
 });
