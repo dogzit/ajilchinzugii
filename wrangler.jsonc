@@ -1,0 +1,45 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ajilchinzugii",
+  "main": ".open-next/worker.js",
+
+  // OpenNext's own default. Not today's date on purpose: the adapter is
+  // tested against this one, and a newer date can switch on runtime
+  // behaviour the adapter has not caught up with.
+  "compatibility_date": "2026-08-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+
+  // The worker calls itself for cache revalidation.
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "ajilchinzugii"
+    }
+  ],
+
+  // A bucket of its own for the incremental cache. Deliberately not the
+  // media bucket: that one is served publicly, and rendered pages are not
+  // something to hand out at a guessable key.
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "ajilchinzugii-next-cache"
+    }
+  ],
+
+  // Resizing and format conversion for next/image, which Vercel used to do
+  // and the Workers runtime cannot: `sharp` is a native binary and does not
+  // run here.
+  "images": {
+    "binding": "IMAGES"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}

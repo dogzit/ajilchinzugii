@@ -28,7 +28,11 @@
     "seed:demo": "payload run src/payload/seed-demo.ts",
     "seed:demo:clear": "payload run src/payload/seed-demo.ts -- --clear",
     "check:placeholders": "payload run scripts/check-placeholders.ts",
-    "prebuild": "if [ \"$NEXT_PUBLIC_ALLOW_INDEXING\" = \"true\" ]; then pnpm check:placeholders; fi"
+    "prebuild": "if [ \"$NEXT_PUBLIC_ALLOW_INDEXING\" = \"true\" ]; then pnpm check:placeholders; fi",
+    "build:cf": "BUILD_TARGET=cloudflare opennextjs-cloudflare build",
+    "preview:cf": "BUILD_TARGET=cloudflare opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy:cf": "BUILD_TARGET=cloudflare opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.92.0",
@@ -52,6 +56,7 @@
     "@axe-core/playwright": "^4.14.0",
     "@eslint/eslintrc": "^3.3.7",
     "@lhci/cli": "^0.15.1",
+    "@opennextjs/cloudflare": "^1.20.16",
     "@playwright/test": "^1.64.1",
     "@swc-node/register": "^1.12.1",
     "@tailwindcss/postcss": "^4.3.3",
@@ -72,15 +77,17 @@
     "schema-dts": "^2.1.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "wrangler": "^4.158.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
+      "@parcel/watcher",
       "@swc/core",
       "esbuild",
       "sharp",
       "unrs-resolver",
-      "@parcel/watcher"
+      "workerd"
     ]
   }
 }

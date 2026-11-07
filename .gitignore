@@ -48,3 +48,7 @@ yarn-error.log*
 
 # scratch scripts (underscore-prefixed) — not part of the project
 scripts/_*.ts
+
+# Cloudflare Workers build output
+.open-next
+.wrangler

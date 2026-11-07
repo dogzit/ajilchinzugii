@@ -6,6 +6,10 @@ const config = [
   {
     ignores: [
       '.next/**',
+      // The Workers bundle: tens of megabytes of generated JavaScript, which
+      // ESLint will happily run out of memory trying to parse.
+      '.open-next/**',
+      '.wrangler/**',
       'node_modules/**',
       'coverage/**',
       'playwright-report/**',

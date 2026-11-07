@@ -13,6 +13,10 @@ assertLaunchReady(process.env);
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
+// Set by `pnpm build:cf`, so one config can serve both targets while the
+// site runs on Vercel and Workers at the same time.
+const buildingForWorkers = process.env.BUILD_TARGET === 'cloudflare';
+
 // Media is served from Payload's own route until the bucket has a public
 // domain; when R2_PUBLIC_URL is set, next/image needs that host allowed.
 const r2PublicUrl = process.env.R2_PUBLIC_URL?.trim();
@@ -22,6 +26,27 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   typedRoutes: false,
+
+  /*
+   * Payload's Postgres adapter requires `drizzle-kit/api` to generate and
+   * push schema. A running site never does either — `push` is off and
+   * migrations are a CLI job — but the require still has to resolve, and
+   * `drizzle-kit` is an unhoisted dev dependency of the adapter. Left alone,
+   * the bundler emits an external nothing can resolve and the Workers build
+   * fails on it. See src/lib/drizzle-kit-api-stub.ts.
+   */
+  turbopack: {
+    resolveAlias: {
+      'drizzle-kit/api': './src/lib/drizzle-kit-api-stub.ts',
+      /*
+       * `sharp` is a native binary and cannot load in workerd, so the
+       * Workers build swaps it for a stub and Payload goes without it.
+       * The Vercel build and the CLI keep the real one. Set by the
+       * `build:cf` script, never by hand.
+       */
+      ...(buildingForWorkers ? { sharp: './src/lib/sharp-stub.ts' } : {}),
+    },
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: r2Host ? [{ protocol: 'https', hostname: r2Host }] : [],
