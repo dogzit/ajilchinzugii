@@ -1,7 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "ajilchinzugii",
-  "main": ".open-next/worker.js",
+  // A thin wrapper round the generated worker that adds the cron
+  // handler; see worker/index.js.
+  "main": "worker/index.js",
 
   // OpenNext's own default. Not today's date on purpose: the adapter is
   // tested against this one, and a newer date can switch on runtime
@@ -37,6 +39,12 @@
   // run here.
   "images": {
     "binding": "IMAGES"
+  },
+
+  // The daily revalidation of the impact figures, at the same hour the
+  // Vercel cron ran it. A cron trigger calls `scheduled`, not a URL.
+  "triggers": {
+    "crons": ["0 22 * * *"]
   },
 
   "observability": {

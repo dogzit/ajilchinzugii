@@ -17,6 +17,14 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 // site runs on Vercel and Workers at the same time.
 const buildingForWorkers = process.env.BUILD_TARGET === 'cloudflare';
 
+const siteHostname = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SITE_URL ?? '').hostname;
+  } catch {
+    return undefined;
+  }
+})();
+
 // Media is served from Payload's own route until the bucket has a public
 // domain; when R2_PUBLIC_URL is set, next/image needs that host allowed.
 const r2PublicUrl = process.env.R2_PUBLIC_URL?.trim();
@@ -49,7 +57,22 @@ const nextConfig: NextConfig = {
   },
   images: {
     formats: ['image/avif', 'image/webp'],
-    remotePatterns: r2Host ? [{ protocol: 'https', hostname: r2Host }] : [],
+    remotePatterns: [
+      ...(r2Host ? [{ protocol: 'https' as const, hostname: r2Host }] : []),
+      /*
+       * On Workers, media is referenced by absolute URL so the image
+       * optimiser fetches it over the network instead of looking for it in
+       * the build's static assets, where a Payload route does not exist.
+       * next/image refuses an absolute URL whose host is not listed here.
+       */
+      ...(buildingForWorkers && siteHostname
+        ? [{ protocol: 'https' as const, hostname: siteHostname }]
+        : []),
+    ],
+  },
+
+  env: {
+    NEXT_PUBLIC_ABSOLUTE_MEDIA: buildingForWorkers ? '1' : '0',
   },
 
   async headers() {

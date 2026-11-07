@@ -1,5 +1,8 @@
 import { siteUrl } from '@/lib/site';
 
+/** Set by the Cloudflare build; see the comment in mediaSrc. */
+const absoluteMedia = process.env.NEXT_PUBLIC_ABSOLUTE_MEDIA === '1';
+
 /**
  * The src to hand `next/image` for a file in the Media collection.
  *
@@ -13,6 +16,15 @@ import { siteUrl } from '@/lib/site';
 export function mediaSrc(url: string | null | undefined): string | null {
   const value = url?.trim();
   if (!value) return null;
+
+  // On Workers the reduction above is exactly wrong. OpenNext resolves a
+  // relative `/_next/image?url=...` through the ASSETS binding, which holds
+  // the build's static files and knows nothing of `/api/media/file/...`, so
+  // a path that Vercel optimises happily comes back 404. Absolute URLs take
+  // the other branch and are fetched over the network, which reaches the
+  // route. The host is added to `remotePatterns` for this build.
+  if (absoluteMedia) return value.startsWith('/') ? `${siteUrl}${value}` : value;
+
   if (value.startsWith('/')) return value;
 
   try {
