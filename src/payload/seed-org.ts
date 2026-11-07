@@ -1093,7 +1093,10 @@ const PARTNERS = [
   },
   {
     name: 'Federation of Mongolian Education and Science Unions',
-    url: undefined,
+    // Their whole site redirects to a login page today. The root is recorded
+    // rather than that redirect: it is the address they own, and it stays
+    // right if they ever put a public page in front of it.
+    url: 'https://www.fmesu.mn',
     logoFile: 'fmesu_logo.webp',
     logoAlt: {
       mn: 'Монголын Боловсрол, Шинжлэх Ухааны Үйлдвэрчний Эвлэлүүдийн Холбооны лого',
