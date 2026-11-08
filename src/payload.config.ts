@@ -130,7 +130,24 @@ export default buildConfig({
   // Image processing: resizing, format conversion and metadata stripping.
   sharp,
   db: postgresAdapter({
-    pool: { connectionString },
+    /*
+     * `maxUses: 1` on Workers — Cloudflare's own setting for Payload here.
+     *
+     * workerd refuses I/O that was begun in one request context and reused
+     * in another, so a pooled connection must not outlive the request that
+     * opened it. `maxUses` retires a connection after a single checkout,
+     * which gives each request its own without touching the pool's size or
+     * its idle behaviour. Hyperdrive does the real pooling on Cloudflare's
+     * side, so opening afresh costs little.
+     *
+     * Not `idleTimeoutMillis: 0` with `max: 1`, which was tried and made it
+     * strictly worse: that closes connections while they are still in use
+     * and every page failed.
+     *
+     * Node keeps the ordinary pool, where holding connections open between
+     * requests is the whole point.
+     */
+    pool: onWorkers ? { connectionString, maxUses: 1 } : { connectionString },
     // Never let the app alter the schema on boot — production changes go
     // through a generated, reviewed migration.
     push: false,

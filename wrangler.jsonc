@@ -24,10 +24,15 @@
     }
   ],
 
-  // No R2 incremental-cache binding. Its presence is what makes
-  // `opennextjs-cloudflare deploy` run its "Populating remote R2 incremental
-  // cache" step, which hangs indefinitely with this account's API token —
-  // no error, no progress, object_count stays 0. See open-next.config.ts.
+  // Holds the prerendered pages and the ISR cache. Its own bucket, not the
+  // media one: that is served publicly, and rendered pages are not something
+  // to hand out at a guessable key.
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "ajilchinzugii-next-cache"
+    }
+  ],
 
   // Postgres through Cloudflare's own pooler.
   //
