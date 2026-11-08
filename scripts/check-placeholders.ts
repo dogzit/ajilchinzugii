@@ -48,6 +48,11 @@ const MARKERS: { pattern: RegExp; what: string }[] = [
 const EXEMPT_FILES = [
   'src/payload/seed-demo.ts',
   'src/payload/seed.ts',
+  // Same case as seed.ts: it seeds the TBD marker into the SEO fields it has
+  // no copy for, so an editor can see which ones are still waiting. Whether
+  // any of those markers actually reached the site is the content scan's
+  // question, not this one's — and the content scan reads the database.
+  'src/payload/seed-org.ts',
   'src/lib/placeholder.ts',
   'src/lib/citations.ts',
   'src/components/demo-banner.tsx',
