@@ -26,7 +26,43 @@ type Env = Record<string, string | undefined>;
  * search engine that the deployment is the site; moving to the real domain
  * afterwards means asking it to unlearn that.
  */
-const PLATFORM_SUFFIXES = ['.vercel.app', '.netlify.app', '.pages.dev', '.fly.dev'];
+const PLATFORM_SUFFIXES = [
+  '.vercel.app',
+  '.netlify.app',
+  '.pages.dev',
+  '.fly.dev',
+  '.workers.dev',
+];
+
+/**
+ * Variables without which the build cannot finish, and the one-line reason
+ * each is needed. They are checked together so a misconfigured deployment
+ * fails once with the whole list, rather than once per variable across four
+ * builds — which is exactly how the first Cloudflare build went.
+ *
+ * `NEXT_PUBLIC_SITE_URL` would otherwise fail deep inside page collection,
+ * from `src/lib/site.ts`, naming only itself. The other two fail later still,
+ * when a prerendered page reaches for the database.
+ */
+const REQUIRED_TO_BUILD: Array<{ name: string; why: string }> = [
+  {
+    name: 'NEXT_PUBLIC_SITE_URL',
+    why: 'every canonical, hreflang, sitemap and OG URL is built from it',
+  },
+  {
+    name: 'PAYLOAD_SECRET',
+    why: 'Payload refuses to start without it, and the build renders CMS pages',
+  },
+  {
+    name: 'DATABASE_URL',
+    why: 'the research and team pages read their slugs from Postgres at build time',
+  },
+];
+
+/** Missing build-time variables, or an empty list. */
+export function missingBuildEnv(env: Env): Array<{ name: string; why: string }> {
+  return REQUIRED_TO_BUILD.filter(({ name }) => !env[name]?.trim());
+}
 
 const isPlatformHost = (host: string) =>
   PLATFORM_SUFFIXES.some((suffix) => host.endsWith(suffix));
@@ -48,7 +84,8 @@ const hostOf = (url: string): string | null => {
 /** Everything wrong with this environment, in the order it should be fixed. */
 export function launchProblems(env: Env): LaunchProblem[] {
   const indexing =
-    env.VERCEL_ENV === 'production' && env.NEXT_PUBLIC_ALLOW_INDEXING?.trim() === 'true';
+    (env.DEPLOY_ENV?.trim() === 'production' || env.VERCEL_ENV === 'production') &&
+    env.NEXT_PUBLIC_ALLOW_INDEXING?.trim() === 'true';
 
   // A draft deployment is allowed to be anything at all.
   if (!indexing) return [];
@@ -111,6 +148,26 @@ export function launchProblems(env: Env): LaunchProblem[] {
  * rest. Warnings do not stop a build: a counter that records nothing is worth
  * saying out loud, but it is not worth refusing to ship over.
  */
+export function assertBuildEnv(env: Env): void {
+  const missing = missingBuildEnv(env);
+  if (missing.length === 0) return;
+
+  throw new Error(
+    [
+      '',
+      'Build хийхэд дараах хувьсагчид дутуу байна / This build is missing:',
+      '',
+      ...missing.map(({ name, why }) => `  ✖ ${name} — ${why}`),
+      '',
+      'Бүгдийг нь нэг дор тохируулна уу / Set all of them, then build again.',
+      'Cloudflare Workers:  pnpm exec wrangler secret put <NAME>',
+      'Vercel:              Settings → Environment Variables',
+      'Дэлгэрэнгүй / details: CLOUDFLARE_BUILD_SETUP.md',
+      '',
+    ].join('\n'),
+  );
+}
+
 export function assertLaunchReady(env: Env): void {
   const problems = launchProblems(env);
   const errors = problems.filter((problem) => problem.kind === 'error');
@@ -129,7 +186,8 @@ export function assertLaunchReady(env: Env): void {
       '',
       ...errors.map(({ message }) => `  ✖ ${message}`),
       '',
-      'Vercel → Settings → Environment Variables дээр засаад дахин deploy хий.',
+      'Платформынхаа орчны хувьсагчийг засаад дахин deploy хий.',
+      'Fix them in the platform’s environment variables and deploy again.',
       'Эсвэл агуулга бэлэн болтол NEXT_PUBLIC_ALLOW_INDEXING=false болго.',
       '',
     ].join('\n'),
