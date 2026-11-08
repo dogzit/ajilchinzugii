@@ -29,6 +29,20 @@
   // cache" step, which hangs indefinitely with this account's API token —
   // no error, no progress, object_count stays 0. See open-next.config.ts.
 
+  // Postgres through Cloudflare's own pooler.
+  //
+  // Not an optimisation: `node-postgres` opens a raw TCP connection, and in
+  // deployed workerd that handshake either takes seconds or never completes,
+  // so database-backed pages hung for 70s or returned 500. Hyperdrive
+  // terminates the Postgres protocol on Cloudflare's side and hands the
+  // Worker a local connection string. Neon stays the database.
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "c7a15a4522fb4eafa7e4f6f9d197a178"
+    }
+  ],
+
   // Resizing and format conversion for next/image, which Vercel used to do
   // and the Workers runtime cannot: `sharp` is a native binary and does not
   // run here.

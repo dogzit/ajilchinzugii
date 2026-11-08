@@ -16,22 +16,56 @@
  * and one place where the secret is checked.
  */
 
-import openNextWorker from '../.open-next/worker.js';
-
 // The cache's Durable Objects have to stay exported from the entry point, or
-// the bindings in wrangler.jsonc have nothing to point at.
-export {
-  DOQueueHandler,
-  DOShardedTagCache,
-  BucketCachePurge,
-} from '../.open-next/worker.js';
+// the bindings in wrangler.jsonc have nothing to point at. They are taken
+// from their own modules rather than from `worker.js`, because a static
+// re-export would evaluate that module — and the whole point below is that
+// it must not be evaluated until Hyperdrive has been wired in.
+export { DOQueueHandler } from '../.open-next/.build/durable-objects/queue.js';
+export { DOShardedTagCache } from '../.open-next/.build/durable-objects/sharded-tag-cache.js';
+export { BucketCachePurge } from '../.open-next/.build/durable-objects/bucket-cache-purge.js';
+
+/**
+ * Point Payload at Hyperdrive.
+ *
+ * `payload.config.ts` reads `process.env.DATABASE_URL` when its module is
+ * first evaluated, and a Hyperdrive connection string only exists on `env`,
+ * at runtime, inside a Worker. Setting it here — before the request reaches
+ * Next, and so before any route module is loaded — means the config picks up
+ * the right value without knowing Hyperdrive exists.
+ *
+ * Doing it in the Worker entry rather than in the config is what keeps this
+ * to the Workers build: Vercel and the CLI never load this file, so they go
+ * on using the Neon connection string directly through `pg`.
+ *
+ * Without it, `node-postgres` opens a raw TCP connection from workerd, which
+ * either takes several seconds or never completes.
+ */
+let workerPromise;
+
+function loadWorker(env) {
+  if (!workerPromise) {
+    const connectionString = env.HYPERDRIVE?.connectionString;
+    if (connectionString) process.env.DATABASE_URL = connectionString;
+
+    // Imported dynamically, and only now. A static import is hoisted and
+    // evaluated before any code in this file runs, which is how the first
+    // attempt failed: `payload.config` had already read the old
+    // `DATABASE_URL` and built its pool from it, so the assignment above
+    // changed nothing and every database page still went out over raw TCP.
+    workerPromise = import('../.open-next/worker.js');
+  }
+  return workerPromise;
+}
 
 const handler = {
-  fetch(request, env, ctx) {
-    return openNextWorker.fetch(request, env, ctx);
+  async fetch(request, env, ctx) {
+    const worker = await loadWorker(env);
+    return worker.default.fetch(request, env, ctx);
   },
 
   async scheduled(controller, env, ctx) {
+    const worker = await loadWorker(env);
     const at = new Date().toISOString();
 
     if (!env.CRON_SECRET) {
@@ -47,7 +81,7 @@ const handler = {
       headers: { authorization: `Bearer ${env.CRON_SECRET}` },
     });
 
-    const response = await openNextWorker.fetch(request, env, ctx);
+    const response = await worker.default.fetch(request, env, ctx);
 
     if (!response.ok) {
       const detail = await response.text().catch(() => '');
