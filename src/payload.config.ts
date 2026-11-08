@@ -24,9 +24,50 @@ const dirname = path.dirname(fileURLToPath(import.meta.url));
  * scripts in package.json.
  */
 const isMigrating = process.env.DATABASE_MIGRATING === 'true';
+
+/** True inside workerd. Vercel, the CLI and the tests all answer false. */
+const onWorkers =
+  typeof navigator !== 'undefined' &&
+  (navigator as { userAgent?: string }).userAgent === 'Cloudflare-Workers';
+
+/**
+ * Postgres through Hyperdrive, when running on Cloudflare.
+ *
+ * `node-postgres` opens a raw TCP connection, and from deployed workerd that
+ * handshake either takes seconds or never completes — database-backed pages
+ * hung for seventy seconds or returned 500. Hyperdrive terminates the
+ * Postgres protocol on Cloudflare's side and hands the Worker a local
+ * connection string instead. Neon is still the database.
+ *
+ * It has to be read here, at config evaluation, and not anywhere earlier.
+ * The connection string only exists on the Worker's `env`, and this module
+ * builds its pool the moment it is evaluated — which happens as the module
+ * graph loads, before the first request. Assigning `process.env.DATABASE_URL`
+ * from inside `fetch` is therefore always too late, however the import is
+ * arranged: the pool has already been built from whatever was there before.
+ *
+ * Nothing is imported off Workers, so the Vercel build and the CLI never see
+ * `@opennextjs/cloudflare` and go on using `DATABASE_URL` directly. If the
+ * lookup fails for any reason, the fallback is the same path, so a broken
+ * binding degrades to the old behaviour rather than to no database at all.
+ */
+async function hyperdriveConnectionString(): Promise<string | undefined> {
+  if (!onWorkers) return undefined;
+  try {
+    const { getCloudflareContext } = await import('@opennextjs/cloudflare');
+    const { env } = await getCloudflareContext({ async: true });
+    return (env as { HYPERDRIVE?: { connectionString?: string } })?.HYPERDRIVE
+      ?.connectionString;
+  } catch {
+    return undefined;
+  }
+}
+
 const connectionString = isMigrating
-  ? (process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL)
-  : process.env.DATABASE_URL;
+  ? // Migrations run in Node, from the CLI, straight at Neon. They never run
+    // on Workers: `drizzle-kit` is stubbed out of that bundle entirely.
+    (process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL)
+  : ((await hyperdriveConnectionString()) ?? process.env.DATABASE_URL);
 
 const r2Endpoint =
   process.env.R2_ENDPOINT ??
