@@ -159,7 +159,13 @@
     "countingHeading": "Counting rules",
     "limitationsHeading": "Limitations",
     "changeLogHeading": "Change log",
-    "anchorLabel": "Link to this section"
+    "anchorLabel": "Link to this section",
+    "contentsHeading": "Contents",
+    "sourcesCount": "{count} sources",
+    "definitionsCount": "{count} definitions",
+    "countingCount": "{count} rules",
+    "lastUpdated": "Last updated",
+    "ruleNumber": "Rule {number}"
   },
   "research": {
     "listHeading": "Research",
@@ -219,7 +225,8 @@
     "minorsNote": "Members under 18 are never listed individually, by name or photograph.",
     "legalName": "Legal name",
     "founded": "Founded",
-    "city": "City"
+    "city": "City",
+    "readMember": "Read more about them"
   },
   "theme": {
     "label": "Appearance",

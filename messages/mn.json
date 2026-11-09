@@ -159,7 +159,13 @@
     "countingHeading": "Тоолох журам",
     "limitationsHeading": "Хязгаарлалт",
     "changeLogHeading": "Өөрчлөлтийн бүртгэл",
-    "anchorLabel": "Энэ хэсгийн холбоос"
+    "anchorLabel": "Энэ хэсгийн холбоос",
+    "contentsHeading": "Агуулга",
+    "sourcesCount": "{count} эх сурвалж",
+    "definitionsCount": "{count} тодорхойлолт",
+    "countingCount": "{count} дүрэм",
+    "lastUpdated": "Сүүлд шинэчилсэн",
+    "ruleNumber": "Дүрэм {number}"
   },
   "research": {
     "listHeading": "Судалгаанууд",
@@ -219,7 +225,8 @@
     "minorsNote": "18 нас хүрээгүй гишүүдийг нэр, зургаар нь нийтэд танилцуулдаггүй.",
     "legalName": "Хуулийн нэр",
     "founded": "Байгуулагдсан",
-    "city": "Хот"
+    "city": "Хот",
+    "readMember": "Дэлгэрэнгүй унших"
   },
   "theme": {
     "label": "Харагдац",

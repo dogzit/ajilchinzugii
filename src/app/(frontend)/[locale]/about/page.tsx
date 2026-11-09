@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CopyButton } from '@/components/copy-button';
 import { Link } from '@/components/link';
 import { PageHeader } from '@/components/page-header';
-import { RichText } from '@/components/rich-text';
+import { Icon } from '@/components/ui/icon';
 import type { Locale } from '@/i18n/routing';
 import { getPartners, getSite, getTeam } from '@/lib/cms';
 import { formatDate, isRichTextEmpty } from '@/lib/format';
@@ -121,7 +121,7 @@ export default async function AboutPage({ params }: Props) {
                       className="border-border h-24 w-24 shrink-0 rounded-full border object-cover"
                     />
                   ) : null}
-                  <div className="flex flex-col gap-1">
+                  <div className="flex min-w-0 flex-col gap-1">
                     {/* The name is the link to the person's own page. The
                         whole card is not: the card already holds profile
                         links of its own, and a link inside a link is not a
@@ -135,10 +135,22 @@ export default async function AboutPage({ params }: Props) {
                       </Link>
                     </p>
                     <p className="text-ink-muted text-sm">{member.role}</p>
+
+                    {/* The biography is deliberately not here. These run to
+                        several hundred words each, and three of them turned
+                        this section into a wall nobody reads. The name goes
+                        to the person's own page, which is what that page is
+                        for; this stays a list of who is here. */}
                     {!isRichTextEmpty(member.bio) ? (
-                      <div className="mt-1 text-sm">
-                        <RichText data={member.bio} />
-                      </div>
+                      <p className="mt-1">
+                        <Link
+                          href={localeHref(locale, `/team/${member.slug}`)}
+                          className="text-accent-text hover:text-ink inline-flex items-center gap-1.5 text-sm font-medium"
+                        >
+                          {t('about.readMember')}
+                          <Icon name="arrow-right" className="h-4 w-4" />
+                        </Link>
+                      </p>
                     ) : null}
 
                     {/* Where a reader can go and check this person's work for

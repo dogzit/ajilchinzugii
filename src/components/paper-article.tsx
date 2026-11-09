@@ -1,4 +1,3 @@
-import { CitationBlock } from '@/components/citation-block';
 import { ComparisonChart } from '@/components/comparison-chart';
 import { Icon } from '@/components/ui/icon';
 import { Link } from '@/components/link';
@@ -35,10 +34,11 @@ function ResourceLink({
 }
 
 /**
- * The full body of a paper: header, resource links, the inline PDF, the
- * abstract and the citation block. Shared by the paper's own page and by the
- * research listing when there is only one paper — no point in a reader
- * clicking through to the single thing already on the list.
+ * The full body of a paper: header, resource links, the abstract, the key
+ * findings, the comparison chart and the inline PDF. Shared by the paper's
+ * own page and by the research listing when there is only one paper — no
+ * point in a reader clicking through to the single thing already on the
+ * list.
  */
 export function PaperArticle({
   paper,
@@ -66,7 +66,6 @@ export function PaperArticle({
 
   const hasAbstract = !isRichTextEmpty(paper.abstract);
   const hasComparison = comparisonRows.length > 0 && groupALabel && groupBLabel;
-  const hasCitation = Boolean(paper.citations?.apa || paper.citations?.bibtex);
 
   // Built from the sections that this paper actually has, so the nav never
   // offers a link to an anchor that is not on the page. Below two entries it
@@ -83,7 +82,6 @@ export function PaperArticle({
       ? { id: `comparison-${paper.id}`, label: t('research.comparisonHeading') }
       : null,
     pdf?.url ? { id: `full-text-${paper.id}`, label: t('research.fullTextHeading') } : null,
-    hasCitation ? { id: 'citation', label: t('research.citationHeading') } : null,
   ].filter((entry): entry is { id: string; label: string } => Boolean(entry));
 
   return (
@@ -270,7 +268,6 @@ export function PaperArticle({
         </section>
       ) : null}
 
-      <CitationBlock apa={paper.citations?.apa} bibtex={paper.citations?.bibtex} />
     </article>
   );
 }
