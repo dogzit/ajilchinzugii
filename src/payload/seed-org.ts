@@ -1058,7 +1058,7 @@ const SITE_LOGO = {
   file: 'logo.png',
   alt: {
     mn: 'Ажилчин Зөгий — лого',
-    en: 'Ajilchin Zögii logo',
+    en: 'Ajilchin Zogii logo',
   },
 } as const;
 

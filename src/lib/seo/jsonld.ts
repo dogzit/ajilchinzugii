@@ -54,7 +54,7 @@ export function ngoJsonLd(site: Site, locale: Locale): WithContext<NGO> {
     '@id': ngoId,
     name: clean(site.organization?.legalName) ?? 'Ажилчин Зөгий',
     // Both languages, so a crawler reading either one finds the organisation.
-    alternateName: locale === 'mn' ? 'Ajilchin Zögii' : 'Ажилчин Зөгий',
+    alternateName: locale === 'mn' ? 'Ajilchin Zogii' : 'Ажилчин Зөгий',
     url: absoluteUrl(locale, '/'),
     ...(clean(site.missionLine) ? { description: site.missionLine as string } : {}),
     ...(clean(site.contactEmail) ? { email: site.contactEmail as string } : {}),

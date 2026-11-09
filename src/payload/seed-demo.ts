@@ -304,7 +304,7 @@ const run = async () => {
           legalName:
             locale === 'mn'
               ? `${MARK_MN}: "Ажилчин Зөгий" ТББ`
-              : `${MARK_EN}: Ajilchin Zögii NGO`,
+              : `${MARK_EN}: Ajilchin Zogii NGO`,
           foundingDate: '2021-04-15',
           addressCity: locale === 'mn' ? 'Улаанбаатар' : 'Ulaanbaatar',
         },

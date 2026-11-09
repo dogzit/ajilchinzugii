@@ -1,4 +1,5 @@
 import { JWT } from 'google-auth-library';
+import { sampleImpactEnabled, sampleSheetValues } from './sample';
 import { MONTHLY_RANGE, TOTALS_RANGE } from './schema';
 
 /**
@@ -89,6 +90,11 @@ async function accessToken({ email, privateKey }: SheetCredentials): Promise<str
  * edit show up before the next day.
  */
 export async function fetchSheetValues(): Promise<SheetValues> {
+  // Stand-in figures, on the deployments that ask for them. Returned in the
+  // spreadsheet's own shape so everything downstream — validation,
+  // suppression, localisation — runs exactly as it would on real data.
+  if (sampleImpactEnabled()) return sampleSheetValues();
+
   const credentials = readCredentials();
   const token = await accessToken(credentials);
 

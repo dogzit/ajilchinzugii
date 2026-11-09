@@ -69,7 +69,7 @@ export async function GET(request: Request): Promise<Response> {
   const title = (params.get('title') ?? '').slice(0, 120);
   const subtitle = (params.get('subtitle') ?? '').slice(0, 90);
   const locale = params.get('locale') === 'en' ? 'en' : 'mn';
-  const eyebrow = locale === 'en' ? 'Ajilchin Zögii' : 'Ажилчин Зөгий';
+  const eyebrow = locale === 'en' ? 'Ajilchin Zogii' : 'Ажилчин Зөгий';
 
   const loaded = await fonts();
 

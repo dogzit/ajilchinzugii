@@ -47,12 +47,24 @@ export const Media: CollectionConfig = {
     delete: isStaff,
   },
   upload: {
-    // AVIF is not accepted as an upload. Its metadata cannot be removed
-    // without a full ISOBMFF rewrite, and on Workers there is no `sharp` to
-    // re-encode it away, so an AVIF original would reach the public bucket
-    // carrying whatever the camera wrote (rule 4). AVIF *derivatives* are
-    // still generated below, from an already-clean original.
-    mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
+    // AVIF has to stay in this list even though an AVIF *upload* is refused.
+    // The list validates the generated sizes too, and the avif derivatives
+    // below carry `image/avif`; dropping it made every existing media record
+    // fail validation, so an editor could no longer change so much as an alt
+    // text in /admin.
+    //
+    // The refusal lives in the beforeOperation hook instead, which is the
+    // authoritative gate and fails closed: metadata cannot be removed from
+    // AVIF without a full ISOBMFF rewrite, and without `sharp` on Workers
+    // there is nothing to re-encode it away, so an AVIF original would reach
+    // the public bucket carrying whatever the camera wrote (rule 4).
+    mimeTypes: [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/avif',
+      'application/pdf',
+    ],
     // Keeps sharp from copying metadata into any derivative it generates.
     // The original is cleaned in the hook below, which does not depend on
     // sharp being present at all.

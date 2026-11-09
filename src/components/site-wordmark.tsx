@@ -12,7 +12,7 @@ import { mediaSrc } from '@/lib/media';
  *
  * Because the name is right there, the image is decorative and carries an
  * empty alt. Giving it the alt text as well would have the link to the front
- * page read "Ajilchin Zögii logo Ajilchin Zögii" to a screen reader.
+ * page read "Ajilchin Zogii logo Ajilchin Zogii" to a screen reader.
  *
  * Height is fixed and the width follows, so swapping the file for a wider
  * one never shifts the header.

@@ -3,6 +3,7 @@ import { getPayload } from 'payload';
 import config from '../../payload.config';
 import type { Locale } from '../../i18n/routing';
 import { fetchSheetValues } from './client';
+import { sampleImpactEnabled } from './sample';
 import { parseSheet } from './schema';
 import {
   suppressSmallCells,
@@ -167,11 +168,16 @@ export async function loadImpact(locale: Locale): Promise<ImpactView> {
         hash,
         ...suppressed,
       };
-      try {
-        await writeSnapshot(snapshot);
-      } catch (error) {
-        // A storage failure must not take the figures off the page.
-        logFailure(error);
+      // A sample is never written. The database is shared with the live
+      // site, so a stand-in figure persisted here would surface on a
+      // deployment that never asked for one.
+      if (!sampleImpactEnabled()) {
+        try {
+          await writeSnapshot(snapshot);
+        } catch (error) {
+          // A storage failure must not take the figures off the page.
+          logFailure(error);
+        }
       }
       return {
         metrics: localizeMetrics(snapshot.metrics, locale),
