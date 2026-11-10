@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { sqliteD1Adapter } from '@payloadcms/db-d1-sqlite';
 import { postgresAdapter } from '@payloadcms/db-postgres';
 import { lexicalEditor } from '@payloadcms/richtext-lexical';
 import { s3Storage } from '@payloadcms/storage-s3';
@@ -89,6 +90,71 @@ const r2Configured = Boolean(
   process.env.R2_SECRET_ACCESS_KEY,
 );
 
+/**
+ * The database, during the move from Neon to D1.
+ *
+ * `DB_DRIVER=d1` selects D1; anything else keeps Postgres. Both have to work
+ * at once for the whole of the migration: Neon stays the live database and
+ * the rollback for two weeks after cutover, the CLI runs migrations and the
+ * copy script against it, and the Vercel build needs it untouched. A switch
+ * that could only be thrown once would make all of that impossible.
+ *
+ * D1 is reachable only through a Worker binding, so the adapter gets a
+ * binding rather than a connection string. That works during the build as
+ * well: `getCloudflareContext({ async: true })` falls back to wrangler's
+ * platform proxy for statically generated routes, which is what
+ * `generateStaticParams` on the research and team pages needs.
+ */
+async function databaseAdapter() {
+  if (process.env.DB_DRIVER?.trim() !== 'd1') {
+      return postgresAdapter({
+      /*
+       * `maxUses: 1` on Workers — Cloudflare's own setting for Payload here.
+       *
+       * workerd refuses I/O that was begun in one request context and reused
+       * in another, so a pooled connection must not outlive the request that
+       * opened it. `maxUses` retires a connection after a single checkout,
+       * which gives each request its own without touching the pool's size or
+       * its idle behaviour. Hyperdrive does the real pooling on Cloudflare's
+       * side, so opening afresh costs little.
+       *
+       * Not `idleTimeoutMillis: 0` with `max: 1`, which was tried and made it
+       * strictly worse: that closes connections while they are still in use
+       * and every page failed.
+       *
+       * Node keeps the ordinary pool, where holding connections open between
+       * requests is the whole point.
+       */
+      pool: onWorkers ? { connectionString, maxUses: 1 } : { connectionString },
+      // Never let the app alter the schema on boot — production changes go
+      // through a generated, reviewed migration.
+      push: false,
+      migrationDir: path.resolve(dirname, 'migrations'),
+    });
+  }
+
+  // The binding type is taken from the adapter rather than from a global,
+  // so this file needs no ambient Workers types to compile on Vercel.
+  type D1Binding = Parameters<typeof sqliteD1Adapter>[0]['binding'];
+
+  const { getCloudflareContext } = await import('@opennextjs/cloudflare');
+  const { env } = await getCloudflareContext({ async: true });
+  const binding = (env as { DB?: D1Binding }).DB;
+
+  if (!binding) {
+    throw new Error(
+      'DB_DRIVER=d1 but no D1 binding named DB was found. Check the ' +
+        '`d1_databases` entry in wrangler.jsonc, and that the build can reach it.',
+    );
+  }
+
+  return sqliteD1Adapter({
+    binding,
+    push: false,
+    migrationDir: path.resolve(dirname, 'migrations-d1'),
+  });
+}
+
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_SITE_URL,
   secret: process.env.PAYLOAD_SECRET ?? '',
@@ -129,30 +195,7 @@ export default buildConfig({
   editor: lexicalEditor({}),
   // Image processing: resizing, format conversion and metadata stripping.
   sharp,
-  db: postgresAdapter({
-    /*
-     * `maxUses: 1` on Workers — Cloudflare's own setting for Payload here.
-     *
-     * workerd refuses I/O that was begun in one request context and reused
-     * in another, so a pooled connection must not outlive the request that
-     * opened it. `maxUses` retires a connection after a single checkout,
-     * which gives each request its own without touching the pool's size or
-     * its idle behaviour. Hyperdrive does the real pooling on Cloudflare's
-     * side, so opening afresh costs little.
-     *
-     * Not `idleTimeoutMillis: 0` with `max: 1`, which was tried and made it
-     * strictly worse: that closes connections while they are still in use
-     * and every page failed.
-     *
-     * Node keeps the ordinary pool, where holding connections open between
-     * requests is the whole point.
-     */
-    pool: onWorkers ? { connectionString, maxUses: 1 } : { connectionString },
-    // Never let the app alter the schema on boot — production changes go
-    // through a generated, reviewed migration.
-    push: false,
-    migrationDir: path.resolve(dirname, 'migrations'),
-  }),
+  db: await databaseAdapter(),
   plugins: r2Configured
     ? [
         s3Storage({
