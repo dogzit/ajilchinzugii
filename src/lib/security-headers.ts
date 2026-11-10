@@ -102,16 +102,40 @@ export const publicHeaders = [
  * is not about this site framing others, it is this *file* refusing to be
  * framed by anyone, including this site's own page.
  */
+/**
+ * A policy for the file itself, rather than the page's policy copied onto it.
+ *
+ * The page policy was being reused here, and it carries `object-src 'none'`
+ * — which is right for a page and wrong for a PDF. Chrome renders an
+ * embedded PDF through a plugin document gated on `object-src`, so `'none'`
+ * left the research paper showing as a blank frame while the file itself
+ * returned a perfectly good 200.
+ *
+ * Everything else is tightened rather than loosened: a stored file loads no
+ * scripts, styles, fonts or connections of its own, so `default-src 'none'`
+ * is the honest default and the few things it does need are named. The one
+ * widening is `object-src`, and only to `'self'`.
+ */
+function mediaContentSecurityPolicy(): string {
+  return [
+    "default-src 'none'",
+    // The PDF viewer. Without this the embedded paper is a blank frame.
+    "object-src 'self'",
+    // An image opened on its own is a document too.
+    "img-src 'self' data: blob:",
+    "media-src 'self'",
+    // Not the site-wide 'none': this is the file declining to be framed,
+    // including by this site's own research page, which embeds it.
+    "frame-ancestors 'self'",
+    "base-uri 'none'",
+    "form-action 'none'",
+  ].join('; ');
+}
+
 export const mediaHeaders = [
   ...shared.filter((header) => header.key !== 'X-Frame-Options'),
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
-  {
-    key: 'Content-Security-Policy',
-    value: contentSecurityPolicy().replace(
-      "frame-ancestors 'none'",
-      "frame-ancestors 'self'",
-    ),
-  },
+  { key: 'Content-Security-Policy', value: mediaContentSecurityPolicy() },
 ];
 
 export const adminHeaders = [

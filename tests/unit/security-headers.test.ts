@@ -93,4 +93,28 @@ describe('the media policy', () => {
   it('still blocks it from being framed by anyone else', () => {
     expect(header(mediaHeaders, 'X-Frame-Options')).toBe('SAMEORIGIN');
   });
+
+  it('lets the PDF viewer run, which object-src none silently prevented', () => {
+    // Chrome renders an embedded PDF through a plugin document gated on
+    // object-src. With 'none' the research paper was a blank frame while the
+    // file itself returned 200, which is a hard failure to see.
+    const csp = header(mediaHeaders, 'Content-Security-Policy') ?? '';
+    expect(csp).toContain("object-src 'self'");
+    expect(csp).not.toContain("object-src 'none'");
+  });
+
+  it('is tighter than the page policy everywhere else', () => {
+    const csp = header(mediaHeaders, 'Content-Security-Policy') ?? '';
+    // A stored file loads none of these on its own account.
+    expect(csp).toContain("default-src 'none'");
+    expect(csp).not.toContain('script-src');
+    expect(csp).not.toContain('plausible.io');
+    expect(csp).toContain("base-uri 'none'");
+    expect(csp).toContain("form-action 'none'");
+  });
+
+  it('still serves images, which share this route with the PDF', () => {
+    const csp = header(mediaHeaders, 'Content-Security-Policy') ?? '';
+    expect(csp).toContain("img-src 'self' data: blob:");
+  });
 });
