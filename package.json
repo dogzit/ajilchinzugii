@@ -36,7 +36,8 @@
     "migrate:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate",
     "migrate:create:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate:create",
     "migrate:status:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate:status",
-    "migrate:fresh:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate:fresh"
+    "migrate:fresh:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate:fresh",
+    "copy:d1": "payload run scripts/copy-neon-to-d1.ts"
   },
   "dependencies": {
     "@payloadcms/db-d1-sqlite": "3.93.0",
