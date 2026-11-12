@@ -58,6 +58,11 @@ export const Team: CollectionConfig = {
       name: 'name',
       type: 'text',
       required: true,
+      // Localized: a Mongolian name is written in Cyrillic for Mongolian
+      // readers and in latin for English ones, surname first in both. The
+      // slug below stays one value, so a person's address does not change
+      // with the language the reader happens to be in.
+      localized: true,
       label: 'Нэр / Name',
     },
     {

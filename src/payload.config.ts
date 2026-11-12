@@ -167,7 +167,7 @@ export default buildConfig({
     meta: {
       titleSuffix: ' — Ажилчин Зөгий',
       description:
-        'Ажилчин Зөгий — агуулгын удирдлага / content management for Ajilchin Zogii',
+        'Ажилчин Зөгий — агуулгын удирдлага / content management for Ajilchin Zugii',
     },
     components: {
       // A show/hide control on every password field, including the login and

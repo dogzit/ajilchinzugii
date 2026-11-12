@@ -1,4 +1,4 @@
-# CLAUDE.md — Ажилчин Зөгий (Ajilchin Zogii)
+# CLAUDE.md — Ажилчин Зөгий (Ajilchin Zugii)
 
 Impact and methodology website for a working-teens NGO that protects the labour
 rights of working children and teens (collective bargaining, negotiation,

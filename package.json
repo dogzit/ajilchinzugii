@@ -32,7 +32,11 @@
     "build:cf": "BUILD_TARGET=cloudflare opennextjs-cloudflare build",
     "preview:cf": "BUILD_TARGET=cloudflare opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy:cf": "BUILD_TARGET=cloudflare opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "migrate:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate",
+    "migrate:create:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate:create",
+    "migrate:status:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate:status",
+    "migrate:fresh:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate:fresh"
   },
   "dependencies": {
     "@payloadcms/db-d1-sqlite": "3.93.0",

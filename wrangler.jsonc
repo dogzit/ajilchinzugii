@@ -1,67 +1,81 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "ajilchinzugii",
-  // A thin wrapper round the generated worker that adds the cron
-  // handler; see worker/index.js.
-  "main": "worker/index.js",
-
-  // OpenNext's own default. Not today's date on purpose: the adapter is
-  // tested against this one, and a newer date can switch on runtime
-  // behaviour the adapter has not caught up with.
-  "compatibility_date": "2026-08-01",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-
-  // The worker calls itself for cache revalidation.
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "ajilchinzugii"
-    }
-  ],
-
-  // Holds the prerendered pages and the ISR cache. Its own bucket, not the
-  // media one: that is served publicly, and rendered pages are not something
-  // to hand out at a guessable key.
-  "r2_buckets": [
-    {
-      "binding": "NEXT_INC_CACHE_R2_BUCKET",
-      "bucket_name": "ajilchinzugii-next-cache"
-    }
-  ],
-
-  // Postgres through Cloudflare's own pooler.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "ajilchinzugii",
+	// A thin wrapper round the generated worker that adds the cron
+	// handler; see worker/index.js.
+	"main": "worker/index.js",
+	// OpenNext's own default. Not today's date on purpose: the adapter is
+	// tested against this one, and a newer date can switch on runtime
+	// behaviour the adapter has not caught up with.
+	"compatibility_date": "2026-08-01",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	// The worker calls itself for cache revalidation.
+	"services": [
+		{
+			"binding": "WORKER_SELF_REFERENCE",
+			"service": "ajilchinzugii"
+		}
+	],
+	// Holds the prerendered pages and the ISR cache. Its own bucket, not the
+	// media one: that is served publicly, and rendered pages are not something
+	// to hand out at a guessable key.
+	"r2_buckets": [
+		{
+			"binding": "NEXT_INC_CACHE_R2_BUCKET",
+			"bucket_name": "ajilchinzugii-next-cache"
+		}
+	],
+	// Postgres through Cloudflare's own pooler.
+	//
+	// Not an optimisation: `node-postgres` opens a raw TCP connection, and in
+	// deployed workerd that handshake either takes seconds or never completes,
+	// so database-backed pages hung for 70s or returned 500. Hyperdrive
+	// terminates the Postgres protocol on Cloudflare's side and hands the
+	// Worker a local connection string. Neon stays the database.
+	"hyperdrive": [
+		{
+			"binding": "HYPERDRIVE",
+			"id": "c7a15a4522fb4eafa7e4f6f9d197a178"
+		}
+	],
+	// Resizing and format conversion for next/image, which Vercel used to do
+	// and the Workers runtime cannot: `sharp` is a native binary and does not
+	// run here.
+	"images": {
+		"binding": "IMAGES"
+	},
+	// The daily revalidation of the impact figures, at the same hour the
+	// Vercel cron ran it. A cron trigger calls `scheduled`, not a URL.
+	"triggers": {
+		"crons": [
+			"0 22 * * *"
+		]
+	},
+	"observability": {
+		"enabled": true
+	},
+  // Postgres on Neon is still the live database; this is the target of the
+  // move. `DB_DRIVER=d1` is what actually selects it (src/payload.config.ts),
+  // so the binding existing here changes nothing on its own.
   //
-  // Not an optimisation: `node-postgres` opens a raw TCP connection, and in
-  // deployed workerd that handshake either takes seconds or never completes,
-  // so database-backed pages hung for 70s or returned 500. Hyperdrive
-  // terminates the Postgres protocol on Cloudflare's side and hands the
-  // Worker a local connection string. Neon stays the database.
-  "hyperdrive": [
+  // `remote: true` matters more than it looks: the research and team pages
+  // read their slugs in `generateStaticParams`, which runs at build time,
+  // outside a Worker. OpenNext falls back to wrangler's platform proxy
+  // there, and without this it would hand the build an empty local database
+  // and prerender no pages at all.
+  "d1_databases": [
     {
-      "binding": "HYPERDRIVE",
-      "id": "c7a15a4522fb4eafa7e4f6f9d197a178"
+      "binding": "DB",
+      "database_name": "ajilchinzugii",
+      "database_id": "d6bba599-05a8-463a-9253-5ac3998646a9",
+      "remote": true
     }
-  ],
-
-  // Resizing and format conversion for next/image, which Vercel used to do
-  // and the Workers runtime cannot: `sharp` is a native binary and does not
-  // run here.
-  "images": {
-    "binding": "IMAGES"
-  },
-
-  // The daily revalidation of the impact figures, at the same hour the
-  // Vercel cron ran it. A cron trigger calls `scheduled`, not a URL.
-  "triggers": {
-    "crons": ["0 22 * * *"]
-  },
-
-  "observability": {
-    "enabled": true
-  }
+  ]
 }

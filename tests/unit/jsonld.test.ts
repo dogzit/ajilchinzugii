@@ -55,7 +55,7 @@ describe('the organisation', () => {
     expect(ngo['@type']).toBe('NGO');
     expect(ngo['@id']).toMatch(/#organisation$/);
     expect(ngo.name).toBe('Ажилчин Зөгий ТББ');
-    expect(ngo.alternateName).toBe('Ajilchin Zogii');
+    expect(ngo.alternateName).toBe('Ajilchin Zugii');
   });
 
   it('carries the contact details the Site global holds', () => {

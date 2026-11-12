@@ -8,6 +8,7 @@ import * as migration_20261104_204321_site_hero_image from './20261104_204321_si
 import * as migration_20261104_205225_team_profiles from './20261104_205225_team_profiles';
 import * as migration_20261106_054542_team_slug from './20261106_054542_team_slug';
 import * as migration_20261107_131511_site_logo_restore from './20261107_131511_site_logo_restore';
+import * as migration_20261110_161011_localize_team_name from './20261110_161011_localize_team_name';
 
 export const migrations = [
   {
@@ -58,6 +59,11 @@ export const migrations = [
   {
     up: migration_20261107_131511_site_logo_restore.up,
     down: migration_20261107_131511_site_logo_restore.down,
-    name: '20261107_131511_site_logo_restore'
+    name: '20261107_131511_site_logo_restore',
+  },
+  {
+    up: migration_20261110_161011_localize_team_name.up,
+    down: migration_20261110_161011_localize_team_name.down,
+    name: '20261110_161011_localize_team_name'
   },
 ];

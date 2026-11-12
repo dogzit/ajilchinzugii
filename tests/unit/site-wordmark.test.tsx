@@ -9,7 +9,7 @@ const logo = (overrides: Partial<Media> = {}): Media =>
     url: '/api/media/file/logo.webp',
     width: 480,
     height: 120,
-    alt: { mn: 'Ажилчин Зөгий лого', en: 'Ajilchin Zogii logo' },
+    alt: { mn: 'Ажилчин Зөгий лого', en: 'Ajilchin Zugii logo' },
     ...overrides,
   }) as Media;
 

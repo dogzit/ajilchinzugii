@@ -1058,7 +1058,7 @@ const SITE_LOGO = {
   file: 'logo.png',
   alt: {
     mn: 'Ажилчин Зөгий — лого',
-    en: 'Ajilchin Zogii logo',
+    en: 'Ajilchin Zugii logo',
   },
 } as const;
 
@@ -1137,7 +1137,7 @@ const PARTNERS = [
 
 const TEAM = [
   {
-    name: 'Erdenebat',
+    name: { mn: 'Батбаяр Эрдэнэбат', en: 'Batbayar Erdenebat' },
     slug: 'erdenebat',
     role: { mn: 'Үүсгэн байгуулагч, Гүйцэтгэх захирал', en: 'Founder, CEO' },
     // Written by him about himself. The Mongolian is a translation of that
@@ -1172,7 +1172,7 @@ const TEAM = [
     ],
   },
   {
-    name: 'Ariuntuguldur',
+    name: { mn: 'Хүрэлбаатар Ариунтөгөлдөр', en: 'Khurelbaatar Ariuntuguldur' },
     slug: 'ariuntuguldur',
     role: { mn: 'Үйл ажиллагааны менежер', en: 'Operations Lead' },
     bio: {
@@ -1201,7 +1201,7 @@ const TEAM = [
     },
   },
   {
-    name: 'Zolbayar',
+    name: { mn: 'Болор-Эрдэнэ Золбаяр', en: 'Bolor-Erdene Zolbayar' },
     slug: 'zolbayar',
     role: { mn: 'Технологийн захирал', en: 'Chief Technology Officer' },
     bio: {
@@ -2018,7 +2018,7 @@ const seed = async () => {
   for (const member of TEAM) {
     const existing = await payload.find({
       collection: 'team',
-      where: { name: { equals: member.name } },
+      where: { slug: { equals: member.slug } },
       limit: 1,
       overrideAccess: true,
     });
@@ -2029,7 +2029,7 @@ const seed = async () => {
         locale: 'mn',
         overrideAccess: true,
         data: {
-          name: member.name,
+          name: member.name.mn,
           slug: member.slug,
           role: member.role.mn,
           confirmedAdult18Plus: true,
@@ -2047,6 +2047,7 @@ const seed = async () => {
         locale: 'en',
         overrideAccess: true,
         data: {
+          name: member.name.en,
           role: member.role.en,
           ...(member.bio ? { bio: richText([...member.bio.en]) } : {}),
           // The row ids from the Mongolian write, so this updates those rows
@@ -2057,9 +2058,36 @@ const seed = async () => {
         },
       });
 
-      logger.info(`Created team member "${member.name}"`);
+      logger.info(`Created team member "${member.slug}"`);
     } else {
-      logger.info(`Team member "${member.name}" already exists — left untouched`);
+      logger.info(`Team member "${member.slug}" already exists — left untouched`);
+    }
+
+    // The full name, surname first, in each language. Existing rows were
+    // seeded with a single given name before `name` was localized, so this
+    // brings them up to date; it writes only when the stored name differs,
+    // so an editor's own correction in /admin is not undone.
+    {
+      for (const locale of ['mn', 'en'] as const) {
+        const current = await payload.find({
+          collection: 'team',
+          where: { slug: { equals: member.slug } },
+          limit: 1,
+          locale,
+          overrideAccess: true,
+        });
+        const doc = current.docs[0];
+        if (doc && doc.name !== member.name[locale]) {
+          await payload.update({
+            collection: 'team',
+            id: doc.id,
+            locale,
+            overrideAccess: true,
+            data: { name: member.name[locale] },
+          });
+          logger.info(`Set the ${locale} name for "${member.slug}"`);
+        }
+      }
     }
 
     // Members created before the slug field existed have none, and without
@@ -2068,7 +2096,7 @@ const seed = async () => {
     {
       const current = await payload.find({
         collection: 'team',
-        where: { name: { equals: member.name } },
+        where: { slug: { equals: member.slug } },
         limit: 1,
         overrideAccess: true,
       });
@@ -2081,7 +2109,7 @@ const seed = async () => {
           overrideAccess: true,
           data: { slug: member.slug },
         });
-        logger.info(`Set the slug for "${member.name}"`);
+        logger.info(`Set the slug for "${member.slug}"`);
       }
     }
 
@@ -2091,7 +2119,7 @@ const seed = async () => {
     if (member.bio) {
       const current = await payload.find({
         collection: 'team',
-        where: { name: { equals: member.name } },
+        where: { slug: { equals: member.slug } },
         limit: 1,
         locale: 'mn',
         overrideAccess: true,
@@ -2108,7 +2136,7 @@ const seed = async () => {
             data: { bio: richText([...member.bio[locale]]) },
           });
         }
-        logger.info(`Wrote the biography for "${member.name}"`);
+        logger.info(`Wrote the biography for "${member.slug}"`);
       }
     }
 
@@ -2119,7 +2147,7 @@ const seed = async () => {
     if (member.profiles?.length) {
       const current = await payload.find({
         collection: 'team',
-        where: { name: { equals: member.name } },
+        where: { slug: { equals: member.slug } },
         limit: 1,
         overrideAccess: true,
       });
@@ -2147,7 +2175,7 @@ const seed = async () => {
           data: { profiles: localeRows(withMn.profiles, member.profiles, 'en') },
         });
 
-        logger.info(`Attached professional profiles for "${member.name}"`);
+        logger.info(`Attached professional profiles for "${member.slug}"`);
       }
     }
   }
