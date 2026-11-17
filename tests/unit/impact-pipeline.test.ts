@@ -155,6 +155,13 @@ describe('a failed fetch falls back to the last snapshot', () => {
 describe('logging', () => {
   it('logs the error type and the time, never a row or a value', async () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // Pinned to a clock reading full of 42s — the collision described below.
+    // Only Date is faked; setTimeout stays real, or an await in the pipeline
+    // would never resolve.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-11-17T22:42:42.420Z'));
+
     fetchSheetValues.mockResolvedValue({
       totals: [
         [
@@ -183,15 +190,20 @@ describe('logging', () => {
 
     await loadImpact('mn');
 
-    // Asserts the contract, not the call count.
+    // Asserts the contract, not the call count: rule 3 says the log records
+    // the kind of failure and the time, and never a row or a value.
     //
-    // This failed twice in roughly thirty full runs and has never been
-    // reproduced on demand — not in fifteen consecutive runs, nor under
-    // deliberate CPU load. Counting the lines was the fragile part both
-    // times, and the count was never what the test is for: rule 3 says the
-    // log records the kind of failure and the time, and never a row or a
-    // value. So require the schema failure to be reported, and require
-    // every line this pipeline emits to be clean — however many there are.
+    // This test used to fail about twice in thirty runs, which I blamed on
+    // the line count. That was wrong. The log line ends in
+    // `new Date().toISOString()`, and the value standing in for a leaked
+    // figure is 42 — so every time the clock's seconds, minutes or
+    // milliseconds happened to contain "42", the timestamp tripped the
+    // leak check. Roughly a twentieth of the time, which is exactly the
+    // rate observed. The timestamp is the one part of the line allowed to
+    // carry digits, so it is removed before the scan.
+    const withoutTimestamp = (line: string) =>
+      line.replace(/\d{4}-\d{2}-\d{2}T[\d:.]+Z?/g, '<timestamp>');
+
     const lines = spy.mock.calls
       .map((call) => String(call[0]))
       .filter((line) => line.startsWith('[impact]'));
@@ -208,9 +220,10 @@ describe('logging', () => {
         'cases-resolved',
         'NOT A DATE',
       ]) {
-        expect(line).not.toContain(leak);
+        expect(withoutTimestamp(line)).not.toContain(leak);
       }
     }
+    vi.useRealTimers();
     spy.mockRestore();
   });
 });

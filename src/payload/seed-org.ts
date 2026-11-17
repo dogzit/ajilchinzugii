@@ -2065,8 +2065,10 @@ const seed = async () => {
 
     // The full name, surname first, in each language. Existing rows were
     // seeded with a single given name before `name` was localized, so this
-    // brings them up to date; it writes only when the stored name differs,
-    // so an editor's own correction in /admin is not undone.
+    // brings them up to date. It writes only when the stored name differs,
+    // which saves a write but is not a safeguard: a name corrected in /admin
+    // also differs, and a later seed run would put this value back. The
+    // seed is the source of truth for these three people.
     {
       for (const locale of ['mn', 'en'] as const) {
         const current = await payload.find({
