@@ -1,4 +1,5 @@
 // @vitest-environment node
+import { readFile } from 'node:fs/promises';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const findGlobal = vi.fn();
@@ -67,5 +68,45 @@ describe('the stand-in impact figures', () => {
 
     expect(metric?.asOf).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(metric?.methodAnchor).toBeTruthy();
+  });
+
+  it('point at counting rules that exist on the methodology page', async () => {
+    withSample();
+    const view = await loadImpact('en');
+
+    // Read from the seed source rather than imported: importing it pulls in
+    // the whole Payload config, and the only thing under test here is
+    // whether the two lists of anchors still agree.
+    const seed = await readFile(
+      new URL('../../src/payload/seed-org.ts', import.meta.url),
+      'utf8',
+    );
+    const anchors = new Set(
+      [...seed.matchAll(/anchorId: '([^']+)'/g)].map((match) => match[1]!),
+    );
+    expect(anchors.size).toBeGreaterThan(0);
+
+    // "How is this counted?" is the link a skeptical reader is most likely
+    // to follow. An anchor with no rule behind it scrolls nowhere.
+    for (const metric of view.metrics) {
+      expect(anchors).toContain(metric.methodAnchor);
+    }
+  });
+
+  it('sum each monthly series to the figure on the card', async () => {
+    withSample();
+    const view = await loadImpact('en');
+
+    const charted = new Set(view.monthly.map((point) => point.metricId));
+    expect(charted.size).toBeGreaterThan(0);
+
+    for (const metricId of charted) {
+      const total = view.metrics.find((m) => m.metricId === metricId);
+      const summed = view.monthly
+        .filter((point) => point.metricId === metricId)
+        .reduce((runningTotal, point) => runningTotal + (point.value ?? 0), 0);
+
+      expect(summed).toBe(total?.value);
+    }
   });
 });

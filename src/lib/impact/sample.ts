@@ -23,6 +23,11 @@ import { MONTHLY_HEADERS, TOTALS_HEADERS } from './schema';
  * same zod validation, the same small-cell suppression and the same
  * localisation as real data would. That is the point: the pages are
  * exercised, not bypassed.
+ *
+ * Every `method_anchor` below names a counting rule that actually exists in
+ * the methodology (`COUNTING_RULES` in `seed-org.ts`). An anchor that does
+ * not resolve would leave "How is this counted?" pointing at nothing, which
+ * is the one thing on this page a skeptical reader is most likely to click.
  */
 
 /**
@@ -37,40 +42,35 @@ const TOTALS: (string | number | boolean)[][] = [
     'cases-resolved',
     'Шийдвэрлэсэн хэрэг',
     'Cases resolved',
-    146,
-    146,
+    274,
+    274,
     '2026-10-31',
-    'counting-cases',
+    'counting-case-open-close',
     'TRUE',
   ],
   [
+    // Wages are counted at verification, not when they are promised, so this
+    // is far fewer cases than the resolved total: a wage claim is one kind of
+    // case among several, and only the paid ones count. 11 cases against
+    // ₮6,000,000 is roughly a month's pay recovered each, which is the shape
+    // a reader who divides one figure by the other should find.
     'wages-recovered',
     'Нөхөн олгуулсан цалин (₮)',
     'Wages recovered (₮)',
-    48_350_000,
-    112,
+    6_000_000,
+    11,
     '2026-10-31',
-    'counting-wages',
-    'TRUE',
-  ],
-  [
-    'agreements-signed',
-    'Байгуулсан гэрээ',
-    'Agreements signed',
-    63,
-    63,
-    '2026-10-31',
-    'counting-agreements',
+    'counting-money-hours-verified',
     'TRUE',
   ],
   [
     'teens-represented',
     'Төлөөлсөн хүүхэд, залуучууд',
     'Children and teens represented',
-    311,
-    311,
+    411,
+    411,
     '2026-10-31',
-    'counting-cases',
+    'counting-people-once',
     'TRUE',
   ],
   [
@@ -80,7 +80,7 @@ const TOTALS: (string | number | boolean)[][] = [
     3,
     3,
     '2026-10-31',
-    'counting-cases',
+    'counting-outcomes-once',
     'FALSE',
   ],
   [
@@ -90,15 +90,19 @@ const TOTALS: (string | number | boolean)[][] = [
     27,
     27,
     '2026-09-30',
-    'counting-agreements',
+    'counting-contacts-every-time',
     'FALSE',
   ],
 ];
 
-/** Twelve months, rising unevenly — a straight line would read as invented. */
+/**
+ * Twelve months, rising unevenly — a straight line would read as invented.
+ * Each series sums to its own headline total, so a reader who adds the bars
+ * up gets the number on the card.
+ */
 const MONTHLY_SHAPE: Record<string, number[]> = {
-  'cases-resolved': [6, 9, 7, 12, 11, 14, 10, 15, 13, 17, 16, 16],
-  'agreements-signed': [2, 4, 3, 6, 5, 7, 4, 8, 6, 7, 5, 6],
+  'cases-resolved': [14, 18, 15, 22, 20, 25, 19, 28, 24, 30, 28, 31],
+  'teens-represented': [20, 27, 23, 33, 30, 38, 29, 42, 36, 45, 42, 46],
 };
 
 const MONTHS = [

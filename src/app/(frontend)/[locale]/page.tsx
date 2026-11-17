@@ -52,6 +52,12 @@ export default async function HomePage({ params }: Props) {
 
   // Four at most: a front page that leads with everything leads with nothing.
   const headline = impact.metrics.filter((metric) => metric.showOnHome).slice(0, 4);
+  // The sheet decides how many figures reach the home page, so the row has to
+  // fit whatever comes back. Fixed at four columns it left an empty column on
+  // the right the moment a metric was retired — which reads as a figure that
+  // failed to load rather than one nobody publishes.
+  const metricColumns =
+    headline.length === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2 lg:grid-cols-4';
   // The hero's floating card shows the first headline figure, from this same
   // fetch — never a second, quietly different source.
   const featured = headline[0] ?? null;
@@ -162,7 +168,7 @@ export default async function HomePage({ params }: Props) {
           </div>
 
           {headline.length > 0 ? (
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className={`mt-12 grid gap-6 ${metricColumns}`}>
               {headline.map((metric) => (
                 <StatCard
                   key={metric.metricId}
