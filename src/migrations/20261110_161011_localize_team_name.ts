@@ -6,7 +6,7 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
  *
  * **This migration only adds.** It is the expand half of an expand/contract
  * pair: `team.name` stays where it is, merely nullable, and
- * `20261118_dropteam_name` removes it afterwards.
+ * `20261117_221500_drop_team_name` removes it afterwards.
  *
  * The split exists because one Neon database serves the live site and this
  * branch at once. Dropping the column in one step would mean the deployed
