@@ -56,17 +56,17 @@ export function SiteFooter({
           {/* The two tools and the notice that explains what they process. */}
           <ul className="mt-1 flex flex-col gap-1 text-sm">
             <li>
-              <Link href={localeHref(locale, '/contract-check')} className="text-ink-soft hover:text-ink inline-flex min-h-9 items-center">
+              <Link href={localeHref(locale, '/contract-check')} className="text-ink-soft hover:text-ink block rounded-full py-1 transition-colors">
                 {t('home.heroPrimaryCta')}
               </Link>
             </li>
             <li>
-              <Link href={localeHref(locale, '/cv-check')} className="text-ink-soft hover:text-ink inline-flex min-h-9 items-center">
+              <Link href={localeHref(locale, '/cv-check')} className="text-ink-soft hover:text-ink block rounded-full py-1 transition-colors">
                 {t('home.heroSecondaryCta')}
               </Link>
             </li>
             <li>
-              <Link href={localeHref(locale, '/privacy')} className="text-ink-soft hover:text-ink inline-flex min-h-9 items-center">
+              <Link href={localeHref(locale, '/privacy')} className="text-ink-soft hover:text-ink block rounded-full py-1 transition-colors">
                 {t('privacy.title')}
               </Link>
             </li>

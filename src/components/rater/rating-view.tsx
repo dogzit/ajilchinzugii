@@ -194,9 +194,12 @@ function ResultCard({
   compact?: boolean;
 }) {
   const r = t.results;
+  // Two fields often cite the same line (a shift's start and end): show it once.
   const excerpts = [
-    ...result.evidence.map((path) => fields.evidence[path]?.excerpt).filter((x): x is string => Boolean(x)),
-    ...result.quotes,
+    ...new Set([
+      ...result.evidence.map((path) => fields.evidence[path]?.excerpt).filter((x): x is string => Boolean(x)),
+      ...result.quotes,
+    ]),
   ];
 
   return (

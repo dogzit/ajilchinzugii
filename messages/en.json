@@ -36,7 +36,7 @@
   },
   "footer": {
     "contactHeading": "Contact",
-    "contactNote": "We collect no personal data through this site. Please write to the address below.",
+    "contactNote": "Nothing you enter on this site is kept unless you choose to save it. To reach us, write to the address below.",
     "contactEmailMissing": "[ХҮЛЭЭГДЭЖ БУЙ / TBD]",
     "copyright": "© {year} {name}",
     "sourceNote": "Every figure on this site can be checked against its evidence.",
@@ -76,7 +76,7 @@
     "about": {
       "title": "About",
       "lead": "The organisation, the team and our partners.",
-      "description": "The organisation, the team and our partners, and how to reach us. This site collects nothing from its readers."
+      "description": "The organisation, the team and our partners, and how to reach us."
     }
   },
   "common": {
@@ -262,7 +262,7 @@
     "teamHeading": "Team",
     "partnersHeading": "Partners",
     "contactHeading": "Contact",
-    "noFormNote": "We collect nothing through this site. Please write to us by email.",
+    "noFormNote": "There is no contact form: please write to us by email. Nothing from the contract and CV checks is kept unless you choose to save it.",
     "minorsNote": "Members under 18 are never listed individually, by name or photograph.",
     "legalName": "Legal name",
     "founded": "Founded",
