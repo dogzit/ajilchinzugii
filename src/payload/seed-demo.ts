@@ -553,7 +553,9 @@ const run = async () => {
       id: created.id,
       locale: 'en',
       overrideAccess: true,
-      data: { role: roleEn },
+      // `name` is localized and required since 20261110_161011, so the
+      // English side needs one too.
+      data: { name: `${MARK_EN}: ${name}`, role: roleEn },
     });
   }
   logger.info('team: 2 adults');
