@@ -28,7 +28,7 @@
     "seed:demo": "payload run src/payload/seed-demo.ts",
     "seed:demo:clear": "payload run src/payload/seed-demo.ts -- --clear",
     "check:placeholders": "payload run scripts/check-placeholders.ts",
-    "prebuild": "if [ \"$NEXT_PUBLIC_ALLOW_INDEXING\" = \"true\" ]; then pnpm check:placeholders && pnpm check:rules; fi",
+    "prebuild": "node scripts/copy-ocr-assets.mjs && if [ \"$NEXT_PUBLIC_ALLOW_INDEXING\" = \"true\" ]; then pnpm check:placeholders && pnpm check:rules; fi",
     "build:cf": "BUILD_TARGET=cloudflare opennextjs-cloudflare build",
     "preview:cf": "BUILD_TARGET=cloudflare opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy:cf": "BUILD_TARGET=cloudflare opennextjs-cloudflare build && opennextjs-cloudflare deploy",
@@ -39,7 +39,10 @@
     "migrate:fresh:d1": "DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_HYPERDRIVE=$(grep -m1 '^DATABASE_URL_UNPOOLED=' .env.local | cut -d= -f2- | tr -d '\"') payload migrate:fresh",
     "copy:d1": "payload run scripts/copy-neon-to-d1.ts",
     "rules:compile": "node scripts/compile-rules.ts",
-    "check:rules": "node scripts/check-rules-verified.ts"
+    "check:rules": "node scripts/check-rules-verified.ts",
+    "predev": "node scripts/copy-ocr-assets.mjs",
+    "eval:extraction": "node --import @swc-node/register/esm-register scripts/eval-extraction.ts",
+    "fixtures:contracts": "node scripts/make-contract-fixtures.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.11.0",
@@ -51,6 +54,7 @@
     "@payloadcms/storage-s3": "^3.93.0",
     "@payloadcms/ui": "^3.93.0",
     "@pdf-lib/fontkit": "1.1.1",
+    "fflate": "0.8.3",
     "google-auth-library": "^11.3.1",
     "graphql": "^16.14.2",
     "next": "^16.4.3",
@@ -60,6 +64,8 @@
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "sharp": "^0.35.5",
+    "tesseract.js": "7.0.0",
+    "unpdf": "2.2.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {

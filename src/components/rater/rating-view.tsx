@@ -13,7 +13,7 @@ import { fill, renderDetail } from '@/lib/rater/present';
 import type { TemplateDoc } from '@/lib/rater/template';
 import type { RaterMessages, RuleText } from './types';
 
-export type RatingRequestBody = { fields: ContractFields; actual?: ContractFields };
+export type RatingRequestBody = { fields: ContractFields; actual?: ContractFields; corrected?: string[] };
 
 /**
  * The result: the score and the verdict first, the 108 line at once on a P1,

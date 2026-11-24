@@ -29,7 +29,10 @@ const r2PublicHost = process.env.R2_PUBLIC_URL?.trim()
 export function contentSecurityPolicy(): string {
   const directives: Record<string, string[]> = {
     'default-src': ["'self'"],
-    'script-src': ["'self'", "'unsafe-inline'", plausibleHost],
+    // 'wasm-unsafe-eval' lets the contract rater's OCR compile its
+    // WebAssembly (tesseract.js, served from this origin). It allows
+    // WebAssembly only — not eval() of JavaScript.
+    'script-src': ["'self'", "'unsafe-inline'", "'wasm-unsafe-eval'", plausibleHost],
     // Tailwind ships a stylesheet; next/font writes an inline @font-face block.
     'style-src': ["'self'", "'unsafe-inline'"],
     'img-src': ["'self'", 'data:', 'blob:', ...(r2PublicHost ? [r2PublicHost] : [])],

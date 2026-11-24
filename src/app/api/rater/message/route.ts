@@ -1,3 +1,4 @@
+import { limit } from '@/lib/rate-limit';
 import mn from '@messages/mn.json';
 import { writeEmployerMessage } from '@/lib/rater/employer-message';
 import { json, problem, readJson } from '@/lib/rater/http';
@@ -15,6 +16,8 @@ import { ruleSet } from '@/lib/rater/rule-set';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const limited = await limit(request, 'message');
+  if (limited) return limited;
   const body = await readJson(request, ratingRequestSchema);
   if (!body.ok) return body.response;
 

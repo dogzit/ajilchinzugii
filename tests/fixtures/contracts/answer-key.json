@@ -1,0 +1,16 @@
+{
+  "_about": "Correct values, as written in each synthetic contract, for the fields the spec's 95% accuracy target is measured on. Made by the developer for the synthetic set; the real set needs a lawyer-made key (spec, data item 7).",
+  "fields": ["worker.date_of_birth", "pay.amount", "pay.unit", "schedule.hours_per_day", "schedule.days_per_week", "schedule.start_time", "schedule.end_time"],
+  "contracts": {
+    "01-cafe-printed.txt": { "worker.date_of_birth": "2010-03-14", "pay.amount": 7000, "pay.unit": "hour", "schedule.hours_per_day": 5, "schedule.days_per_week": 4, "schedule.start_time": "13:00", "schedule.end_time": "19:00" },
+    "02-retail-printed.txt": { "worker.date_of_birth": "2004-05-01", "pay.amount": 600000, "pay.unit": "month", "schedule.hours_per_day": 10, "schedule.days_per_week": 6, "schedule.start_time": "09:00", "schedule.end_time": "20:00" },
+    "03-delivery-chat.txt": { "worker.date_of_birth": "2010-08-20", "pay.amount": 3000, "pay.unit": "delivery", "schedule.hours_per_day": 6, "schedule.days_per_week": 6, "schedule.start_time": "11:00", "schedule.end_time": "17:00" },
+    "04-construction-handwritten.txt": { "worker.date_of_birth": "2011-02-09", "pay.amount": 40000, "pay.unit": "day", "schedule.hours_per_day": null, "schedule.days_per_week": 6, "schedule.start_time": "08:00", "schedule.end_time": "18:00" },
+    "05-herding-latin.txt": { "worker.date_of_birth": "2011-03-01", "pay.amount": null, "pay.unit": "in_kind", "schedule.hours_per_day": null, "schedule.days_per_week": 7, "schedule.start_time": "06:00", "schedule.end_time": "21:00" },
+    "06-tutoring.pdf": { "worker.date_of_birth": "2007-11-02", "pay.amount": 1200000, "pay.unit": "month", "schedule.hours_per_day": 6, "schedule.days_per_week": 5, "schedule.start_time": "14:00", "schedule.end_time": "21:00" },
+    "07-summer-job.docx": { "worker.date_of_birth": "2009-07-30", "pay.amount": 700000, "pay.unit": "month", "schedule.hours_per_day": 8, "schedule.days_per_week": 6, "schedule.start_time": "08:00", "schedule.end_time": "17:00" },
+    "08-internship.pdf": { "worker.date_of_birth": "2004-01-20", "pay.amount": 500000, "pay.unit": "month", "schedule.hours_per_day": 8, "schedule.days_per_week": 5, "schedule.start_time": "09:00", "schedule.end_time": "18:00" },
+    "09-service-contract.docx": { "worker.date_of_birth": "2005-09-03", "pay.amount": 1100000, "pay.unit": "month", "schedule.hours_per_day": 8, "schedule.days_per_week": 5, "schedule.start_time": "09:00", "schedule.end_time": "18:00" },
+    "10-phone-photo.txt": { "worker.date_of_birth": "2009-12-01", "pay.amount": 6000, "pay.unit": "hour", "schedule.hours_per_day": 5, "schedule.days_per_week": 5, "schedule.start_time": "17:30", "schedule.end_time": "22:30" }
+  }
+}

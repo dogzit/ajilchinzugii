@@ -13,6 +13,8 @@ import { todayInUlaanbaatar } from './http';
 export const ratingRequestSchema = z.object({
   fields: contractFieldsSchema,
   actual: contractFieldsSchema.optional(),
+  /** Field paths the reader changed on the confirmation screen — names only, never values. */
+  corrected: z.array(z.string().max(64)).max(64).optional(),
 });
 
 export type RatingRequest = z.infer<typeof ratingRequestSchema>;

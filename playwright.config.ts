@@ -19,5 +19,9 @@ export default defineConfig({
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 240_000,
+    // The rater's document path runs on the deterministic mock reader, and
+    // the per-IP limits are off: every test comes from the same address.
+    // Neither is ever set on a real deployment.
+    env: { RATER_EXTRACTOR: 'mock', RATE_LIMIT_DISABLED: 'true' },
   },
 });

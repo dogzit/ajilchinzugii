@@ -36,6 +36,9 @@ jobs:
       # The lawyer gate (docs/rater). A report on pull requests; a failure on
       # a push to main while any rule is unverified, because main is what
       # production builds from.
+      # Extraction benchmark on the recorded responses (no model is called).
+      - name: Extraction benchmark (recorded)
+        run: pnpm eval:extraction
       - name: Rules verified by a lawyer
         run: pnpm check:rules
         env:

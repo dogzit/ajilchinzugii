@@ -39,6 +39,12 @@ describe('the public policy', () => {
     ]);
   });
 
+  it('lets the OCR compile WebAssembly, and still allows no eval()', () => {
+    const scripts = directive('script-src') ?? '';
+    expect(scripts).toContain("'wasm-unsafe-eval'");
+    expect(scripts.split(' ')).not.toContain("'unsafe-eval'");
+  });
+
   it('does not let a page be framed', () => {
     expect(header(publicHeaders, 'X-Frame-Options')).toBe('DENY');
   });

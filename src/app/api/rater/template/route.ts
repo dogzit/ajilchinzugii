@@ -1,3 +1,4 @@
+import { limit } from '@/lib/rate-limit';
 import { getTranslations } from 'next-intl/server';
 import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
@@ -15,6 +16,8 @@ import { renderTemplatePdf } from '@/lib/rater/template-pdf';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+  const limited = await limit(request, 'template');
+  if (limited) return limited;
   const url = new URL(request.url);
   const locale = url.searchParams.get('locale') ?? routing.defaultLocale;
   if (!hasLocale(routing.locales, locale)) return problem('bad_locale', 400);

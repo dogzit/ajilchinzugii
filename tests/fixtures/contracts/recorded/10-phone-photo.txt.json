@@ -1,0 +1,120 @@
+{
+  "doc_type": "employment",
+  "language": "mn-cyrl",
+  "signed": {
+    "employer": true,
+    "employee": null,
+    "guardian": null,
+    "copy_given": null
+  },
+  "worker": {
+    "date_of_birth": "2009-12-01",
+    "id_copy_attached": null
+  },
+  "employer_kind": null,
+  "job": {
+    "title": null,
+    "duties_listed": null,
+    "location_listed": null,
+    "tasks": []
+  },
+  "term": {
+    "kind": null,
+    "start": null,
+    "end": null,
+    "extension_months": null
+  },
+  "probation": {
+    "months": null,
+    "extension_months": null,
+    "pay_amount": null
+  },
+  "schedule": {
+    "hours_per_day": 5,
+    "days_per_week": 5,
+    "hours_per_week": null,
+    "start_time": "17:30",
+    "end_time": "22:30",
+    "overtime_allowed": null,
+    "roster_work": null,
+    "business_trips": null,
+    "lunch_break_min": null,
+    "rest_days_per_week": null
+  },
+  "pay": {
+    "amount": 6000,
+    "unit": "hour",
+    "payments_per_month": 2,
+    "fixed_pay_dates": null,
+    "overtime_rate": null,
+    "night_rate": null
+  },
+  "leave": {
+    "annual_days": null
+  },
+  "medical_checks": null,
+  "via_labour_agency": null,
+  "flagged_clauses": [],
+  "evidence": [
+    {
+      "field": "doc_type",
+      "excerpt": "ХӨДӨЛМӨРИЙН ГЭРЭЭ",
+      "page": 1,
+      "confidence": 0.5
+    },
+    {
+      "field": "worker.date_of_birth",
+      "excerpt": "төрсөн 2009 оны 12 сарын 1",
+      "page": 1,
+      "confidence": 0.5
+    },
+    {
+      "field": "schedule.start_time",
+      "excerpt": "17:30-22:30",
+      "page": 1,
+      "confidence": 0.5
+    },
+    {
+      "field": "schedule.end_time",
+      "excerpt": "17:30-22:30",
+      "page": 1,
+      "confidence": 0.5
+    },
+    {
+      "field": "schedule.days_per_week",
+      "excerpt": "Долоо хоногт 5 өдөр",
+      "page": 1,
+      "confidence": 0.5
+    },
+    {
+      "field": "schedule.hours_per_day",
+      "excerpt": "өдөрт 5 цаг",
+      "page": 1,
+      "confidence": 0.5
+    },
+    {
+      "field": "pay.amount",
+      "excerpt": "Цагийн хөлс 6,000 төгрөг",
+      "page": 1,
+      "confidence": 0.5
+    },
+    {
+      "field": "pay.unit",
+      "excerpt": "Цагийн хөлс 6,000 төгрөг",
+      "page": 1,
+      "confidence": 0.5
+    },
+    {
+      "field": "pay.payments_per_month",
+      "excerpt": "сард 2 удаа",
+      "page": 1,
+      "confidence": 0.5
+    },
+    {
+      "field": "signed.employer",
+      "excerpt": "Ажил олгогч гарын үсэг",
+      "page": 1,
+      "confidence": 0.5
+    }
+  ]
+}

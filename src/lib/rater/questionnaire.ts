@@ -1,4 +1,5 @@
-import { emptyFields, payUnits, type ContractFields } from './fields';
+import { emptyFields, type payUnits } from './blank';
+import type { ContractFields } from './fields';
 
 /**
  * The no-contract path: the spec's 15 questions, and how each answer lands

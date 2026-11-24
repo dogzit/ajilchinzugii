@@ -5,6 +5,8 @@ import { Icon, type IconName } from '@/components/ui/icon';
 import { Pill } from '@/components/ui/pill';
 import type { Rating } from '@/lib/rater/engine';
 import { answersToFields, emptyAnswers, type Answers } from '@/lib/rater/questionnaire';
+import { ConfirmFields } from './confirm-fields';
+import { DocumentInput, type Extracted } from './document-input';
 import { Questionnaire } from './questionnaire';
 import { RatingView, type RatingRequestBody } from './rating-view';
 import type { CategoryOption, RaterMessages, RuleText } from './types';
@@ -12,6 +14,8 @@ import type { CategoryOption, RaterMessages, RuleText } from './types';
 type Step =
   | { name: 'start' }
   | { name: 'questions'; index: number }
+  | { name: 'document'; mode: 'paste' | 'upload' }
+  | { name: 'confirm' }
   | { name: 'results' }
   | { name: 'help' };
 
@@ -27,7 +31,6 @@ export function ContractRater({
   locale,
   privacyHref,
   contactEmail,
-  extraInputs,
 }: {
   t: RaterMessages;
   rules: Record<string, RuleText>;
@@ -35,8 +38,6 @@ export function ContractRater({
   locale: string;
   privacyHref: string;
   contactEmail: string | null;
-  /** The document inputs (paste, photo, file), when available. */
-  extraInputs?: { key: string; icon: IconName; title: string; body: string; onPick: () => void }[];
 }) {
   const [step, setStep] = useState<Step>({ name: 'start' });
   const [answers, setAnswers] = useState<Answers>(emptyAnswers);
@@ -44,6 +45,7 @@ export function ContractRater({
   const [rating, setRating] = useState<Rating | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [extracted, setExtracted] = useState<Extracted | null>(null);
 
   const rateNow = async (body: RatingRequestBody) => {
     setBusy(true);
@@ -69,6 +71,7 @@ export function ContractRater({
 
   const startOver = () => {
     setAnswers(emptyAnswers());
+    setExtracted(null);
     setRequest(null);
     setRating(null);
     setStep({ name: 'start' });
@@ -90,6 +93,43 @@ export function ContractRater({
         />
         {error ? (
           <p role="alert" className="text-ink mx-auto mt-4 max-w-[40rem]">
+            {error}
+          </p>
+        ) : null}
+      </>
+    );
+  }
+
+  if (step.name === 'document') {
+    return (
+      <DocumentInput
+        t={t}
+        mode={step.mode}
+        onBack={() => setStep({ name: 'start' })}
+        onQuestionnaire={() => setStep({ name: 'questions', index: 0 })}
+        onExtracted={(result) => {
+          setExtracted(result);
+          setStep({ name: 'confirm' });
+          window.scrollTo({ top: 0 });
+        }}
+      />
+    );
+  }
+
+  if (step.name === 'confirm' && extracted) {
+    return (
+      <>
+        <ConfirmFields
+          t={t}
+          extracted={extracted.fields}
+          dropped={extracted.dropped}
+          categories={categories}
+          busy={busy}
+          onBack={() => setStep({ name: 'start' })}
+          onConfirm={rateNow}
+        />
+        {error ? (
+          <p role="alert" className="text-ink mx-auto mt-4 max-w-[46rem]">
             {error}
           </p>
         ) : null}
@@ -145,7 +185,20 @@ export function ContractRater({
       body: t.start.questionnaireBody,
       onPick: () => setStep({ name: 'questions', index: 0 }),
     },
-    ...(extraInputs ?? []),
+    {
+      key: 'paste',
+      icon: 'document' as IconName,
+      title: t.start.pasteTitle,
+      body: t.start.pasteBody,
+      onPick: () => setStep({ name: 'document', mode: 'paste' }),
+    },
+    {
+      key: 'upload',
+      icon: 'upload' as IconName,
+      title: t.start.uploadTitle,
+      body: t.start.uploadBody,
+      onPick: () => setStep({ name: 'document', mode: 'upload' }),
+    },
   ];
 
   return (
