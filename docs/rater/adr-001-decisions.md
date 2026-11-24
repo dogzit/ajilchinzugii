@@ -43,11 +43,11 @@ the XML. No DOCX library with Node-only dependencies.
 (`src/lib/llm/gemini.ts`, no SDK, so it runs unchanged on Node and Workers
 and adds nothing to the bundle). Key from `GEMINI_API_KEY`, sent in the
 `x-goog-api-key` header, never in the URL; model from `GEMINI_MODEL`
-(`.env.example` default `gemini-3.8-flash`), never written in code. The
+(`.env.example` default `gemini-3.5-flash-lite`, chosen by a live run: 97.1% on the fixtures at about 4 s a contract, while `gemini-3.8-flash` returned 503 "high demand" and `gemini-3.6-flash` timed out), never written in code. The
 extraction schema is enforced with JSON output (`responseMimeType:
 application/json`, `responseJsonSchema` generated from the zod schema), then
-validated again with zod. Thinking level: medium for extraction, low for the
-employer message. Thought parts are discarded. A blocked prompt or a
+validated again with zod. Thinking level: low for both (medium took up to 70 s a contract). One
+retry after 2 s on 429 or 503. Thought parts are discarded. A blocked prompt or a
 safety stop is a refusal; any HTTP error is "unavailable", with no request
 or response text in the error. `MockExtractor` implements the same
 interface for tests, CI and any environment without a key.

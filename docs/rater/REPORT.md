@@ -49,7 +49,7 @@ reviewer's fixes.
 | Next build | `pnpm build` | passes |
 | Workers build | `pnpm build:cf` (Cloudflare credentials hidden) | passes |
 | Workers preview | local `wrangler dev --local` on the OpenNext output (see below) | every page 200; `contract-check`, `cv-check` and `contract-document` e2e: 14/14 passed against the Workers runtime |
-| Extraction benchmark | `pnpm eval:extraction` | 97.1% (target 95%), **replayed from recordings made with the mock reader**: this holds the pipeline steady, it is not a measure of the model |
+| Extraction benchmark | `pnpm eval:extraction`; `pnpm eval:extraction --live` | replay 97.1% (target 95%) from mock-reader recordings, which holds the pipeline steady. **Live, `gemini-3.5-flash-lite`, 2026-11-24: 97.1%** on the 10 synthetic contracts, about 4 s each (misses: in-kind pay on the Latin-script herding contract; a date of birth in the Word file). Real anonymised contracts are still needed. |
 | Home buttons | `tests/e2e/home.spec.ts` | the two raters are the primary actions, in both languages |
 | Independent review | fresh-context subagent | 15 findings, all fixed or recorded; see below |
 
@@ -146,7 +146,7 @@ names are not redacted is open question lawyer 17.
   engine can replace it after the OCR benchmark.
 - **The LLM.** Google Gemini over REST (`generateContent`, no SDK), with
   JSON output against the zod-generated schema, through `GEMINI_API_KEY` and
-  `GEMINI_MODEL`. The `.env.example` default is `gemini-3.8-flash`; no model
+  `GEMINI_MODEL`. The `.env.example` default is `gemini-3.5-flash-lite` (live run: 97.1% on the fixtures, about 4 s a contract); no model
   id is in the code. (Built on Anthropic first; switched to Gemini on
   2026-11-24 at the owner's request.) Temperature is not sent: Gemini 3.6
   Flash and newer ignore it. The evidence check and code-made verdicts carry
@@ -192,8 +192,9 @@ settings (Resend or SMTP). The purge cron reuses `CRON_SECRET`.
 ## What is mocked
 
 - The extractor in CI and in e2e (`RATER_EXTRACTOR=mock`): a deterministic
-  rule-based reader of the synthetic fixtures. No live model call was made.
-  The live path is unit-tested against a stubbed HTTP API.
+  rule-based reader of the synthetic fixtures. The live Gemini path is
+  unit-tested against a stubbed HTTP API and was run live on the fixtures
+  (see the benchmark row).
 - The extraction benchmark replays recordings made with the mock reader.
   Real recordings need a key and real anonymised contracts.
 - OCR in e2e. A real tesseract run was checked by hand under the CSP.

@@ -43,25 +43,30 @@ export async function generate(config: LlmConfig, input: GenerateInput): Promise
     promptFeedback?: { blockReason?: string };
     candidates?: { finishReason?: string; content?: { parts?: { text?: string; thought?: boolean }[] } }[];
   };
+  const request = JSON.stringify({
+    systemInstruction: { parts: [{ text: input.system }] },
+    contents: [{ role: 'user', parts: [{ text: input.user }] }],
+    generationConfig: {
+      maxOutputTokens: input.maxOutputTokens,
+      thinkingConfig: { thinkingLevel: input.thinking },
+      ...(input.schema ? { responseMimeType: 'application/json', responseJsonSchema: input.schema } : {}),
+    },
+  });
+  const call = () =>
+    fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-goog-api-key': config.apiKey },
+      body: request,
+      // A reader is waiting on the other end of every call.
+      signal: AbortSignal.timeout(60_000),
+    });
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.model)}:generateContent`,
-      {
-        method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-goog-api-key': config.apiKey },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: input.system }] },
-          contents: [{ role: 'user', parts: [{ text: input.user }] }],
-          generationConfig: {
-            maxOutputTokens: input.maxOutputTokens,
-            thinkingConfig: { thinkingLevel: input.thinking },
-            ...(input.schema ? { responseMimeType: 'application/json', responseJsonSchema: input.schema } : {}),
-          },
-        }),
-        // A reader is waiting on the other end of every call.
-        signal: AbortSignal.timeout(90_000),
-      },
-    );
+    let response = await call();
+    // "High demand" (503) and rate limits (429) are usually gone a moment later: one retry.
+    if (response.status === 503 || response.status === 429) {
+      await new Promise((resolve) => setTimeout(resolve, 2_000));
+      response = await call();
+    }
     if (!response.ok) throw new Error(String(response.status));
     body = await response.json();
   } catch {
