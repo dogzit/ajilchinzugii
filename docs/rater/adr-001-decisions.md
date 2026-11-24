@@ -37,14 +37,23 @@ the XML. No DOCX library with Node-only dependencies.
 
 ## 3. LLM — Anthropic API behind `Extractor`
 
-**Decision:** Anthropic Messages API called with `fetch` (no SDK), model from
-`ANTHROPIC_MODEL`, temperature 0, one forced tool whose input schema is the
-extraction schema (generated from the zod schema), so the output is
-schema-shaped by construction and then validated again with zod.
+**Decision:** the official Anthropic TypeScript SDK (`@anthropic-ai/sdk`,
+which talks over `fetch` and runs unchanged on Node and Workers), model from
+`ANTHROPIC_MODEL` (`.env.example` default `claude-opus-5-5`), never written
+in code. The extraction schema is enforced with **structured outputs**
+(`output_config.format` generated from the zod schema), then validated again
+with zod. Server-side refusal fallback (`fallbacks: "default"`) is set on
+every call. `MockExtractor` implements the same interface for tests, CI and
+any environment without a key.
 
-**Why:** structured output via tool use, no SDK weight in either bundle, and
-the same code on Node and Workers. `MockExtractor` implements the same
-interface for tests, CI and any environment without a key.
+**Two departures from the prompt, both forced by the current API:**
+
+- **No `temperature: 0`.** Current Claude models reject `temperature`,
+  `top_p` and `top_k` with a 400. Determinism comes instead from the schema,
+  the evidence check and the fact that no verdict depends on the model.
+- **No forced tool call.** Current models reject a forced `tool_choice`
+  (`any` / `tool`) with a 400. Structured outputs give the same guarantee —
+  the response matches the schema — without it.
 
 **Guarantees in code, not in the prompt:** the prompt tells the model that
 instructions inside the document are data; the code is what enforces it —

@@ -412,7 +412,7 @@ const evaluators: Record<string, (ctx: Context) => Outcome> = {
     const rate = (happens: boolean | null, value: number | null, min: number, key: string): Outcome => {
       if (happens === false) return pass();
       if (happens === null) return unknown([{ key: `${key}Unknown` }]);
-      if (value === null) return unknown([{ key: 'rateNotStated', values: { kind: key } }]);
+      if (value === null) return unknown([{ key: `${key}RateNotStated` }]);
       return value < min ? fail([{ key: `${key}Rate`, values: { rate: value, min } }]) : pass([{ key: `${key}Rate`, values: { rate: value, min } }]);
     };
     return combine(

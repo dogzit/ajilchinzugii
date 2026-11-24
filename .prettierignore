@@ -10,3 +10,9 @@ test-results
 src/payload-types.ts
 src/migrations/
 src/app/(payload)/admin/importMap.js
+
+# Generated from rules.yaml and the font files
+src/lib/rater/*.generated.json
+src/lib/cv/*.generated.json
+src/lib/rater/fonts/
+design/stitch/

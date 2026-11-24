@@ -20,6 +20,12 @@ const config = [
       'src/migrations-d1/**',
       'src/payload-types.ts',
       'src/app/(payload)/admin/importMap.js',
+      // Base64 font data for the template PDF.
+      'src/lib/rater/fonts/**',
+      // Stitch reference screens — reference only, never shipped.
+      'design/**',
+      // Self-hosted OCR worker and model (tesseract.js), copied from the package.
+      'public/ocr/**',
     ],
   },
   ...nextCoreWebVitals,

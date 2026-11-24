@@ -505,3 +505,42 @@ details[open] > :not(summary) {
     padding-block: 6.5rem;
   }
 }
+
+/*
+ * The corrected contract template prints on its own: everything else on the
+ * page is hidden from the printer, and the template is hidden on screen.
+ */
+.print-only {
+  display: none;
+}
+
+@media print {
+  body:has(.print-only) * {
+    visibility: hidden;
+  }
+
+  .print-only,
+  .print-only * {
+    visibility: visible;
+  }
+
+  .print-only {
+    display: block;
+    position: absolute;
+    inset: 0;
+    padding: 1.5cm;
+    color: black;
+    background: white;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  .print-only h1 {
+    font-size: 16pt;
+  }
+
+  .print-only h2 {
+    font-size: 12pt;
+    margin-top: 1em;
+  }
+}
