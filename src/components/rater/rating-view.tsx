@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { CopyButton } from '@/components/copy-button';
 import { Button } from '@/components/ui/button';
+import { SaveToAccount } from '@/components/accounts/save-to-account';
+import type { AccountMessages } from '@/components/accounts/sign-up-gate';
 import { EvidenceQuote } from '@/components/ui/evidence-quote';
 import { Icon } from '@/components/ui/icon';
 import { ScoreGauge } from '@/components/ui/score-gauge';
@@ -29,7 +31,9 @@ export function RatingView({
   locale,
   onTalk,
   onStartOver,
+  accountT,
 }: {
+  accountT: AccountMessages;
   t: RaterMessages;
   rating: Rating;
   rules: Record<string, RuleText>;
@@ -140,6 +144,17 @@ export function RatingView({
       ) : null}
 
       {hasFailures ? <EmployerMessage t={t} request={request} /> : null}
+      <SaveToAccount
+        t={accountT}
+        locale={locale}
+        kind="contract"
+        summary={{
+          ruleSetVersion: rating.ruleSetVersion,
+          verdict: rating.verdict,
+          score: rating.score,
+          results: rating.results.map((r) => ({ id: r.id, verdict: r.verdict })),
+        }}
+      />
       <TemplateActions t={t} request={request} locale={locale} />
 
       {rating.verdict === 'red' ? (

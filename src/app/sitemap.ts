@@ -19,7 +19,7 @@ import { absoluteUrl, languageAlternates } from '@/lib/seo/urls';
 
 export const revalidate = 86_400;
 
-const staticPaths = ['/', '/impact', '/methodology', '/research', '/policy', '/about'];
+const staticPaths = ['/', '/impact', '/methodology', '/research', '/policy', '/about', '/privacy'];
 
 const date = (value?: string | null): Date | undefined => {
   if (!value) return undefined;

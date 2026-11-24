@@ -68,6 +68,21 @@ export function adminContentSecurityPolicy(): string {
     .replace("frame-src 'self'", "frame-src 'self' blob:");
 }
 
+/**
+ * Sign-in, sign-up and the account page: Clerk's own pages. Its Frontend
+ * API and its scripts come through this origin (the /__clerk proxy), so the
+ * only additions are Cloudflare Turnstile, which Clerk uses to keep bots out
+ * of sign-up, and the host Clerk serves avatars from. No other page gets
+ * these.
+ */
+const TURNSTILE = 'https://challenges.cloudflare.com';
+export function accountContentSecurityPolicy(): string {
+  return contentSecurityPolicy()
+    .replace("script-src 'self'", `script-src 'self' ${TURNSTILE}`)
+    .replace("frame-src 'self'", `frame-src 'self' ${TURNSTILE}`)
+    .replace("img-src 'self'", "img-src 'self' https://img.clerk.com");
+}
+
 const shared = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -146,5 +161,11 @@ export const adminHeaders = [
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'Content-Security-Policy', value: adminContentSecurityPolicy() },
   // Drafts and editor screens are never indexed.
+  { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+];
+
+export const accountHeaders = [
+  ...shared,
+  { key: 'Content-Security-Policy', value: accountContentSecurityPolicy() },
   { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
 ];

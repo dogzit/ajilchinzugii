@@ -69,6 +69,19 @@ describe('the public policy', () => {
   });
 });
 
+describe('the account pages (Clerk)', () => {
+  it('add only Turnstile and the avatar host to the public policy', async () => {
+    const { accountContentSecurityPolicy, contentSecurityPolicy: publicPolicy } = await import('../../src/lib/security-headers');
+    const account = accountContentSecurityPolicy();
+    expect(account).toContain("script-src 'self' https://challenges.cloudflare.com");
+    expect(account).toContain("frame-src 'self' https://challenges.cloudflare.com");
+    expect(account).toContain('https://img.clerk.com');
+    expect(publicPolicy()).not.toContain('challenges.cloudflare.com');
+    // Clerk's Frontend API is proxied through this origin: no Clerk domain in the policy.
+    expect(account.replace('https://img.clerk.com', '')).not.toContain('clerk');
+  });
+});
+
 describe('the admin policy', () => {
   it('gives the editor the blob URLs it needs, and nothing more', () => {
     const csp = adminContentSecurityPolicy();

@@ -77,5 +77,22 @@
       "database_id": "d6bba599-05a8-463a-9253-5ac3998646a9",
       "remote": true
     }
-  ]
+  ],
+  // LOCAL ONLY. `pnpm migrate:create:d1:local` and `migrate:d1:local` select
+  // this environment so Payload generates and tests D1 migrations against a
+  // D1 that lives in .wrangler/state on this machine — never the production
+  // database above, which is `remote: true`. Bindings are not inherited by an
+  // environment, so nothing remote is reachable from here. Nothing deploys
+  // with `--env local-migrations`.
+  "env": {
+    "local-migrations": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "ajilchinzugii-local-migrations",
+          "database_id": "00000000-0000-4000-8000-000000000000"
+        }
+      ]
+    }
+  }
 }

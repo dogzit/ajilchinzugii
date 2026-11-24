@@ -7,6 +7,8 @@ import { s3Storage } from '@payloadcms/storage-s3';
 import { buildConfig } from 'payload';
 import sharp from 'sharp';
 import { Media } from './payload/collections/media';
+import { Members } from './payload/collections/members';
+import { SavedRatings } from './payload/collections/saved-ratings';
 import { buildEmailAdapter } from './payload/email';
 import { Papers } from './payload/collections/papers';
 import { Partners } from './payload/collections/partners';
@@ -181,7 +183,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Papers, Team, Partners, Media, Users],
+  collections: [Papers, Team, Partners, Media, Users, Members, SavedRatings],
   globals: [Site, Methodology, Policy, ImpactSnapshot],
   localization: {
     locales: [

@@ -5,6 +5,7 @@ import { Icon, type IconName } from '@/components/ui/icon';
 import { Pill } from '@/components/ui/pill';
 import type { Rating } from '@/lib/rater/engine';
 import { answersToFields, emptyAnswers, type Answers } from '@/lib/rater/questionnaire';
+import type { AccountMessages } from '@/components/accounts/sign-up-gate';
 import { ConfirmFields } from './confirm-fields';
 import { DocumentInput, type Extracted } from './document-input';
 import { Questionnaire } from './questionnaire';
@@ -31,7 +32,9 @@ export function ContractRater({
   locale,
   privacyHref,
   contactEmail,
+  accountT,
 }: {
+  accountT: AccountMessages;
   t: RaterMessages;
   rules: Record<string, RuleText>;
   categories: CategoryOption[];
@@ -145,6 +148,7 @@ export function ContractRater({
         rules={rules}
         request={request}
         locale={locale}
+        accountT={accountT}
         onTalk={() => setStep({ name: 'help' })}
         onStartOver={startOver}
       />

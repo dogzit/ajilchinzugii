@@ -7,7 +7,7 @@ import { expect, test, type Page } from '@playwright/test';
  * only warns is a rule nobody fixes.
  */
 
-const paths = ['/', '/impact', '/methodology', '/research', '/policy', '/about'];
+const paths = ['/', '/impact', '/methodology', '/research', '/policy', '/about', '/privacy', '/contract-check', '/cv-check', '/account'];
 const locales = ['mn', 'en'] as const;
 const schemes = ['light', 'dark'] as const;
 

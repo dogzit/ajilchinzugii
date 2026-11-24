@@ -42,10 +42,14 @@
     "check:rules": "node scripts/check-rules-verified.ts",
     "predev": "node scripts/copy-ocr-assets.mjs",
     "eval:extraction": "node --import @swc-node/register/esm-register scripts/eval-extraction.ts",
-    "fixtures:contracts": "node scripts/make-contract-fixtures.ts"
+    "fixtures:contracts": "node scripts/make-contract-fixtures.ts",
+    "migrate:create:d1:local": "NEXT_DEV_WRANGLER_ENV=local-migrations DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs payload migrate:create",
+    "migrate:d1:local": "NEXT_DEV_WRANGLER_ENV=local-migrations DATABASE_MIGRATING=true DB_DRIVER=d1 NEXT_RUNTIME=nodejs payload migrate"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "1.11.0",
+    "@clerk/localizations": "4.26.0",
+    "@clerk/nextjs": "7.10.4",
     "@payloadcms/db-d1-sqlite": "3.93.0",
     "@payloadcms/db-postgres": "^3.93.0",
     "@payloadcms/email-nodemailer": "^3.93.0",
@@ -70,6 +74,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
+    "@clerk/testing": "2.3.3",
     "@eslint/eslintrc": "^3.3.7",
     "@lhci/cli": "^0.15.1",
     "@opennextjs/cloudflare": "^1.20.16",

@@ -10,6 +10,7 @@ import * as migration_20261106_054542_team_slug from './20261106_054542_team_slu
 import * as migration_20261107_131511_site_logo_restore from './20261107_131511_site_logo_restore';
 import * as migration_20261110_161011_localize_team_name from './20261110_161011_localize_team_name';
 import * as migration_20261117_221500_drop_team_name from './20261117_221500_drop_team_name';
+import * as migration_20261124_085238_rater_members from './20261124_085238_rater_members';
 
 export const migrations = [
   {
@@ -65,11 +66,16 @@ export const migrations = [
   {
     up: migration_20261110_161011_localize_team_name.up,
     down: migration_20261110_161011_localize_team_name.down,
-    name: '20261110_161011_localize_team_name'
+    name: '20261110_161011_localize_team_name',
   },
   {
     up: migration_20261117_221500_drop_team_name.up,
     down: migration_20261117_221500_drop_team_name.down,
-    name: '20261117_221500_drop_team_name'
+    name: '20261117_221500_drop_team_name',
+  },
+  {
+    up: migration_20261124_085238_rater_members.up,
+    down: migration_20261124_085238_rater_members.down,
+    name: '20261124_085238_rater_members'
   },
 ];

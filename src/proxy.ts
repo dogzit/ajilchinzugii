@@ -1,6 +1,8 @@
+import { clerkMiddleware } from '@clerk/nextjs/server';
 import createMiddleware from 'next-intl/middleware';
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
 import { routing } from '@/i18n/routing';
+import { CLERK_PROXY_PATH, clerkConfigured } from '@/lib/accounts/clerk';
 import { indexingAllowed, NO_INDEX_HEADER } from '@/lib/indexing';
 import { siteHost } from '@/lib/site';
 
@@ -20,7 +22,7 @@ const withLocale = createMiddleware(routing);
  * The hostnames themselves are never written down here: the one host that may
  * be indexed is whichever NEXT_PUBLIC_SITE_URL names (CLAUDE.md rule 9).
  */
-export default function proxy(request: NextRequest) {
+function localeAndRobots(request: NextRequest) {
   const response = withLocale(request);
 
   const host = request.headers.get('host')?.split(':')[0]?.toLowerCase();
@@ -31,10 +33,40 @@ export default function proxy(request: NextRequest) {
   return response;
 }
 
+/**
+ * Where Clerk runs: its Frontend API, proxied through this origin so the
+ * browser never talks to a Clerk domain (and the CSP stays close to 'self'),
+ * the account pages, and the account API. Everywhere else — every public
+ * page and both raters — is untouched by it: no session check, no handshake
+ * redirect, no Clerk JavaScript. Without keys Clerk is not loaded at all.
+ */
+const CLERK_PATHS = /^\/(?:__clerk(?:\/|$)|api\/account(?:\/|$)|(?:mn|en)\/(?:sign-in|sign-up|account)(?:\/|$))/;
+
+const withClerk = clerkConfigured()
+  ? clerkMiddleware(
+      async (_auth, request) => (request.nextUrl.pathname.startsWith('/api/') ? NextResponse.next() : localeAndRobots(request)),
+      // The proxy URL is derived from each request's own origin: no domain
+      // is written here (CLAUDE.md rule 9).
+      { frontendApiProxy: { enabled: true, path: CLERK_PROXY_PATH } },
+    )
+  : null;
+
+export default function proxy(request: NextRequest, event: NextFetchEvent) {
+  if (withClerk && CLERK_PATHS.test(request.nextUrl.pathname)) return withClerk(request, event);
+  return localeAndRobots(request);
+}
+
 export const config = {
   // Everything except the Payload admin and API, Next internals, the
   // editors' handbook and files with an extension. /admin is Payload's own
   // route and must not be rewritten to /mn/admin; /guide is a static file
   // (Next serves public/guide.html there) and has no locale of its own.
-  matcher: ['/', '/(mn|en)/:path*', '/((?!admin|api|guide|_next|_vercel|.*\\..*).*)'],
+  // Clerk's proxied Frontend API and the account API are added by name.
+  matcher: [
+    '/',
+    '/(mn|en)/:path*',
+    '/__clerk/:path*',
+    '/api/account/:path*',
+    '/((?!admin|api|guide|_next|_vercel|__clerk|.*\\..*).*)',
+  ],
 };

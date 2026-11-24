@@ -7,6 +7,7 @@ import { otherLocale } from '@/i18n/routing';
 import { LanguageSwitch } from '@/components/language-switch';
 import { NavLinks } from '@/components/nav-links';
 import { ThemeToggle } from '@/components/theme-switch';
+import { AccountLink } from '@/components/accounts/account-link';
 import { SiteWordmark } from '@/components/site-wordmark';
 import { ButtonLink } from '@/components/ui/button';
 import { Icon } from '@/components/ui/icon';
@@ -77,6 +78,15 @@ export function SiteHeader({
             }),
           }}
         />
+
+        {/* Sign-in / account: only when accounts are set up (a build-time key). */}
+        {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ? (
+          <AccountLink
+            href={localeHref(locale, '/account')}
+            signedOut={t('account.navSignIn')}
+            signedIn={t('account.navAccount')}
+          />
+        ) : null}
 
         <span className="hidden min-[860px]:block">
           <ButtonLink href={localeHref(locale, '/about#contact')}>

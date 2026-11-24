@@ -72,6 +72,8 @@ export interface Config {
     partners: Partner;
     media: Media;
     users: User;
+    members: Member;
+    'saved-ratings': SavedRating;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +86,8 @@ export interface Config {
     partners: PartnersSelect<false> | PartnersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    members: MembersSelect<false> | MembersSelect<true>;
+    'saved-ratings': SavedRatingsSelect<false> | SavedRatingsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -431,6 +435,87 @@ export interface User {
   collection: 'users';
 }
 /**
+ * Бүртгэлтэй хэрэглэгчид. Нэр, и-мэйл энд хадгалагдахгүй. Account holders; names and emails stay with Clerk.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members".
+ */
+export interface Member {
+  id: number;
+  clerkUserId: string;
+  ageBand: '13_14' | '15_17' | '18_24';
+  /**
+   * 13–17: эцэг эх / асран хамгаалагч зөвшөөрсөн. A guardian ticked the consent box.
+   */
+  guardianConsent?: boolean | null;
+  guardianConsentAt?: string | null;
+  targetJob?: string | null;
+  aimag?:
+    | (
+        | 'ulaanbaatar'
+        | 'arkhangai'
+        | 'bayan_ulgii'
+        | 'bayankhongor'
+        | 'bulgan'
+        | 'govi_altai'
+        | 'govisumber'
+        | 'darkhan_uul'
+        | 'dornogovi'
+        | 'dornod'
+        | 'dundgovi'
+        | 'zavkhan'
+        | 'orkhon'
+        | 'uvurkhangai'
+        | 'umnugovi'
+        | 'sukhbaatar'
+        | 'selenge'
+        | 'tuv'
+        | 'uvs'
+        | 'khovd'
+        | 'khuvsgul'
+        | 'khentii'
+      )
+    | null;
+  cvProfile?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "saved-ratings".
+ */
+export interface SavedRating {
+  id: number;
+  member: number | Member;
+  kind: 'contract' | 'cv';
+  ruleSetVersion: string;
+  verdict: 'red' | 'yellow' | 'green';
+  score: number;
+  /**
+   * Дүрэм бүрийн өнгө л. Rule ids and colours only.
+   */
+  results:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  ratedOn: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -473,6 +558,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'members';
+        value: number | Member;
+      } | null)
+    | ({
+        relationTo: 'saved-ratings';
+        value: number | SavedRating;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -744,6 +837,36 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "members_select".
+ */
+export interface MembersSelect<T extends boolean = true> {
+  clerkUserId?: T;
+  ageBand?: T;
+  guardianConsent?: T;
+  guardianConsentAt?: T;
+  targetJob?: T;
+  aimag?: T;
+  cvProfile?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "saved-ratings_select".
+ */
+export interface SavedRatingsSelect<T extends boolean = true> {
+  member?: T;
+  kind?: T;
+  ruleSetVersion?: T;
+  verdict?: T;
+  score?: T;
+  results?: T;
+  ratedOn?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

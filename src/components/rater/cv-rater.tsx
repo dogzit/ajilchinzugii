@@ -1,7 +1,7 @@
 'use client';
 
 import type mnMessages from '@messages/mn.json';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { EvidenceQuote } from '@/components/ui/evidence-quote';
 import { Icon } from '@/components/ui/icon';
@@ -10,6 +10,8 @@ import { ScoreGauge } from '@/components/ui/score-gauge';
 import { VerdictBadge } from '@/components/ui/verdict-badge';
 import type { CvProfile, CvRating, CvResult } from '@/lib/cv/engine';
 import { fill, renderDetail } from '@/lib/rater/present';
+import { SaveToAccount } from '@/components/accounts/save-to-account';
+import type { AccountMessages } from '@/components/accounts/sign-up-gate';
 import { DocumentInput } from './document-input';
 import { Choice, YesNo } from './inputs';
 import type { CategoryOption, RaterMessages, RuleText } from './types';
@@ -34,7 +36,9 @@ export function CvRater({
   savedProfile,
   onRated,
   locale,
+  accountT,
 }: {
+  accountT: AccountMessages;
   locale: string;
   t: CvMessages;
   raterT: RaterMessages;
@@ -54,6 +58,22 @@ export function CvRater({
     savedProfile ?? { ageBand: null, targetJob: null, experience: null, aimag: null, hasPhoto: null },
   );
   const [rating, setRating] = useState<CvRating | null>(null);
+  const [fromAccount, setFromAccount] = useState(false);
+
+  // A signed-in member's saved profile, asked of the server (no Clerk
+  // JavaScript here). Nothing happens without accounts configured.
+  useEffect(() => {
+    if (savedProfile || !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY) return;
+    fetch('/api/account/me')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((me: { member?: { cvProfile?: CvProfile | null } | null } | null) => {
+        if (me?.member?.cvProfile) {
+          setProfile(me.member.cvProfile);
+          setFromAccount(true);
+        }
+      })
+      .catch(() => undefined);
+  }, [savedProfile]);
   const minor = profile.ageBand === '13_14' || profile.ageBand === '15_17';
   const jobs = minor ? categories.filter((c) => !prohibitedForMinors.includes(c.id)) : categories;
 
@@ -90,7 +110,18 @@ export function CvRater({
   }
 
   if (step === 'results' && rating) {
-    return <CvResults t={t} raterT={raterT} rating={rating} rules={rules} contractHref={contractHref} locale={locale} onAgain={() => setStep('input')} />;
+    return (
+      <CvResults
+        t={t}
+        raterT={raterT}
+        rating={rating}
+        rules={rules}
+        contractHref={contractHref}
+        locale={locale}
+        onAgain={() => setStep('input')}
+        save={<SaveToAccount t={accountT} locale={locale} kind="cv" cvProfile={profile} summary={{ ruleSetVersion: rating.ruleSetVersion, verdict: rating.verdict, score: rating.score, results: rating.results.map((r) => ({ id: r.id, verdict: r.verdict })) }} />}
+      />
+    );
   }
 
   return (
@@ -104,7 +135,7 @@ export function CvRater({
       <Pill>{t.start.eyebrow}</Pill>
       <h1 className="text-ink mt-5">{t.start.title}</h1>
       <p className="text-ink-muted mt-4 text-lg">{t.start.lead}</p>
-      {savedProfile ? <p className="text-ink-muted mt-3 text-sm">{t.profile.saved}</p> : null}
+      {savedProfile || fromAccount ? <p className="text-ink-muted mt-3 text-sm">{t.profile.saved}</p> : null}
 
       <div className="mt-10 grid gap-8">
         <Choice
@@ -169,7 +200,9 @@ function CvResults({
   contractHref,
   onAgain,
   locale,
+  save,
 }: {
+  save: React.ReactNode;
   locale: string;
   t: CvMessages;
   raterT: RaterMessages;
@@ -255,6 +288,7 @@ function CvResults({
           </ul>
         </details>
       ) : null}
+      {save}
       <p>
         <Button variant="secondary" onClick={onAgain}>
           {t.results.again}

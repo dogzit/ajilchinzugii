@@ -1,3 +1,5 @@
+import { localeHref } from '@/lib/locale-href';
+import { Link } from '@/components/link';
 import { useTranslations } from 'next-intl';
 import type { Media, Site } from '@/payload-types';
 import type { Locale } from '@/i18n/routing';
@@ -51,6 +53,24 @@ export function SiteFooter({
             {t('nav.pages')}
           </h2>
           <NavLinks locale={locale} className="mt-3 flex flex-col gap-1 text-sm" />
+          {/* The two tools and the notice that explains what they process. */}
+          <ul className="mt-1 flex flex-col gap-1 text-sm">
+            <li>
+              <Link href={localeHref(locale, '/contract-check')} className="text-ink-soft hover:text-ink inline-flex min-h-9 items-center">
+                {t('home.heroPrimaryCta')}
+              </Link>
+            </li>
+            <li>
+              <Link href={localeHref(locale, '/cv-check')} className="text-ink-soft hover:text-ink inline-flex min-h-9 items-center">
+                {t('home.heroSecondaryCta')}
+              </Link>
+            </li>
+            <li>
+              <Link href={localeHref(locale, '/privacy')} className="text-ink-soft hover:text-ink inline-flex min-h-9 items-center">
+                {t('privacy.title')}
+              </Link>
+            </li>
+          </ul>
         </nav>
 
         <div className="flex flex-col gap-7">

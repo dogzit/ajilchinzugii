@@ -797,5 +797,94 @@
       "toneInformal": "Some of it reads as too casual.",
       "toneUnclear": "Some of it is hard to follow."
     }
+  },
+  "account": {
+    "navSignIn": "Sign in",
+    "navAccount": "My account",
+    "notConfigured": "Accounts are not open yet. The contract checker and the CV check work without one.",
+    "signInTitle": "Sign in",
+    "signInLead": "An account is optional. The contract checker and the CV check work without signing in.",
+    "signUpTitle": "Create an account",
+    "signUpLead": "Only an email address. No name needed.",
+    "ageBand": "Age group",
+    "ages": {
+      "under_13": "Under 13",
+      "13_14": "13–14",
+      "15_17": "15–17",
+      "18_24": "18–24"
+    },
+    "under13": "Under 13 there is no account, but the contract checker and the CV check work without one.",
+    "minorAge": "I am 13–17.",
+    "guardianConsent": "I am this young person's parent or guardian, and I agree to them creating an account.",
+    "guardianNote": "A parent or guardian ticks this box themselves. The time of consent is recorded.",
+    "continue": "Continue",
+    "title": "My account",
+    "history": "Saved results",
+    "historyEmpty": "No saved results yet.",
+    "kind": {
+      "contract": "Contract",
+      "cv": "CV"
+    },
+    "profile": "Profile",
+    "targetJob": "The job you want",
+    "aimag": "Aimag or city (optional)",
+    "none": "Prefer not to say",
+    "save": "Save",
+    "saved": "Saved",
+    "completeTitle": "Finish your account",
+    "completeLead": "Choose your age group before anything is saved.",
+    "deleteTitle": "Delete my account and data",
+    "deleteBody": "Your account, saved results, profile and any case linked to your account are deleted for good. This cannot be undone.",
+    "deleteConfirm": "I understand — delete everything",
+    "deleteButton": "Delete my account",
+    "deleteDone": "Your account and data have been deleted.",
+    "deleteFailed": "We could not delete it. Please try again.",
+    "signOut": "Sign out",
+    "saveTitle": "Save to my account",
+    "saveBody": "Only the colour of each rule and the score are saved — never the contract, the CV or your answers.",
+    "saveCheck": "Save this result to my account",
+    "saveProfile": "Save this profile for next time",
+    "signInToSave": "Sign in if you want to save it",
+    "needConsent": "Under 18, results are saved only with a parent or guardian’s consent. Finish your account first.",
+    "privacyLink": "Privacy notice"
+  },
+  "privacy": {
+    "title": "Privacy notice",
+    "lead": "What the contract checker, the CV check, accounts and the request for help process, who processes it, how long it is kept and how to delete it.",
+    "draft": "This notice is a draft that a lawyer has not yet reviewed. It will be finalised after checking it against Mongolia's personal data protection law.",
+    "sections": {
+      "what": {
+        "title": "What is processed",
+        "body": "The text, files and answers you give the contract checker and the CV check are processed in memory, only while your result is worked out. Photos are read on your phone — they never reach our server. Register numbers, phone numbers, emails and account numbers are removed before anything is sent to the AI."
+      },
+      "kept": {
+        "title": "What is kept",
+        "body": "Nothing, unless you choose to save it. The only thing always kept is anonymous counts: rule, result, rule set version, month, age group, job category, employer type and aimag (if you chose one). Names, files, text and contact details never go into the counts. A figure based on fewer than 5 cases is never published."
+      },
+      "who": {
+        "title": "Who processes it",
+        "body": "Ajilchin Zugii. The AI that reads contracts and CVs: Anthropic (USA), which receives the redacted text only. Accounts: Clerk (USA) — your email and sign-in details. Hosting: Vercel or Cloudflare. Encrypted case files: Cloudflare R2."
+      },
+      "cases": {
+        "title": "If you ask for help",
+        "body": "When you ask for help, the contact method you chose and your description are stored encrypted. If you tick \"save\", the contract text (without your register number) is stored encrypted too. Only Ajilchin Zugii caseworkers can open it, and every time they do is logged."
+      },
+      "retention": {
+        "title": "How long it is kept",
+        "body": "A case file is deleted automatically after 90 days or when the case closes, whichever comes first. Account data is kept until you delete it."
+      },
+      "deletion": {
+        "title": "How to delete it",
+        "body": "When a case is opened, we email you a link to delete it. Your account page has a \"Delete my account and data\" button that deletes your account, saved results and linked cases."
+      },
+      "minors": {
+        "title": "If you are under 18",
+        "body": "Under 13 there is no account, but the tools work without one. At 13–17, creating an account or saving anything needs a parent or guardian’s consent, and the time of consent is recorded."
+      },
+      "contact": {
+        "title": "Contact",
+        "body": "If you have a question, write to the email address at the bottom of the site."
+      }
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { withPayload } from '@payloadcms/next/withPayload';
 import createNextIntlPlugin from 'next-intl/plugin';
 import type { NextConfig } from 'next';
-import { adminHeaders, mediaHeaders, publicHeaders } from './src/lib/security-headers';
+import { accountHeaders, adminHeaders, mediaHeaders, publicHeaders } from './src/lib/security-headers';
 import { assertBuildEnv, assertLaunchReady } from './scripts/launch-guard';
 
 /*
@@ -82,7 +82,13 @@ const nextConfig: NextConfig = {
     return [
       { source: '/admin/:path*', headers: adminHeaders },
       { source: '/api/media/:path*', headers: mediaHeaders },
-      { source: '/((?!admin|api/media).*)', headers: publicHeaders },
+      // Clerk's pages: the public policy plus Turnstile (see security-headers).
+      { source: '/:locale(mn|en)/:area(sign-in|sign-up|account)', headers: accountHeaders },
+      { source: '/:locale(mn|en)/:area(sign-in|sign-up|account)/:path*', headers: accountHeaders },
+      {
+        source: '/((?!admin|api/media|mn/sign-in|mn/sign-up|mn/account|en/sign-in|en/sign-up|en/account).*)',
+        headers: publicHeaders,
+      },
     ];
   },
 
