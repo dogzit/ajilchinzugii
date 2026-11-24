@@ -175,7 +175,24 @@
     "evidenceHeading": "What the research found",
     "evidenceQuote": "In the end, the question is not whether a child is working. It is whether anyone knows.",
     "evidenceCaption": "Children Working for Outside Employers in Mongolia (2026), Chapter 9. National estimates from the 2021–22 National Child Labour Survey — not this organisation’s own case figures.",
-    "evidenceLink": "Read the paper"
+    "evidenceLink": "Read the paper",
+    "howEyebrow": "Contract checker and CV check",
+    "howTitle": "How it works",
+    "howLead": "No sign-in. A few minutes.",
+    "howSteps": {
+      "one": {
+        "title": "Answer questions or add your contract",
+        "body": "With no written contract, answer 15 questions. With one, paste its text or add a photo or a file."
+      },
+      "two": {
+        "title": "Checked rule by rule",
+        "body": "Every rule of the Labour Law gives red, yellow or green, and a score from 1 to 100. The written rules decide, not the AI."
+      },
+      "three": {
+        "title": "Get your next step",
+        "body": "A message to your employer and a corrected contract template. If you need it, talk to Ajilchin Zugii."
+      }
+    }
   },
   "methodology": {
     "sourcesHeading": "Sources",
@@ -268,7 +285,8 @@
     "title": "Page not found",
     "lead": "There is no page at this address. It may have moved, or it may never have existed.",
     "home": "Go to the home page",
-    "pages": "Or try one of these pages"
+    "pages": "Or try one of these pages",
+    "tools": "Or check your job"
   },
   "error": {
     "title": "Something went wrong",

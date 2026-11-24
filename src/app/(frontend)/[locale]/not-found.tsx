@@ -32,6 +32,21 @@ export default async function NotFound() {
         <ButtonLink href={localeHref(locale, '/')}>{t('notFound.home')}</ButtonLink>
       </p>
 
+      {/* The two tools are the likeliest thing a stray reader came for. */}
+      <section aria-labelledby="not-found-tools" className="mt-12">
+        <h2 id="not-found-tools" className="text-ink-muted text-xs font-semibold tracking-[0.16em] uppercase">
+          {t('notFound.tools')}
+        </h2>
+        <p className="mt-4 flex flex-wrap gap-3">
+          <ButtonLink href={localeHref(locale, '/contract-check')} variant="secondary">
+            {t('home.heroPrimaryCta')}
+          </ButtonLink>
+          <ButtonLink href={localeHref(locale, '/cv-check')} variant="secondary">
+            {t('home.heroSecondaryCta')}
+          </ButtonLink>
+        </p>
+      </section>
+
       <nav aria-labelledby="not-found-pages" className="mt-12">
         <h2
           id="not-found-pages"

@@ -21,6 +21,7 @@ test.describe('the home page', () => {
 
     for (const id of [
       'hero',
+      'how-it-works',
       'trust',
       'what-we-do',
       'figures',

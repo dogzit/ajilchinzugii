@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { CtaBand } from '@/components/home/cta-band';
 import { Hero } from '@/components/home/hero';
+import { HowItWorks } from '@/components/home/how-it-works';
 import { PartnersMarquee } from '@/components/home/partners-marquee';
 import { Evidence } from '@/components/home/evidence';
 import { TrustStrip } from '@/components/home/trust-strip';
@@ -109,6 +110,16 @@ export default async function HomePage({ params }: Props) {
         featured={featured}
         featuredLabels={{ suppressed: statLabels.suppressed, asOf: statLabels.asOf }}
         image={heroImage}
+      />
+
+      <HowItWorks
+        eyebrow={t('home.howEyebrow')}
+        heading={t('home.howTitle')}
+        lead={t('home.howLead')}
+        steps={(['one', 'two', 'three'] as const).map((step) => ({
+          title: t(`home.howSteps.${step}.title`),
+          body: t(`home.howSteps.${step}.body`),
+        }))}
       />
 
       <TrustStrip

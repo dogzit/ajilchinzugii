@@ -633,6 +633,13 @@ const run = async () => {
           { name: `${MARK_MN}: А. Жишээбаатар` },
           { name: `${MARK_MN}: Б. Жишээмаа` },
         ],
+        // The home page's evidence band reads a paper's findings. These hold
+        // the marker itself in place of a figure: a demo shows where real
+        // findings go without inventing one.
+        findings: [
+          { value: MARK_MN, label: `${MARK_MN}: судалгааны гол үр дүн энд харагдана`, source: 'Хураангуй' },
+          { value: MARK_MN, label: `${MARK_MN}: хоёр дахь үр дүн`, source: '1-р бүлэг' },
+        ],
         _status: 'published',
       } as never,
     });
@@ -644,6 +651,14 @@ const run = async () => {
       data: {
         title: paper.en.title,
         abstract: paragraph(paper.en.abstract),
+        // Same rows (by id), English side: an array without ids would
+        // replace the rows and drop the Mongolian values.
+        findings: ((created as { findings?: { id?: string }[] }).findings ?? []).map((row, index) => ({
+          id: row.id,
+          value: MARK_EN,
+          label: index === 0 ? `${MARK_EN}: a paper's key finding appears here` : `${MARK_EN}: a second finding`,
+          source: index === 0 ? 'Abstract' : 'Section 1',
+        })),
         _status: 'published',
       } as never,
     });
