@@ -209,11 +209,11 @@ export default async function HomePage({ params }: Props) {
         body={t('home.ctaBody')}
         primary={{
           label: t('home.ctaPrimary'),
-          href: localeHref(locale, '/about#contact'),
+          href: localeHref(locale, '/contract-check'),
         }}
         secondary={{
           label: t('home.ctaSecondary'),
-          href: localeHref(locale, '/research'),
+          href: localeHref(locale, '/cv-check'),
         }}
       />
 

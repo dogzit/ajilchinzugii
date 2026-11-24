@@ -57,15 +57,15 @@ export function Hero({
             {mission}
           </p>
 
-          <div className="mt-9 flex flex-wrap gap-3">
-            <ButtonLink href={localeHref(locale, '/impact')} size="lg">
+          {/* The two tools, equal in weight: neither is the "real" one. Impact
+              and contact stay one click away in the header and the footer. */}
+          <div className="mt-9 grid gap-3 sm:grid-cols-2">
+            <ButtonLink href={localeHref(locale, '/contract-check')} size="lg" className="w-full">
+              <Icon name="document" className="h-5 w-5" />
               {primaryCta}
             </ButtonLink>
-            <ButtonLink
-              href={localeHref(locale, '/about#contact')}
-              variant="secondary"
-              size="lg"
-            >
+            <ButtonLink href={localeHref(locale, '/cv-check')} size="lg" className="w-full">
+              <Icon name="user-card" className="h-5 w-5" />
               {secondaryCta}
             </ButtonLink>
           </div>

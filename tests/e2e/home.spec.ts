@@ -34,13 +34,29 @@ test.describe('the home page', () => {
     }
   });
 
-  test('the call to action reaches the contact address', async ({ page }) => {
+  test('the two raters are the primary actions, in the hero and the closing band', async ({ page }) => {
     await page.goto('/mn');
 
-    const cta = page.locator('section[aria-labelledby="cta"] a').first();
-    await expect(cta).toHaveAttribute('href', '/mn/about#contact');
+    for (const section of ['hero', 'cta']) {
+      const links = page.locator(`section[aria-labelledby="${section}"] a`);
+      await expect(links.filter({ hasText: 'Гэрээгээ шалгуулах' })).toHaveAttribute('href', '/mn/contract-check');
+      await expect(links.filter({ hasText: 'CV-гээ үнэлүүлэх' })).toHaveAttribute('href', '/mn/cv-check');
+    }
 
-    await cta.click();
+    await page.goto('/en');
+    await expect(page.locator('section[aria-labelledby="hero"] a', { hasText: 'Check my contract' })).toHaveAttribute('href', '/en/contract-check');
+    await expect(page.locator('section[aria-labelledby="hero"] a', { hasText: 'Rate my CV' })).toHaveAttribute('href', '/en/cv-check');
+  });
+
+  test('the contact address and the impact figures stay one click away', async ({ page }) => {
+    await page.goto('/mn');
+
+    const contact = page.locator('header a[href="/mn/about#contact"]').first();
+    await expect(contact).toHaveCount(1);
+    await expect(page.locator('header a[href="/mn/impact"]').first()).toHaveCount(1);
+    await expect(page.locator('footer a[href="/mn/impact"]').first()).toHaveCount(1);
+
+    await page.goto('/mn/about#contact');
     await expect(page.locator('#contact')).toBeVisible();
   });
 

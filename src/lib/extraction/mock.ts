@@ -1,3 +1,4 @@
+import { readCv } from '../cv/mock';
 import type { ContractWire } from './contract';
 import type { ExtractionSpec, Extractor } from './extractor';
 
@@ -125,7 +126,7 @@ function readContract(text: string): ContractWire {
   };
 }
 
-const readers: Record<string, (text: string) => unknown> = { contract: readContract };
+const readers: Record<string, (text: string) => unknown> = { contract: readContract, cv: readCv };
 
 export function registerMockReader(name: string, reader: (text: string) => unknown) {
   readers[name] = reader;

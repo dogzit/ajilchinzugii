@@ -21,16 +21,12 @@ export function CtaBand({
         <p className="text-panel-ink/80 mt-5 max-w-[48ch] text-lg leading-relaxed">
           {body}
         </p>
-        <div className="mt-9 flex flex-wrap gap-3">
-          <ButtonLink href={primary.href} size="lg">
+        {/* Equal weight, as in the hero: the two tools. */}
+        <div className="mt-9 grid max-w-[36rem] gap-3 sm:grid-cols-2">
+          <ButtonLink href={primary.href} size="lg" className="w-full">
             {primary.label}
           </ButtonLink>
-          <ButtonLink
-            href={secondary.href}
-            size="lg"
-            variant="secondary"
-            className="text-panel-ink border-panel-ink/40 hover:bg-panel-ink/10"
-          >
+          <ButtonLink href={secondary.href} size="lg" className="w-full">
             {secondary.label}
           </ButtonLink>
         </div>

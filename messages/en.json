@@ -93,6 +93,30 @@
       "methodology": "methodology",
       "research": "research",
       "policy": "policy work"
+    },
+    "aimags": {
+      "ulaanbaatar": "Ulaanbaatar",
+      "arkhangai": "Arkhangai",
+      "bayan_ulgii": "Bayan-Ölgii",
+      "bayankhongor": "Bayankhongor",
+      "bulgan": "Bulgan",
+      "govi_altai": "Govi-Altai",
+      "govisumber": "Govisümber",
+      "darkhan_uul": "Darkhan-Uul",
+      "dornogovi": "Dornogovi",
+      "dornod": "Dornod",
+      "dundgovi": "Dundgovi",
+      "zavkhan": "Zavkhan",
+      "orkhon": "Orkhon",
+      "uvurkhangai": "Övörkhangai",
+      "umnugovi": "Ömnögovi",
+      "sukhbaatar": "Sükhbaatar",
+      "selenge": "Selenge",
+      "tuv": "Töv",
+      "uvs": "Uvs",
+      "khovd": "Khovd",
+      "khuvsgul": "Khövsgöl",
+      "khentii": "Khentii"
     }
   },
   "impact": {
@@ -132,9 +156,9 @@
     },
     "heroEyebrow": "Labour rights for working teens in Mongolia",
     "heroHeadline": "Every young worker deserves fair and safe work.",
-    "heroPrimaryCta": "See our impact",
-    "heroSecondaryCta": "Work with us",
-    "heroTrust": "No personal data collected · Every figure links to its method",
+    "heroPrimaryCta": "Check my contract",
+    "heroSecondaryCta": "Rate my CV",
+    "heroTrust": "Nothing is kept unless you choose to save it · Every figure links to its method",
     "trustHeading": "Why these figures can be trusted",
     "trustProtectedTitle": "Identities stay protected",
     "trustProtectedBody": "A figure resting on fewer than five cases is never shown as a number — small numbers can identify a person.",
@@ -143,10 +167,10 @@
     "trustHonestTitle": "Honest about results",
     "trustHonestBody": "What was proposed and what was adopted are kept apart. What did not work is published too.",
     "workEyebrow": "WHAT WE DO",
-    "ctaHeading": "Let’s protect young workers together.",
-    "ctaBody": "Researchers, organisations, funders, journalists — we are ready to work with any of them.",
-    "ctaPrimary": "Get in touch",
-    "ctaSecondary": "See the data and code",
+    "ctaHeading": "Check your job or your CV now.",
+    "ctaBody": "No sign-in, a few minutes. Nothing is kept unless you choose to save it.",
+    "ctaPrimary": "Check my contract",
+    "ctaSecondary": "Rate my CV",
     "evidenceEyebrow": "THE EVIDENCE",
     "evidenceHeading": "What the research found",
     "evidenceQuote": "In the end, the question is not whether a child is working. It is whether anyone knows.",
@@ -695,6 +719,83 @@
       "actualEnd": "Finish time, in reality",
       "actualExtra": "About how many extra hours a week?",
       "check": "This is right — check it"
+    }
+  },
+  "cv": {
+    "meta": {
+      "title": "Rate my CV",
+      "description": "Check your CV against the job you want, and get a score from 1 to 100 and what to improve."
+    },
+    "start": {
+      "eyebrow": "CV check",
+      "title": "Rate your CV",
+      "lead": "First, tell us a little about yourself. We compare your CV with the job you want.",
+      "privacy": "Your CV is not kept. Unless you choose to save it, it is deleted once your result is shown."
+    },
+    "profile": {
+      "ageBand": "Age group",
+      "ages": {
+        "13_14": "13–14",
+        "15_17": "15–17",
+        "18_24": "18–24"
+      },
+      "targetJob": "The job you want",
+      "minorNote": "Under 18, jobs prohibited for children are left off the list.",
+      "experience": "Work experience",
+      "experiences": {
+        "none": "None",
+        "under_1": "Less than a year",
+        "from_1_to_3": "1–3 years",
+        "over_3": "More than 3 years"
+      },
+      "aimag": "Aimag or city (optional)",
+      "aimagNone": "Prefer not to say",
+      "hasPhoto": "Does your CV have a photo of you?",
+      "continue": "Continue",
+      "saved": "Your saved profile was used."
+    },
+    "input": {
+      "title": "Add your CV",
+      "paste": "Paste text",
+      "pasteLabel": "CV text",
+      "upload": "Photo or file",
+      "read": "Rate it",
+      "lowConfidence": "We could not read the photo reliably. Paste your CV as text, or add it as a PDF or Word file."
+    },
+    "results": {
+      "title": "Your CV result",
+      "verdictLong": {
+        "red": "Red — something to fix now",
+        "yellow": "Yellow — room to improve",
+        "green": "Green — a well-prepared CV"
+      },
+      "draftNotice": "These rules and explanations are drafts that Ajilchin Zugii staff have not yet reviewed.",
+      "aiJudgment": "AI judgment — advice only",
+      "suggestions": "Suggestions",
+      "suggestionsNote": "Suggested by AI. They only improve what your CV already says — no invented experience, grades or skills.",
+      "fromCv": "From your CV",
+      "contractLink": "Check the job with the contract checker",
+      "again": "Rate again"
+    },
+    "details": {
+      "noContact": "No phone number, email or other contact was found.",
+      "registerNumber": "Your register number is on it.",
+      "homeAddress": "Your home address is on it.",
+      "familyDetails": "Details about your family are on it.",
+      "photo": "Your photo is on it.",
+      "oversharingUnknown": "Personal details could not be fully checked.",
+      "jobUnknown": "The job you want is not known.",
+      "jobProhibited": "This job is on the list of jobs prohibited for children.",
+      "listsPending": "We have not loaded the list of jobs prohibited for children (A/122) yet.",
+      "skillsUnknownJob": "We have no skill list for this job yet.",
+      "skillsMatched": "{count} skills fit the job (at least {min}).",
+      "experienceCount": "{count} pieces of experience listed.",
+      "noExperience": "No experience is listed.",
+      "achievementsNoNumbers": "Achievements are listed, but without numbers.",
+      "noAchievements": "No achievements are listed.",
+      "wordCount": "{count} words (best between {min} and {max}).",
+      "toneInformal": "Some of it reads as too casual.",
+      "toneUnclear": "Some of it is hard to follow."
     }
   }
 }

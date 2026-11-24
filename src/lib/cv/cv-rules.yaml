@@ -1,0 +1,204 @@
+# CV rater — rule set (draft)
+#
+# Drafted by the developer for v1 and NOT yet checked by Ajilchin Zugii staff:
+# every rule is `staff_verified: false`, and a production build fails until
+# staff have reviewed each one (scripts/check-rules-verified.ts). The
+# over-sharing rule for minors also goes to the lawyer
+# (docs/rater/open-questions.md).
+#
+# As for contracts, the model only reads: it lists what the CV contains and
+# quotes it. Every result below is decided in code (src/lib/cv/engine.ts)
+# from these parameters. The two rules marked `ai_judgment` (spelling, tone)
+# rest on the model's reading; they are yellow at most and labelled.
+#
+# After editing: `pnpm rules:compile`.
+
+version: "2026.11.24-draft.1"
+
+score:
+  start: 100
+  bands:
+    red: { min: 1, max: 39 }
+    yellow: { min: 40, max: 74 }
+    green: { min: 75, max: 100 }
+  p1_cap: 10
+
+experience_levels: [none, under_1, from_1_to_3, over_3]
+
+# Words that show a skill a job needs. Matched in code against the skills the
+# CV lists, in Mongolian and English. Draft lists: staff to confirm.
+skills:
+  cafe_restaurant: [үйлчилгээ, харилцаа, касс, хоол, кофе, бариста, ариун цэвэр, баг, service, customer, cashier, barista, teamwork, hygiene]
+  retail: [борлуулалт, худалдаа, касс, харилцаа, бараа, тооцоо, sales, cashier, customer, stock]
+  market_vendor: [худалдаа, тооцоо, мөнгө, харилцаа, борлуулалт, sales, cash, customer]
+  delivery: [жолооны үнэмлэх, дугуй, хүргэлт, газрын зураг, цаг баримтлах, driving, bicycle, delivery, navigation, punctual]
+  construction_helper: [барилга, багаж, аюулгүй ажиллагаа, хүч, tools, safety, construction]
+  herding_helper: [мал, адуу, хонь, ямаа, үхэр, бэлчээр, морь унах, livestock, horse, herding]
+  tutoring: [заах, хичээл, математик, англи хэл, сургагч, хүүхэд, teaching, tutoring, math, english]
+  summer_job: [баг, хариуцлага, хүүхэд, зуслан, спорт, teamwork, responsibility, camp, children]
+  office_internship: [компьютер, word, excel, оффис, бичиг баримт, бичих, computer, microsoft, typing, office]
+  cleaning: [цэвэрлэгээ, ариун цэвэр, нямбай, cleaning, hygiene, careful]
+  car_wash: [машин, угаалга, засвар, багаж, car, repair, tools]
+  factory: [үйлдвэр, багаж, аюулгүй, тоног төхөөрөмж, machine, safety, tools]
+  mining: []
+  arts_sports_ads: [урлаг, бүжиг, дуу, хөгжим, спорт, зураг, art, dance, music, sport, acting]
+  other: []
+
+rules:
+  - id: C01_CONTACT
+    title_mn: "Холбоо барих мэдээлэл"
+    title_en: "A way to contact you"
+    applies_to: all
+    check: "The CV gives at least one way to be contacted: a phone number, an email or another contact."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Ажил олгогч тантай холбогдож чадах ёстой. Утасны дугаар эсвэл и-мэйл хаягаа бич."
+    explain_en: "An employer has to be able to reach you. Add a phone number or an email address."
+    params: {}
+    score_weight: { fail: 40, unknown: 8 }
+    staff_verified: false
+
+  - id: C02_OVERSHARING
+    title_mn: "Хэт их хувийн мэдээлэл"
+    title_en: "Too much personal information"
+    applies_to: all
+    check: "No register number, home address, photo or family details. Red for under-18s, yellow otherwise."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Регистрийн дугаар, гэрийн хаяг, зураг, гэр бүлийнхээ тухай мэдээллийг CV-дээ бүү бич. Хэн нэгэн буруугаар ашиглаж болно. 18 хүрээгүй бол энэ нь ялангуяа аюултай."
+    explain_en: "Leave your register number, home address, photo and details about your family off your CV. Someone could misuse them. If you are under 18, this matters even more."
+    params: { severity_minor: red, severity_adult: yellow }
+    score_weight: { fail: 30, unknown: 6 }
+    staff_verified: false
+
+  - id: C03_TARGET_JOB_ALLOWED
+    title_mn: "Таны насанд зөвшөөрөгдөх ажил"
+    title_en: "A job allowed at your age"
+    applies_to: minor
+    check: "For an under-18, the target job is not on Order A/122 (same lists as the contract rater's M08). On the list is red; cleared is green; anything else is unknown."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй хүнд хориглосон ажилд орох гэж бүү оролдоорой. Ажлаа гэрээ шалгагчаар шалгуулаарай."
+    explain_en: "If you are under 18, do not apply for a job prohibited for children. Check the job with the contract checker."
+    params: {}
+    score_weight: { fail: 40, unknown: 8 }
+    staff_verified: false
+
+  - id: C04_SKILLS_MATCH
+    title_mn: "Ажилд тохирох ур чадвар"
+    title_en: "Skills that fit the job"
+    applies_to: all
+    check: "At least `min_matches` of the skills the CV lists match the target job's skill words."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Зорьж буй ажилд тань хэрэгтэй ур чадвараа тодорхой бич."
+    explain_en: "Name the skills the job you want actually needs."
+    params: { min_matches: 2 }
+    score_weight: { fail: 10, unknown: 5 }
+    staff_verified: false
+
+  - id: C05_EXPERIENCE
+    title_mn: "Туршлага"
+    title_en: "Experience"
+    applies_to: all
+    check: "At least one piece of experience, counting jobs, volunteering, school projects, a family business and herding."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Туршлага гэдэгт ажил төдийгүй сайн дурын ажил, сургуулийн төсөл, гэр бүлийн бизнест туслах, мал маллах ч орно. Бүгдийг нь бич."
+    explain_en: "Experience is not only jobs: volunteering, school projects, helping in a family business and herding all count. Write them down."
+    params: {}
+    score_weight: { fail: 10, unknown: 5 }
+    staff_verified: false
+
+  - id: C06_EDUCATION
+    title_mn: "Боловсрол"
+    title_en: "Education"
+    applies_to: all
+    check: "The CV names a school, a course or a level of education."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Сурч буй эсвэл төгссөн сургууль, анги, сургалтаа бич."
+    explain_en: "Write the school, grade or course you are in or have finished."
+    params: {}
+    score_weight: { fail: 10, unknown: 5 }
+    staff_verified: false
+
+  - id: C07_LANGUAGES
+    title_mn: "Хэлний мэдлэг"
+    title_en: "Languages"
+    applies_to: all
+    check: "The CV lists at least one language."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Мэддэг хэлнүүдээ, хэр сайн мэддэгээ бич."
+    explain_en: "List the languages you know and how well."
+    params: {}
+    score_weight: { fail: 6, unknown: 3 }
+    staff_verified: false
+
+  - id: C08_QUANTIFIED_ACHIEVEMENTS
+    title_mn: "Тоогоор илэрхийлсэн амжилт"
+    title_en: "Achievements with numbers"
+    applies_to: all
+    check: "At least one achievement quotes a number (decided in code: the excerpt contains a digit)."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Амжилтаа тоогоор харуулбал итгэл төрүүлнэ. Жишээ нь «өдөрт 40 захиалга хүргэсэн»."
+    explain_en: "Numbers make an achievement believable, for example \"delivered 40 orders a day\"."
+    params: {}
+    score_weight: { fail: 8, unknown: 4 }
+    staff_verified: false
+
+  - id: C09_LENGTH
+    title_mn: "Урт"
+    title_en: "Length"
+    applies_to: all
+    check: "Between `min_words` and `max_words` words (about one to two pages)."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "CV 1–2 хуудас байхад хамгийн тохиромжтой: хэт богино бол мэдээлэл дутна, хэт урт бол уншихгүй."
+    explain_en: "One to two pages is best: too short leaves things out, too long goes unread."
+    params: { min_words: 120, max_words: 700 }
+    score_weight: { fail: 6, unknown: 3 }
+    staff_verified: false
+
+  - id: C10_REFERENCES
+    title_mn: "Тодорхойлолт өгөх хүн"
+    title_en: "References"
+    applies_to: all
+    check: "The CV names a referee or says references are available on request."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Тодорхойлолт өгөх хүн (багш, өмнөх ажил олгогч) байвал бич, эсвэл «хүсэлтээр өгнө» гэж бич."
+    explain_en: "Name someone who can vouch for you (a teacher, a past employer), or write \"available on request\"."
+    params: {}
+    score_weight: { fail: 6, unknown: 3 }
+    staff_verified: false
+
+  - id: C11_SPELLING
+    title_mn: "Үсгийн алдаа"
+    title_en: "Spelling"
+    applies_to: all
+    check: "The model quotes no misspelled words. AI judgment: yellow at most."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    ai_judgment: true
+    explain_mn: "Үсгийн алдааг засаарай — ажил олгогч анхаарна."
+    explain_en: "Fix spelling mistakes — employers notice them."
+    params: {}
+    score_weight: { fail: 6, unknown: 3 }
+    staff_verified: false
+
+  - id: C12_TONE
+    title_mn: "Бичлэгийн хэв маяг"
+    title_en: "Tone"
+    applies_to: all
+    check: "The model reads the tone as suitable for a job application. AI judgment: yellow at most."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    ai_judgment: true
+    explain_mn: "Албан, эелдэг, ойлгомжтой хэлээр бич."
+    explain_en: "Write in a polite, clear, formal way."
+    params: {}
+    score_weight: { fail: 6, unknown: 3 }
+    staff_verified: false

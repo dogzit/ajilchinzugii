@@ -24,18 +24,32 @@ type State =
  * them in memory. Either way the next screen is the confirmation of what was
  * read — nothing is rated until the reader has seen it.
  */
-export function DocumentInput({
+export function DocumentInput<R = Extracted>({
   t,
   mode,
   onExtracted,
   onQuestionnaire,
   onBack,
+  endpoint = '/api/rater/extract',
+  extra,
+  title,
+  pasteLabel,
+  readLabel,
+  lowConfidenceText,
 }: {
   t: RaterMessages;
   mode: 'paste' | 'upload';
-  onExtracted: (result: Extracted) => void;
-  onQuestionnaire: () => void;
+  onExtracted: (result: R) => void;
+  /** Where a reader goes when a document cannot be read. Omit to hide the button. */
+  onQuestionnaire?: () => void;
   onBack: () => void;
+  /** The CV rater posts to its own endpoint, with its profile alongside. */
+  endpoint?: string;
+  extra?: Record<string, unknown>;
+  title?: string;
+  pasteLabel?: string;
+  readLabel?: string;
+  lowConfidenceText?: string;
 }) {
   const d = t.document;
   const [text, setText] = useState('');
@@ -47,7 +61,7 @@ export function DocumentInput({
   const send = async (body: BodyInit, json: boolean) => {
     setState({ kind: 'reading' });
     try {
-      const response = await fetch('/api/rater/extract', {
+      const response = await fetch(endpoint, {
         method: 'POST',
         body,
         headers: json ? { 'content-type': 'application/json' } : undefined,
@@ -57,7 +71,7 @@ export function DocumentInput({
         setState({ kind: 'error', code: error ?? 'generic' });
         return;
       }
-      onExtracted(await response.json());
+      onExtracted((await response.json()) as R);
     } catch {
       setState({ kind: 'error', code: 'generic' });
     }
@@ -72,7 +86,7 @@ export function DocumentInput({
           setState({ kind: 'low_confidence' });
           return;
         }
-        await send(JSON.stringify({ text: result.text }), true);
+        await send(JSON.stringify({ text: result.text, ...extra }), true);
       } catch {
         setState({ kind: 'low_confidence' });
       }
@@ -80,6 +94,7 @@ export function DocumentInput({
     }
     const form = new FormData();
     form.append('file', file);
+    for (const [key, value] of Object.entries(extra ?? {})) form.append(key, JSON.stringify(value));
     await send(form, false);
   };
 
@@ -92,7 +107,7 @@ export function DocumentInput({
         {t.nav.back}
       </button>
       <h2 ref={heading} tabIndex={-1} className="text-ink mt-6 outline-none">
-        {mode === 'paste' ? d.pasteTitle : d.uploadTitle}
+        {title ?? (mode === 'paste' ? d.pasteTitle : d.uploadTitle)}
       </h2>
 
       {mode === 'paste' ? (
@@ -100,11 +115,11 @@ export function DocumentInput({
           className="mt-6"
           onSubmit={(event) => {
             event.preventDefault();
-            void send(JSON.stringify({ text }), true);
+            void send(JSON.stringify({ text, ...extra }), true);
           }}
         >
           <label htmlFor="contract-text" className="text-ink font-medium">
-            {d.pasteLabel}
+            {pasteLabel ?? d.pasteLabel}
           </label>
           <p id="contract-text-help" className="text-ink-muted mt-1 text-sm">
             {d.pasteHelp}
@@ -119,7 +134,7 @@ export function DocumentInput({
             className="border-border-strong bg-surface text-ink focus-visible:outline-focus mt-3 block w-full rounded-2xl border p-4 leading-relaxed"
           />
           <Button type="submit" size="lg" className="mt-6 w-full" disabled={busy || text.trim().length < 40}>
-            {state.kind === 'reading' ? d.reading : d.read}
+            {state.kind === 'reading' ? d.reading : (readLabel ?? d.read)}
           </Button>
         </form>
       ) : (
@@ -146,9 +161,9 @@ export function DocumentInput({
 
       {state.kind === 'low_confidence' || state.kind === 'error' ? (
         <div role="alert" className="border-score-amber bg-surface rounded-2xl border-s-4 p-5">
-          <p className="text-ink">{state.kind === 'low_confidence' ? d.lowConfidence : errorText(state.code)}</p>
+          <p className="text-ink">{state.kind === 'low_confidence' ? (lowConfidenceText ?? d.lowConfidence) : errorText(state.code)}</p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <Button onClick={onQuestionnaire}>{d.toQuestionnaire}</Button>
+            {onQuestionnaire ? <Button onClick={onQuestionnaire}>{d.toQuestionnaire}</Button> : null}
             <Button variant="secondary" onClick={() => setState({ kind: 'idle' })}>
               {d.tryAgain}
             </Button>
