@@ -93,36 +93,32 @@ describe('the employer message', () => {
   });
 
   it('falls back to the template when the API fails, without throwing', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => new Response('{"type":"error"}', { status: 500 })));
-    const result = await writeEmployerMessage(input, { ANTHROPIC_API_KEY: 'test-key', ANTHROPIC_MODEL: 'test-model' });
+    vi.stubGlobal('fetch', vi.fn(async () => Response.json({ error: { code: 500, status: 'INTERNAL' } }, { status: 500 })));
+    const result = await writeEmployerMessage(input, { GEMINI_API_KEY: 'test-key', GEMINI_MODEL: 'test-model' });
     expect(result.source).toBe('template');
   });
 
   it('sends the model rule texts and facts only — no fields', async () => {
     const calls: string[] = [];
+    const urls: string[] = [];
     vi.stubGlobal(
       'fetch',
-      vi.fn(async (_url: unknown, init?: RequestInit) => {
+      vi.fn(async (url: unknown, init?: RequestInit) => {
+        urls.push(String(url));
         calls.push(String(init?.body));
         return Response.json({
-          id: 'msg_1',
-          type: 'message',
-          role: 'assistant',
-          model: 'test-model',
-          content: [{ type: 'text', text: 'Сайн байна уу. ...' }],
-          stop_reason: 'end_turn',
-          stop_sequence: null,
-          usage: { input_tokens: 1, output_tokens: 1 },
+          candidates: [{ content: { role: 'model', parts: [{ text: 'thinking…', thought: true }, { text: 'Сайн байна уу. ...' }] }, finishReason: 'STOP' }],
         });
       }),
     );
-    const result = await writeEmployerMessage(input, { ANTHROPIC_API_KEY: 'test-key', ANTHROPIC_MODEL: 'test-model' });
-    expect(result.source).toBe('ai');
+    const result = await writeEmployerMessage(input, { GEMINI_API_KEY: 'test-key', GEMINI_MODEL: 'test-model' });
+    expect(result).toEqual({ source: 'ai', text: 'Сайн байна уу. ...' });
+    expect(urls[0]).toContain('/models/test-model:generateContent');
+    expect(urls[0]).not.toContain('test-key');
     const body = JSON.parse(calls[0]!);
-    expect(body.model).toBe('test-model');
-    expect(body).not.toHaveProperty('temperature');
-    expect(JSON.stringify(body.messages)).toContain('88.1, 88.6');
-    expect(JSON.stringify(body.messages)).not.toMatch(/date_of_birth|evidence/);
+    expect(JSON.stringify(body)).not.toContain('test-key');
+    expect(JSON.stringify(body.contents)).toContain('88.1, 88.6');
+    expect(JSON.stringify(body.contents)).not.toMatch(/date_of_birth|evidence/);
   });
 
   it('the template is deterministic', async () => {

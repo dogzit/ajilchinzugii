@@ -1,4 +1,4 @@
-import { anthropicClient, fallback, llmConfig, LlmUnavailable, type LlmConfig } from '../llm/anthropic';
+import { generate, llmConfig, type LlmConfig } from '../llm/gemini';
 
 /**
  * The message to the employer: one of the two things the LLM may write
@@ -68,29 +68,10 @@ function userPrompt(input: MessageInput): string {
   ].join('\n');
 }
 
-export function anthropicWriter(config: LlmConfig): MessageWriter {
-  const client = anthropicClient(config);
+export function geminiWriter(config: LlmConfig): MessageWriter {
   return {
     async write(input) {
-      let response;
-      try {
-        response = await client.beta.messages.create({
-          ...fallback(),
-          model: config.model,
-          max_tokens: 4000,
-          output_config: { effort: 'low' },
-          system: SYSTEM,
-          messages: [{ role: 'user', content: userPrompt(input) }],
-        });
-      } catch {
-        throw new LlmUnavailable('error');
-      }
-      if (response.stop_reason === 'refusal') throw new LlmUnavailable('refusal');
-      const text = response.content
-        .flatMap((block) => (block.type === 'text' ? [block.text] : []))
-        .join('')
-        .trim();
-      if (!text) throw new LlmUnavailable('empty');
+      const text = await generate(config, { system: SYSTEM, user: userPrompt(input), thinking: 'LOW', maxOutputTokens: 4000 });
       return { text, source: 'ai' };
     },
   };
@@ -104,7 +85,7 @@ export async function writeEmployerMessage(
   const config = llmConfig(env);
   if (!config) return templateWriter.write(input);
   try {
-    return await anthropicWriter(config).write(input);
+    return await geminiWriter(config).write(input);
   } catch {
     return templateWriter.write(input);
   }

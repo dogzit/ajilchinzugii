@@ -78,7 +78,7 @@ interface OcrEngine { recognize(image: Blob, onProgress?: (p: number) => void): 
 
 // src/lib/extraction/extractor.ts
 interface Extractor { extract(request: { kind: 'contract' | 'cv'; text: string }): Promise<unknown> }
-// AnthropicExtractor (live) and MockExtractor (no key, tests, CI)
+// GeminiExtractor (live) and MockExtractor (no key, tests, CI)
 
 // src/lib/extraction/service.ts — the one service both raters use
 extractFields(kind, text, extractor): Promise<{ redactedText; fields; evidence; dropped: string[] }>
@@ -135,7 +135,7 @@ green.
 ### Phase 4 — extraction pipeline
 - [x] text from PDF (unpdf) / DOCX (fflate + XML) on the server, in memory; OCR in the browser (tesseract.js, `mon`, self-hosted, lazy)
 - [x] redaction (register no., phone, email, bank account)
-- [x] Anthropic extractor (structured outputs; no temperature or forced tool use — the current API refuses both, ADR §3) + mock
+- [x] Gemini extractor (JSON output with the zod-generated schema, re-validated with zod; ADR §3) + mock (was Anthropic until 2026-11-24)
 - [x] evidence check; confirmation screen; corrected field names logged, never values
 - [x] limits 10 pages / 15 MB; low OCR confidence → questionnaire
 - [x] logger leak test; rate limiting on both runtimes

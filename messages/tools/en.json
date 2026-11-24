@@ -633,7 +633,7 @@
       },
       "who": {
         "title": "Who processes it",
-        "body": "Ajilchin Zugii. The AI that reads contracts and CVs: Anthropic (USA), which receives the redacted text only. Accounts: Clerk (USA) — your email and sign-in details. Hosting: Vercel or Cloudflare. Encrypted case files: Cloudflare R2."
+        "body": "Ajilchin Zugii. The AI that reads contracts and CVs: Google Gemini (USA), which receives the redacted text only. Accounts: Clerk (USA) — your email and sign-in details. Hosting: Vercel or Cloudflare. Encrypted case files: Cloudflare R2."
       },
       "cases": {
         "title": "If you ask for help",

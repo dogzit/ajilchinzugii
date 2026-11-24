@@ -17,7 +17,7 @@ runs in `prebuild` when indexing is on, and in CI on pushes to `main`).
 | Rules engine | `src/lib/rater/rules.yaml` (M01–M11, G01–G13, Q01, plus the two P1 answer rules Q02 and Q03). It compiles to JSON, is validated by zod, and is evaluated by a pure engine (`engine.ts`, `derive.ts`). The 1–100 score is a pure function of the per-rule results (`score.ts`). The minimum wage changes from 792,000 to 1,000,000 on 2027-01-01. |
 | Questionnaire | `/[locale]/contract-check`: 15 questions, one per screen, with progress. Back keeps the answers. Results are ordered red, then yellow, then green, with the article, the explanation word for word, and the evidence. A P1 shows 108 at once. "Talk to Ajilchin Zugii" appears on any red. |
 | Actions | Employer message: the LLM is given only the failed rules and the engine's facts; with no key, a template is used instead. Corrected contract template, as a print page and as a PDF with an embedded Cyrillic font. |
-| Extraction | One shared pipeline: redact, extract, validate with zod, check the evidence. PDF (unpdf) and DOCX (fflate) text is read on the server in memory. Photos are read in the browser by tesseract.js (`mon`, self-hosted, lazy-loaded), behind an `OcrEngine` interface. An Anthropic extractor (structured outputs) and a mock extractor share one `Extractor` interface. Confirmation screen; rate limiting; logging restricted to a fixed vocabulary; eval harness. |
+| Extraction | One shared pipeline: redact, extract, validate with zod, check the evidence. PDF (unpdf) and DOCX (fflate) text is read on the server in memory. Photos are read in the browser by tesseract.js (`mon`, self-hosted, lazy-loaded), behind an `OcrEngine` interface. A Gemini extractor (JSON output against the schema) and a mock extractor share one `Extractor` interface. Confirmation screen; rate limiting; logging restricted to a fixed vocabulary; eval harness. |
 | CV rater | `/[locale]/cv-check`: profile first, then the same pipeline and the same score. Rubric C01–C12 is a draft. Checks that rest on AI judgment are capped at yellow and labelled. |
 | Accounts | Optional Clerk accounts. `ClerkProvider` exists only in the `(account)` route group, and the proxy runs Clerk only on its own paths. Sign-up asks the age group first: no account under 13; ages 13–17 need a guardian's consent. Saved ratings and a reusable CV profile are opt-in. Account deletion; Svix-verified webhook; `/[locale]/privacy`. |
 | Cases | Intake form; P1/P2/P3 with deadlines; capacity of 20 a week in Asia/Ulaanbaatar time; `caseworker` role with an access log. Opt-in files are encrypted with AES-256-GCM and stored in a private R2 bucket, purged at 90 days or when the case closes. Delete link with an HMAC token carried in the URL fragment. P1 alerts by email and Telegram. Anonymous `rater-stats` counters with no timestamps. Migrations for the Postgres and D1 adapters. |
@@ -144,12 +144,14 @@ names are not redacted is open question lawyer 17.
   self-hosted under `/ocr`, loaded only when a photo is picked. The server
   receives text, never the image. It sits behind `OcrEngine`, so a cloud
   engine can replace it after the OCR benchmark.
-- **The LLM.** The Anthropic SDK with structured outputs (zod schema)
-  through `ANTHROPIC_API_KEY` and `ANTHROPIC_MODEL`. The `.env.example`
-  default is `claude-opus-5-5`; no model id is in the code. The prompt asked
-  for temperature 0 and forced tool use, but the current API rejects both
-  with this model family. Structured outputs enforce the schema instead, and
-  the evidence check plus code-made verdicts carry the determinism (ADR §3).
+- **The LLM.** Google Gemini over REST (`generateContent`, no SDK), with
+  JSON output against the zod-generated schema, through `GEMINI_API_KEY` and
+  `GEMINI_MODEL`. The `.env.example` default is `gemini-3.8-flash`; no model
+  id is in the code. (Built on Anthropic first; switched to Gemini on
+  2026-11-24 at the owner's request.) Temperature is not sent: Gemini 3.6
+  Flash and newer ignore it. The evidence check and code-made verdicts carry
+  the determinism (ADR §3). **The Gemini API terms bar services likely to be
+  used by under-18s** — see open questions lawyer 19 and CTO 5.
 - **The CV rubric** is drafted here and marked `staff_verified: false`.
 - **The design keeps the brand:** cream ground, warm brown, honey accent,
   bee and hexagon, Literata 600 and Onest. The score colours are tokens for
@@ -177,7 +179,7 @@ Every variable is in `.env.example` with a comment.
 
 | Variable | Needed for | Account to create |
 | --- | --- | --- |
-| `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | document and CV reading, employer message | Anthropic organisation owned by the NGO, with zero-retention / no-training terms in writing |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | document and CV reading, employer message | a Google Cloud project owned by the NGO, **with billing on** (unpaid keys let Google train on the content), and an API key from AI Studio; see the terms risk in open questions |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, `CLERK_WEBHOOK_SIGNING_SECRET` | optional accounts | Clerk production instance, with the `/__clerk` proxy on the site's domain and a webhook to `/api/clerk/webhook` |
 | `CASE_FILES_KEY`, `CASE_TOKEN_SECRET` | case file encryption, delete links | none: generate 32 random bytes each, and keep them in a password manager |
 | `CASE_FILES_BUCKET` | opt-in case files | a **private** R2 bucket (not the public media bucket) on the existing R2 credentials |
@@ -210,7 +212,7 @@ settings (Resend or SMTP). The purge cron reuses `CRON_SECRET`.
    real model. The eval target is 95% field accuracy on pay, hours and
    dates.
 3. The OCR benchmark (spec data item 6); keep tesseract or replace it.
-4. Zero-retention and no-training terms with the LLM provider, in writing.
+4. Resolve the Gemini terms (no services likely used by under-18s; paid tier only, so no training on the content) — or move to a provider whose terms allow this site.
 5. A Clerk production instance with the proxy domain.
 6. Order A/122 and the light-work list loaded into `rules.yaml`.
 7. **CI uses the production `DATABASE_URL` for its browser job.** This

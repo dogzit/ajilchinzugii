@@ -7,6 +7,7 @@ import { contractWireSchema, type ContractWire } from '../../src/lib/extraction/
 import { excerptMatches, normalize } from '../../src/lib/extraction/evidence';
 import { emptyExtraction } from '../../src/lib/rater/fields';
 import type { ExtractionSpec, Extractor } from '../../src/lib/extraction/extractor';
+import { geminiExtractor } from '../../src/lib/extraction/extractor';
 import { mockExtractor } from '../../src/lib/extraction/mock';
 import { redact } from '../../src/lib/extraction/redact';
 import { checkContractEvidence, extractContract } from '../../src/lib/extraction/service';
@@ -174,6 +175,45 @@ describe('the extraction pipeline', () => {
   });
 });
 
+describe('the Gemini extractor', () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const spec = { name: 'contract', schema: contractWireSchema, system: 'S' };
+  const reply = (parts: unknown[], extra: object = {}) => Response.json({ candidates: [{ content: { role: 'model', parts }, finishReason: 'STOP', ...extra }] });
+
+  it('asks for JSON of the schema, sends the key in a header, and checks the answer with zod', async () => {
+    const wire = await mockExtractor.extract(spec, redact(text01).text);
+    const requests: { url: string; init: RequestInit }[] = [];
+    vi.stubGlobal('fetch', vi.fn(async (url: unknown, init?: RequestInit) => {
+      requests.push({ url: String(url), init: init! });
+      return reply([{ text: 'reasoning', thought: true }, { text: JSON.stringify(wire) }]);
+    }));
+    const result = await geminiExtractor({ apiKey: 'k-secret', model: 'm-1' }).extract(spec, 'TEXT');
+    expect(result).toEqual(wire);
+    const { url, init } = requests[0]!;
+    expect(url).toBe('https://generativelanguage.googleapis.com/v1beta/models/m-1:generateContent');
+    expect(new Headers(init.headers).get('x-goog-api-key')).toBe('k-secret');
+    const body = JSON.parse(String(init.body));
+    expect(body.generationConfig.responseMimeType).toBe('application/json');
+    expect(body.generationConfig.responseJsonSchema.properties).toHaveProperty('pay');
+    expect(body.generationConfig.responseJsonSchema).not.toHaveProperty('$schema');
+    expect(body.systemInstruction.parts[0].text).toBe('S');
+  });
+
+  it('refuses an answer that is not JSON, breaks the schema, or was blocked', async () => {
+    const extractor = geminiExtractor({ apiKey: 'k', model: 'm' });
+    for (const [response, reason] of [
+      [reply([{ text: 'not json' }]), 'invalid'],
+      [reply([{ text: '{"verdict":"green"}' }]), 'invalid'],
+      [reply([], { finishReason: 'SAFETY' }), 'refusal'],
+      [Response.json({ promptFeedback: { blockReason: 'SAFETY' } }), 'refusal'],
+      [Response.json({ error: { code: 429 } }, { status: 429 }), 'error'],
+    ] as const) {
+      vi.stubGlobal('fetch', vi.fn(async () => response));
+      await expect(extractor.extract(spec, 'TEXT')).rejects.toMatchObject({ reason });
+    }
+  });
+});
+
 describe('file → text', () => {
   it('reads a PDF', async () => {
     const { text, pages } = await pdfText(new Uint8Array(fixture('06-tutoring.pdf')));
@@ -210,7 +250,7 @@ describe('POST /api/rater/extract', () => {
   afterEach(() => vi.unstubAllEnvs());
 
   it('says it is not configured when there is no key and no mock', async () => {
-    vi.stubEnv('ANTHROPIC_API_KEY', '');
+    vi.stubEnv('GEMINI_API_KEY', '');
     vi.stubEnv('RATER_EXTRACTOR', '');
     const response = await extractPOST(new Request('http://x/api/rater/extract', { method: 'POST', body: JSON.stringify({ text: text01 }) }));
     expect(response.status).toBe(503);

@@ -4,7 +4,7 @@
  *
  *   pnpm eval:extraction                 replay the recorded responses (CI)
  *   pnpm eval:extraction --mock          run the deterministic mock reader
- *   pnpm eval:extraction --live          call the model (needs ANTHROPIC_API_KEY + ANTHROPIC_MODEL)
+ *   pnpm eval:extraction --live          call the model (needs GEMINI_API_KEY + GEMINI_MODEL)
  *   ... --record                         save what ran as the new recordings
  *   ... --strict                         exit 1 below the 95% target
  *
@@ -19,11 +19,11 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { getPath } from '../src/lib/extraction/contract';
 import type { ExtractionSpec, Extractor } from '../src/lib/extraction/extractor';
-import { anthropicExtractor } from '../src/lib/extraction/extractor';
+import { geminiExtractor } from '../src/lib/extraction/extractor';
 import { mockExtractor } from '../src/lib/extraction/mock';
 import { extractContract } from '../src/lib/extraction/service';
 import { docxText, pdfText } from '../src/lib/extraction/text';
-import { llmConfig } from '../src/lib/llm/anthropic';
+import { llmConfig } from '../src/lib/llm/gemini';
 
 export const DIR = 'tests/fixtures/contracts';
 export const TARGET = 0.95;
@@ -88,10 +88,10 @@ async function main() {
   if (args.has('--live')) {
     const config = llmConfig();
     if (!config) {
-      console.log('--live needs ANTHROPIC_API_KEY and ANTHROPIC_MODEL. Skipped.');
+      console.log('--live needs GEMINI_API_KEY and GEMINI_MODEL. Skipped.');
       return;
     }
-    inner = anthropicExtractor(config);
+    inner = geminiExtractor(config);
   } else if (args.has('--mock')) {
     inner = mockExtractor;
   }

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { POST as extractPOST } from '../../src/app/api/rater/extract/route';
 import { POST as messagePOST } from '../../src/app/api/rater/message/route';
 import { POST as ratePOST } from '../../src/app/api/rater/rate/route';
-import { anthropicExtractor } from '../../src/lib/extraction/extractor';
+import { geminiExtractor } from '../../src/lib/extraction/extractor';
 import { extractContract } from '../../src/lib/extraction/service';
 import { logEvent } from '../../src/lib/log';
 import { minorDoc } from '../fixtures/rater';
@@ -67,11 +67,11 @@ describe('nothing personal reaches a log', () => {
 
   it('a failed extraction, where the provider error quotes the request', async () => {
     vi.stubEnv('RATER_EXTRACTOR', '');
-    vi.stubEnv('ANTHROPIC_API_KEY', 'test-key');
-    vi.stubEnv('ANTHROPIC_MODEL', 'test-model');
+    vi.stubEnv('GEMINI_API_KEY', 'test-key');
+    vi.stubEnv('GEMINI_MODEL', 'test-model');
     vi.stubGlobal(
       'fetch',
-      vi.fn(async () => Response.json({ type: 'error', error: { type: 'invalid_request_error', message: `bad input near ${CANARY}` } }, { status: 400 })),
+      vi.fn(async () => Response.json({ error: { code: 400, message: `bad input near ${CANARY}`, status: 'INVALID_ARGUMENT' } }, { status: 400 })),
     );
     const response = await extractPOST(new Request('http://x/api/rater/extract', json({ text: contract })));
     expect(response.status).toBe(503);
@@ -96,14 +96,14 @@ describe('nothing personal reaches a log', () => {
   });
 
   it('the employer message sends the model rule texts, never the fields', async () => {
-    vi.stubEnv('ANTHROPIC_API_KEY', 'test-key');
-    vi.stubEnv('ANTHROPIC_MODEL', 'test-model');
+    vi.stubEnv('GEMINI_API_KEY', 'test-key');
+    vi.stubEnv('GEMINI_MODEL', 'test-model');
     const sent: string[] = [];
     vi.stubGlobal(
       'fetch',
       vi.fn(async (_url: unknown, init?: RequestInit) => {
         sent.push(String(init?.body));
-        return Response.json({ type: 'error', error: { type: 'api_error', message: 'x' } }, { status: 500 });
+        return Response.json({ error: { code: 500, message: 'x', status: 'INTERNAL' } }, { status: 500 });
       }),
     );
     const fields = minorDoc();
@@ -123,10 +123,10 @@ describe('the model only ever sees redacted text', () => {
       'fetch',
       vi.fn(async (_url: unknown, init?: RequestInit) => {
         sent.push(String(init?.body));
-        return Response.json({ type: 'error', error: { type: 'api_error', message: 'x' } }, { status: 500 });
+        return Response.json({ error: { code: 500, message: 'x', status: 'INTERNAL' } }, { status: 500 });
       }),
     );
-    await extractContract(contract, anthropicExtractor({ apiKey: 'test-key', model: 'test-model' })).catch(() => null);
+    await extractContract(contract, geminiExtractor({ apiKey: 'test-key', model: 'test-model' })).catch(() => null);
     expect(sent.length).toBeGreaterThan(0);
     const payload = sent.join('\n');
     expect(payload).not.toContain('12345678');

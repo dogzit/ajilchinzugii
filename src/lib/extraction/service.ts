@@ -1,4 +1,4 @@
-import { LlmUnavailable } from '../llm/anthropic';
+import { LlmUnavailable } from '../llm/gemini';
 import type { Extraction } from '../rater/fields';
 import { CONTRACT_PATHS, CONTRACT_SYSTEM, contractWireSchema, getPath, setPath, wireToExtraction } from './contract';
 import { excerptMatches, numberInExcerpt } from './evidence';

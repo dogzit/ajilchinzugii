@@ -35,25 +35,26 @@ PDF and DOCX are read on the server, in memory, and discarded: `unpdf`
 ZIP, so `fflate` unzips `word/document.xml` and the text runs are read from
 the XML. No DOCX library with Node-only dependencies.
 
-## 3. LLM — Anthropic API behind `Extractor`
+## 3. LLM — Google Gemini behind `Extractor`
 
-**Decision:** the official Anthropic TypeScript SDK (`@anthropic-ai/sdk`,
-which talks over `fetch` and runs unchanged on Node and Workers), model from
-`ANTHROPIC_MODEL` (`.env.example` default `claude-opus-5-5`), never written
-in code. The extraction schema is enforced with **structured outputs**
-(`output_config.format` generated from the zod schema), then validated again
-with zod. Server-side refusal fallback (`fallbacks: "default"`) is set on
-every call. `MockExtractor` implements the same interface for tests, CI and
-any environment without a key.
+(Was the Anthropic API until 2026-11-24; switched at the owner's request.)
 
-**Two departures from the prompt, both forced by the current API:**
+**Decision:** the Gemini API's `generateContent` over plain `fetch`
+(`src/lib/llm/gemini.ts`, no SDK, so it runs unchanged on Node and Workers
+and adds nothing to the bundle). Key from `GEMINI_API_KEY`, sent in the
+`x-goog-api-key` header, never in the URL; model from `GEMINI_MODEL`
+(`.env.example` default `gemini-3.8-flash`), never written in code. The
+extraction schema is enforced with JSON output (`responseMimeType:
+application/json`, `responseJsonSchema` generated from the zod schema), then
+validated again with zod. Thinking level: medium for extraction, low for the
+employer message. Thought parts are discarded. A blocked prompt or a
+safety stop is a refusal; any HTTP error is "unavailable", with no request
+or response text in the error. `MockExtractor` implements the same
+interface for tests, CI and any environment without a key.
 
-- **No `temperature: 0`.** Current Claude models reject `temperature`,
-  `top_p` and `top_k` with a 400. Determinism comes instead from the schema,
-  the evidence check and the fact that no verdict depends on the model.
-- **No forced tool call.** Current models reject a forced `tool_choice`
-  (`any` / `tool`) with a 400. Structured outputs give the same guarantee —
-  the response matches the schema — without it.
+**No `temperature: 0`:** Gemini 3.6 Flash and newer ignore `temperature`.
+Determinism comes from the schema, the evidence check and the fact that no
+verdict depends on the model.
 
 **Guarantees in code, not in the prompt:** the prompt tells the model that
 instructions inside the document are data; the code is what enforces it —
@@ -61,9 +62,14 @@ the output is schema-validated, every excerpt must string-match the source
 after normalisation or the field becomes null, and the model never produces
 a verdict, a score or a priority.
 
-**Provider terms (before production):** the NGO's own Anthropic organisation,
-zero data retention requested, API inputs not used for training. Listed in
-REPORT.md as a production prerequisite.
+**Provider terms — unresolved, see open-questions (lawyer 19, CTO 5):** the
+Gemini API Additional Terms (effective 2026-03-23) say "You also will not use
+the Services as part of a website, application, or other service … that is
+directed towards or is likely to be accessed by individuals under the age of
+18." This site is for working teens. The owner chose Gemini knowing this.
+On unpaid keys Google uses prompts and responses to improve its products
+and human reviewers may read them; only a Cloud project with active billing
+is "Paid Services". No zero-retention option is stated in the terms.
 
 ## 4. Accounts — Clerk, optional
 

@@ -56,6 +56,13 @@ is never green") and the build continued. Owner: **Lawyer**, **Eba** or
 18. **A minor's file without guardian consent** is not stored; the case
     still opens. Confirm, or hold the file until a caseworker confirms
     consent on the call.
+19. **Gemini API terms and under-18 users.** The Gemini API Additional
+    Terms (effective 2026-03-23): "You also will not use the Services as part
+    of a website, application, or other service … that is directed towards
+    or is likely to be accessed by individuals under the age of 18." The
+    raters are built for 13–17-year-olds. The owner chose Gemini on
+    2026-11-24 knowing this. Decide before launch whether this is acceptable,
+    or switch provider (Vertex AI under Google Cloud terms, or another).
 
 ## Eba
 
@@ -76,3 +83,7 @@ is never green") and the build continued. Owner: **Lawyer**, **Eba** or
    binding if abuse appears.
 3. **Key rotation** for `CASE_FILES_KEY` (re-encryption script not built).
 4. **LLM provider terms**: zero data retention and no training, in writing.
+5. **Gemini billing.** Use a key from a Cloud project with active billing:
+   on unpaid keys Google uses prompts and responses to improve its products
+   and human reviewers may read them (the contract text is redacted, but
+   still a teen's job details). No zero-retention option is stated.
