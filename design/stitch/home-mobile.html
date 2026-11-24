@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+
+<html lang="mn"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,600;1,7..72,600&amp;family=Source+Sans+3:wght@400;500;600&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;margin:0;padding:0;min-height:100%;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "accent-mark": "#a8761a", "surface-tint": "#835400", "secondary-container": "#f4dcc0", "surface-container-highest": "#ede0d5", "verdict-amber": "#a35f00", "on-primary-fixed-variant": "#643f00", "on-error": "#ffffff", "on-tertiary-fixed": "#001e2f", "on-tertiary": "#ffffff", "surface": "#fffdf8", "inverse-on-surface": "#fcefe2", "surface-dim": "#e4d8cc", "surface-container-lowest": "#ffffff", "on-surface": "#211b13", "ink-muted": "#5c4a38", "on-panel": "#fbf7ef", "on-secondary-fixed": "#251908", "ink": "#2b2118", "on-secondary-fixed-variant": "#544430", "inverse-surface": "#362f27", "on-secondary-container": "#716049", "background": "#fbf7ef", "primary-fixed": "#ffddb5", "surface-variant": "#ede0d5", "on-background": "#211b13", "on-primary-container": "#5f3c00", "on-primary": "#ffffff", "primary-fixed-dim": "#ffb956", "border-strong": "#7d6b54", "on-primary-fixed": "#2a1800", "error": "#ba1a1a", "secondary": "#6d5c45", "surface-container-high": "#f3e6da", "on-surface-variant": "#514536", "surface-bright": "#fff8f4", "ink-soft": "#3f3124", "tertiary-fixed-dim": "#8bceff", "outline-variant": "#d6c4b0", "primary": "#835400", "error-container": "#ffdad6", "border": "#eadfcc", "panel": "#2b2118", "inverse-primary": "#ffb956", "on-tertiary-fixed-variant": "#004b6f", "on-error-container": "#93000a", "outline": "#847564", "accent-text": "#8a520a", "surface-container-low": "#fff1e5", "primary-container": "#e8a33d", "verdict-red": "#b3261e", "secondary-fixed": "#f7dfc3", "surface-container": "#f9ece0", "on-secondary": "#ffffff", "verdict-green": "#2e7d32", "tertiary-fixed": "#c9e6ff", "tertiary-container": "#63b9f3", "on-tertiary-container": "#00486a", "tertiary": "#006492", "secondary-fixed-dim": "#dac3a8" }, borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" }, spacing: { "space-xs": "4px", "gutter": "16px", "space-3xl": "104px", "space-2xl": "64px", "space-md": "16px", "gutter-desktop": "24px", "space-sm": "8px", "space-lg": "24px", "margin": "16px", "space-xl": "32px" }, fontFamily: { "headline-sm": ["Literata"], "body-lg": ["\"Source Sans 3\""], "headline-xl": ["Literata"], "label-sm": ["\"Source Sans 3\""], "body-md": ["\"Source Sans 3\""], "headline-lg": ["Literata"], "body-sm": ["\"Source Sans 3\""], "label-md": ["\"Source Sans 3\""], "headline-md": ["Literata"] }, fontSize: { "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-xl": ["44px", { "lineHeight": "52px", "fontWeight": "600" }], "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-lg": ["32px", { "lineHeight": "38px", "fontWeight": "600" }], "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }], "label-md": ["14px", { "lineHeight": "18px", "fontWeight": "500" }], "headline-md": ["24px", { "lineHeight": "30px", "fontWeight": "600" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background text-ink font-body-md text-body-md min-h-screen flex flex-col antialiased"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(43,33,24,0.04)]"><div class="h-16 px-gutter flex items-center justify-between gap-space-sm"><div class="flex items-center gap-2"><svg class="w-6 h-6 text-accent-mark flex-shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><polygon points="12 2 20 6.5 20 15.5 12 20 4 15.5 4 6.5 12 2"></polygon><line x1="12" x2="12" y1="8" y2="14"></line><line x1="8.5" x2="15.5" y1="10.5" y2="10.5"></line><circle cx="9" cy="6.5" fill="currentColor" r="0.75"></circle><circle cx="15" cy="6.5" fill="currentColor" r="0.75"></circle></svg><span class="font-headline-sm text-headline-sm text-ink tracking-tight whitespace-nowrap">Ажилчин Зөгий</span></div><div class="flex items-center gap-1.5"><button class="min-w-[44px] min-h-[44px] px-2.5 py-1.5 rounded-full bg-secondary-container text-ink font-label-sm text-label-sm flex items-center justify-center hover:bg-secondary-fixed-dim transition-colors" type="button">EN</button><button aria-label="Theme Toggle" class="w-11 h-11 flex items-center justify-center rounded-full text-ink hover:bg-surface-container transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">light_mode</span></button><button class="min-h-[44px] px-3 py-1.5 rounded-full bg-primary-container text-ink font-label-md text-label-md flex items-center justify-center hover:bg-primary-fixed-dim transition-colors whitespace-nowrap" type="button">Нэвтрэх</button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-1"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><button aria-label="Цэс нээх" class="w-11 h-11 flex items-center justify-center text-ink hover:bg-surface-container rounded-full transition-colors" type="button"><span class="material-symbols-outlined text-[24px]">menu</span></button></div></div></header><main class="flex-1 w-full bg-background pt-16 pb-28"><div class="flex flex-col w-full px-gutter gap-space-xl">
+<!-- Hero Section -->
+<section class="flex flex-col gap-space-lg">
+<div class="flex flex-col items-start gap-space-sm">
+<div class="inline-flex items-center px-3 py-1 rounded-full bg-surface-container-low text-ink-muted border border-border">
+<span class="font-label-sm text-label-sm tracking-tight">Хөдөлмөр эрхэлж буй өсвөр насныханд</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-ink tracking-tight mt-1">
+        Ажлын гэрээгээ шалгуулаад, эрхээ мэд.
+      </h1>
+<p class="font-body-md text-body-md text-ink-muted">
+        Гэрээ эсвэл ажлынхаа нөхцөлийг Хөдөлмөрийн тухай хуультай тулгаж, 1–100 оноо, улаан-шар-ногоон дүгнэлт авна.
+      </p>
+</div>
+<!-- Dual Actions -->
+<div class="flex flex-col gap-space-sm w-full">
+<a class="w-full h-[52px] px-space-md rounded-full bg-primary-container text-ink font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-transform active:scale-[0.99] select-none" href="#">
+<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+<polyline points="14 2 14 8 20 8"></polyline>
+<polyline points="9 15 11 17 15 13"></polyline>
+</svg>
+<span>Гэрээгээ шалгуулах</span>
+</a>
+<a class="w-full h-[52px] px-space-md rounded-full bg-primary-container text-ink font-label-md text-label-md font-semibold flex items-center justify-center gap-2 transition-transform active:scale-[0.99] select-none" href="#">
+<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<rect height="16" rx="2" width="18" x="3" y="4"></rect>
+<circle cx="9" cy="10" r="2"></circle>
+<line x1="15" x2="17" y1="9" y2="9"></line>
+<line x1="15" x2="17" y1="13" y2="13"></line>
+<path d="M6 16c0-1.5 1.5-2.5 3-2.5s3 1 3 2.5"></path>
+</svg>
+<span>CV-гээ үнэлүүлэх</span>
+</a>
+</div>
+<!-- Trust Indicator -->
+<div class="flex items-start gap-2 pt-1 text-ink-muted">
+<svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+</svg>
+<span class="font-body-sm text-body-sm text-ink-muted leading-snug">
+        Хадгалахыг сонгохгүй бол юу ч хадгалагдахгүй · Тоо бүр аргачлалдаа холбогдоно
+      </span>
+</div>
+<!-- Geometric Honeycomb Card -->
+<div class="w-full rounded-lg bg-surface border border-border p-space-md overflow-hidden relative">
+<div class="flex items-center justify-between">
+<div class="flex flex-col gap-1 z-10">
+<span class="font-label-sm text-label-sm tracking-wider uppercase text-ink-muted">Хууль зүйн баталгаа</span>
+<span class="font-headline-sm text-headline-sm text-ink">Хөдөлмөрийн хууль 2021</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-ink flex-shrink-0 z-10">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24">
+<polyline points="12 2 20 6.5 20 15.5 12 20 4 15.5 4 6.5 12 2"></polyline>
+</svg>
+</div>
+</div>
+<!-- SVG Honeycomb Geometric Motif (Subtle Line Geometry, No gradients, No images) -->
+<div class="w-full mt-3 pt-3 border-t border-border flex justify-center items-center">
+<svg class="w-full h-24 text-accent-mark" fill="none" stroke="currentColor" stroke-width="1.2" style="opacity: 0.22;" viewbox="0 0 320 96">
+<g>
+<polygon points="40,24 60,12 80,24 80,48 60,60 40,48"></polygon>
+<polygon points="80,24 100,12 120,24 120,48 100,60 80,48"></polygon>
+<polygon points="120,24 140,12 160,24 160,48 140,60 120,48"></polygon>
+<polygon points="160,24 180,12 200,24 200,48 180,60 160,48"></polygon>
+<polygon points="200,24 220,12 240,24 240,48 220,60 200,48"></polygon>
+<polygon points="240,24 260,12 280,24 280,48 260,60 240,48"></polygon>
+<polygon points="60,60 80,48 100,60 100,84 80,96 60,84"></polygon>
+<polygon points="100,60 120,48 140,60 140,84 120,96 100,84"></polygon>
+<polygon points="140,60 160,48 180,60 180,84 160,96 140,84"></polygon>
+<polygon points="180,60 200,48 220,60 220,84 200,96 180,84"></polygon>
+<polygon points="220,60 240,48 260,60 260,84 240,96 220,84"></polygon>
+</g>
+</svg>
+</div>
+</div>
+</section>
+<!-- How it Works Section -->
+<section class="flex flex-col gap-space-md">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md text-ink tracking-tight">
+        Хэрхэн ажилладаг вэ
+      </h2>
+</div>
+<div class="flex flex-col gap-space-sm">
+<!-- Step 1 -->
+<div class="rounded-lg bg-surface border border-border p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="w-7 h-7 rounded-full bg-secondary-container text-ink font-body-sm text-body-sm font-semibold flex items-center justify-center tabular-nums flex-shrink-0">
+            1
+          </span>
+<span class="font-headline-sm text-headline-sm text-ink">
+            Асуултад хариулах эсвэл гэрээгээ оруулах
+          </span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="rounded-lg bg-surface border border-border p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="w-7 h-7 rounded-full bg-secondary-container text-ink font-body-sm text-body-sm font-semibold flex items-center justify-center tabular-nums flex-shrink-0">
+            2
+          </span>
+<span class="font-headline-sm text-headline-sm text-ink">
+            Дүрэм бүрээр шалгах
+          </span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="rounded-lg bg-surface border border-border p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="w-7 h-7 rounded-full bg-secondary-container text-ink font-body-sm text-body-sm font-semibold flex items-center justify-center tabular-nums flex-shrink-0">
+            3
+          </span>
+<span class="font-headline-sm text-headline-sm text-ink">
+            Дараагийн алхмаа авах
+          </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Impact Section -->
+<section class="flex flex-col gap-space-md">
+<div class="flex flex-col">
+<h2 class="font-headline-md text-headline-md text-ink tracking-tight">
+        Бидний нөлөө
+      </h2>
+</div>
+<div class="flex flex-col gap-space-sm">
+<div class="rounded-lg bg-surface border border-border p-space-md flex flex-col gap-space-xs">
+<div class="font-headline-xl text-headline-xl text-ink tabular-nums leading-none">
+          —
+        </div>
+<div class="font-body-sm text-body-sm text-ink-muted">
+          Тоо хүснэгтээс автоматаар уншигдана
+        </div>
+</div>
+<div class="rounded-lg bg-surface border border-border p-space-md flex flex-col gap-space-xs">
+<div class="font-headline-xl text-headline-xl text-ink tabular-nums leading-none">
+          —
+        </div>
+<div class="font-body-sm text-body-sm text-ink-muted">
+          Тоо хүснэгтээс автоматаар уншигдана
+        </div>
+</div>
+<div class="rounded-lg bg-surface border border-border p-space-md flex flex-col gap-space-xs">
+<div class="font-headline-xl text-headline-xl text-ink tabular-nums leading-none">
+          —
+        </div>
+<div class="font-body-sm text-body-sm text-ink-muted">
+          Тоо хүснэгтээс автоматаар уншигдана
+        </div>
+</div>
+</div>
+</section>
+</div></main><footer class="w-full bg-panel text-on-panel px-gutter py-space-xl"><div class="flex flex-col gap-space-lg"><div class="flex items-center gap-2"><svg class="w-5 h-5 text-primary-container flex-shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" viewbox="0 0 24 24"><polygon points="12 2 20 6.5 20 15.5 12 20 4 15.5 4 6.5 12 2"></polygon><line x1="12" x2="12" y1="8" y2="14"></line><line x1="8.5" x2="15.5" y1="10.5" y2="10.5"></line></svg><span class="font-headline-sm text-headline-sm text-on-panel tracking-tight">Ажилчин Зөгий</span></div><nav class="flex flex-wrap gap-x-space-md gap-y-space-sm"><a class="font-label-md text-label-md text-on-panel hover:text-primary-fixed-dim transition-colors" href="#">Нөлөөлөл</a><a class="font-label-md text-label-md text-on-panel hover:text-primary-fixed-dim transition-colors" href="#">Аргачлал</a><a class="font-label-md text-label-md text-on-panel hover:text-primary-fixed-dim transition-colors" href="#">Судалгаа</a><a class="font-label-md text-label-md text-on-panel hover:text-primary-fixed-dim transition-colors" href="#">Бодлого</a><a class="font-label-md text-label-md text-on-panel hover:text-primary-fixed-dim transition-colors" href="#">Бидний тухай</a><a class="font-label-md text-label-md text-on-panel hover:text-primary-fixed-dim transition-colors" href="#">Нууцлал</a></nav></div></footer><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-1px_8px_rgba(43,33,24,0.04)]" data-active-classes="text-primary-container font-semibold"><div class="h-16 px-gutter flex items-center justify-around"><a aria-current="page" class="min-w-[44px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 transition-colors text-primary-container font-semibold" data-path="home" href="#"><span class="material-symbols-outlined text-[22px]">balance</span><span class="font-label-sm text-label-sm">Эрх зүй</span></a><a class="min-w-[44px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 text-ink-muted hover:text-ink transition-colors" data-path="wage-calculator" href="#"><span class="material-symbols-outlined text-[22px]">calculate</span><span class="font-label-sm text-label-sm">Тооцоолуур</span></a><a class="min-w-[44px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 text-ink-muted hover:text-ink transition-colors" data-path="contract-checker" href="#"><span class="material-symbols-outlined text-[22px]">fact_check</span><span class="font-label-sm text-label-sm">Гэрээ</span></a><a class="min-w-[44px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 text-ink-muted hover:text-ink transition-colors" data-path="report-violation" href="#"><span class="material-symbols-outlined text-[22px]">shield</span><span class="font-label-sm text-label-sm">Мэдэгдэх</span></a><a class="min-w-[44px] min-h-[44px] flex flex-col items-center justify-center gap-0.5 text-ink-muted hover:text-ink transition-colors" data-path="user-profile" href="#"><span class="material-symbols-outlined text-[22px]">account_circle</span><span class="font-label-sm text-label-sm">Хувийн</span></a></div></nav></body></html>

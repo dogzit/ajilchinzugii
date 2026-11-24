@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Гэрээний үнэлгээний үр дүн — Ажилчин Зөгий</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,600;1,7..72,600&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bg: '#fbf7ef',
+            surface: '#fffdf8',
+            'surface-tint': '#f3e7d3',
+            border: '#eadfcc',
+            'border-strong': '#7d6b54',
+            ink: '#2b2118',
+            'ink-soft': '#3f3124',
+            'ink-muted': '#5c4a38',
+            primary: '#e8a33d',
+            'on-primary': '#2b2118',
+            'accent-text': '#8a520a',
+            'accent-mark': '#a8761a',
+            panel: '#2b2118',
+            'on-panel': '#fbf7ef',
+            'verdict-red': '#b3261e',
+            'verdict-amber': '#a35f00',
+            'verdict-green': '#2e7d32',
+            'red-bg': '#fbebe9',
+            'amber-bg': '#fef3e2',
+            'green-bg': '#eef6ee'
+          },
+          fontFamily: {
+            serif: ['Literata', 'serif'],
+            sans: ['Onest', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #fbf7ef;
+      color: #2b2118;
+      font-family: 'Onest', sans-serif;
+      font-feature-settings: "tnum" 1;
+    }
+    .font-serif {
+      font-family: 'Literata', serif;
+      font-weight: 600;
+    }
+    .hexagon-motif {
+      background-image: url("data:image/svg+xml,%3Csvg width='48' height='83.138' viewBox='0 0 48 83.138' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M48 41.569L24 55.426L0 41.569L0 13.856L24 0L48 13.856Z M48 83.138L24 96.995L0 83.138L0 55.426L24 41.569L48 55.426Z' fill='none' stroke='%23eadfcc' stroke-width='1' stroke-opacity='0.45'/%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-bg text-ink antialiased selection:bg-primary selection:text-ink">
+
+  <!-- Header -->
+  <header class="w-full border-b border-border bg-surface sticky top-0 z-50">
+    <div class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between">
+      <!-- Brand Logo / Wordmark -->
+      <a href="#" class="flex items-center gap-3 group">
+        <span class="w-10 h-10 rounded-xl bg-amber-50 border border-border flex items-center justify-center text-primary group-hover:border-accent-mark transition-colors">
+          <!-- Hexagon Bee Motif -->
+          <svg class="w-6 h-6 text-accent-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12,2 21,7 21,17 12,22 3,17 3,7" stroke="currentColor" fill="none" />
+            <circle cx="12" cy="12" r="3.5" fill="#e8a33d" stroke="#2b2118" stroke-width="1.5" />
+            <line x1="8.5" y1="12" x2="15.5" y2="12" stroke="#2b2118" stroke-width="1.5" />
+            <line x1="9.5" y1="9.5" x2="14.5" y2="9.5" stroke="#2b2118" stroke-width="1.2" />
+            <line x1="9.5" y1="14.5" x2="14.5" y2="14.5" stroke="#2b2118" stroke-width="1.2" />
+          </svg>
+        </span>
+        <span class="font-serif text-xl tracking-tight text-ink">Ажилчин Зөгий</span>
+      </a>
+
+      <!-- Right Navigation Actions -->
+      <div class="flex items-center gap-4">
+        <!-- Language Pill -->
+        <span class="px-3.5 py-1.5 rounded-full border border-border bg-surface text-xs font-semibold tracking-wider text-ink hover:bg-surface-tint cursor-pointer transition-colors">
+          EN
+        </span>
+
+        <!-- Theme Toggle Icon -->
+        <button type="button" aria-label="Theme toggle" class="w-10 h-10 rounded-full flex items-center justify-center border border-border text-ink hover:bg-surface-tint transition-colors">
+          <svg class="w-5 h-5 text-ink-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="5" />
+            <line x1="12" y1="1" x2="12" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="23" />
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+            <line x1="1" y1="12" x2="3" y2="12" />
+            <line x1="21" y1="12" x2="23" y2="12" />
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          </svg>
+        </button>
+
+        <!-- Sign In Button -->
+        <button type="button" class="h-11 px-5 rounded-full border border-border text-ink text-sm font-medium hover:border-border-strong hover:bg-surface-tint transition-colors">
+          Нэвтрэх
+        </button>
+
+        <!-- Hamburger Menu -->
+        <button type="button" aria-label="Цэс" class="w-11 h-11 rounded-full flex items-center justify-center border border-border text-ink hover:bg-surface-tint transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="4" y1="7" x2="20" y2="7" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="17" x2="20" y2="17" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout (1280px optimized) -->
+  <main class="flex-1 max-w-[1200px] w-full mx-auto px-6 py-12">
+    <div class="max-w-[780px] mx-auto space-y-7">
+
+      <!-- Score Gauge Card -->
+      <div class="relative bg-surface rounded-[24px] border border-border p-8 text-center flex flex-col items-center overflow-hidden">
+        <!-- Faint decorative hexagon watermark -->
+        <div class="absolute -right-8 -bottom-8 w-44 h-44 hexagon-motif opacity-30 pointer-events-none"></div>
+
+        <div class="relative w-64 h-36 flex items-end justify-center mb-2">
+          <!-- Semicircular SVG Gauge Arc (Red -> Amber -> Green) -->
+          <svg class="w-64 h-36 overflow-visible" viewBox="0 0 200 115">
+            <!-- Background track / segments: radius 75, center (100, 95) -->
+            <!-- Red zone (left 0 to 45 deg) -->
+            <path d="M 25 95 A 75 75 0 0 1 46.97 41.97" fill="none" stroke="#b3261e" stroke-width="16" stroke-linecap="round" />
+            <!-- Amber zone (middle 45 to 125 deg) -->
+            <path d="M 46.97 41.97 A 75 75 0 0 1 143.02 33.51" fill="none" stroke="#a35f00" stroke-width="16" />
+            <!-- Green zone (right 125 to 180 deg) -->
+            <path d="M 143.02 33.51 A 75 75 0 0 1 175 95" fill="none" stroke="#2e7d32" stroke-width="16" stroke-linecap="round" />
+            
+            <!-- Indicator Marker at Score 24 (along red segment ~ 43.2 deg) -->
+            <!-- x = 100 - 75*cos(43.2 deg * pi / 180) = 100 - 75*0.729 = 45.3 -->
+            <!-- y = 95 - 75*sin(43.2 deg * pi / 180) = 95 - 75*0.684 = 43.7 -->
+            <circle cx="45" cy="44" r="7" fill="#ffffff" stroke="#2b2118" stroke-width="3" />
+          </svg>
+
+          <!-- Score display in center -->
+          <div class="absolute bottom-1 flex flex-col items-center">
+            <span class="font-serif text-[68px] leading-none text-ink font-bold tracking-tight">24</span>
+          </div>
+        </div>
+
+        <!-- Verdict Badge under gauge -->
+        <div class="inline-flex items-center gap-2 px-4 py-2 mt-4 rounded-full bg-red-bg border border-verdict-red/25 text-verdict-red text-sm font-semibold tracking-wide">
+          <!-- Octagon exclamation icon -->
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+          <span>Улаан — хууль зөрчиж байна</span>
+        </div>
+      </div>
+
+      <!-- Amber Notice Strip -->
+      <div class="rounded-[24px] border border-border bg-amber-bg/75 p-5 flex items-start gap-3.5 text-sm leading-relaxed text-ink-soft">
+        <div class="w-6 h-6 rounded-full bg-amber-100 flex items-center justify-center shrink-0 text-verdict-amber mt-0.5">
+          <!-- Triangle Question icon -->
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+        </div>
+        <p class="pt-0.5">Эдгээр тайлбар хуульчаар хараахан хянагдаагүй ноорог.</p>
+      </div>
+
+      <!-- Red Urgent Callout Card -->
+      <div class="rounded-[24px] border border-verdict-red/20 bg-red-bg p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div class="flex items-start gap-3.5">
+          <div class="w-7 h-7 rounded-full bg-verdict-red/10 flex items-center justify-center shrink-0 text-verdict-red mt-0.5">
+            <svg class="w-5 h-5 text-verdict-red" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L13.8 8.2L20.2 6.4L17 12L22 15L15.8 16.8L17 23L12 18.8L7 23L8.2 16.8L2 15L7 12L3.8 6.4L10.2 8.2L12 2Z" />
+            </svg>
+          </div>
+          <div class="space-y-1">
+            <h3 class="font-serif text-lg font-semibold text-verdict-red leading-snug">
+              Энэ бол яаралтай. Хүүхдийн тусламжийн утас 108-д залга.
+            </h3>
+          </div>
+        </div>
+        <a href="tel:108" class="inline-flex items-center justify-center gap-2.5 h-[52px] px-7 rounded-full bg-verdict-red text-surface font-semibold text-sm hover:opacity-95 transition-opacity shrink-0 shadow-none">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+          </svg>
+          <span>108 руу залгах</span>
+        </a>
+      </div>
+
+      <!-- Section: Анхаарах зүйлс -->
+      <section class="space-y-4 pt-2">
+        <h2 class="font-serif text-2xl text-ink font-semibold tracking-tight">Анхаарах зүйлс</h2>
+
+        <!-- Red Card 1 -->
+        <div class="bg-surface rounded-[24px] border border-border p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-bg border border-verdict-red/20 text-verdict-red text-xs font-semibold">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>Улаан</span>
+            </span>
+          </div>
+
+          <div>
+            <h3 class="font-serif text-xl font-semibold text-ink leading-snug">Шөнийн цагаар ажиллуулж байна</h3>
+            <p class="text-sm text-ink-muted mt-2 leading-relaxed">
+              Насанд хүрээгүй ажилтныг шөнийн цагаар буюу 22:00–06:00 цагийн хооронд ажиллуулахыг хуулиар хориглодог.
+            </p>
+          </div>
+
+          <div class="text-xs font-semibold text-accent-text tracking-wide">
+            Хөдөлмөрийн тухай хууль, 88.1
+          </div>
+
+          <!-- Evidence Quote Block with left rule -->
+          <div class="border-l-4 border-accent-mark/80 bg-surface-tint/40 px-4 py-3 rounded-r-xl text-sm italic text-ink-soft">
+            «ажлын цаг 10:00-22:30»
+          </div>
+        </div>
+
+        <!-- Red Card 2 -->
+        <div class="bg-surface rounded-[24px] border border-border p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-bg border border-verdict-red/20 text-verdict-red text-xs font-semibold">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              <span>Улаан</span>
+            </span>
+          </div>
+
+          <div>
+            <h3 class="font-serif text-xl font-semibold text-ink leading-snug">Долоо хоногт 30 цагаас их</h3>
+          </div>
+
+          <div class="text-xs font-semibold text-accent-text tracking-wide">
+            Хөдөлмөрийн тухай хууль, 84.3
+          </div>
+        </div>
+
+        <!-- Amber Card -->
+        <div class="bg-surface rounded-[24px] border border-border p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-bg border border-verdict-amber/20 text-verdict-amber text-xs font-semibold">
+              <!-- Triangle question icon -->
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span>Шар</span>
+            </span>
+          </div>
+
+          <div>
+            <h3 class="font-serif text-xl font-semibold text-ink leading-snug">Эрүүл мэндийн үзлэг тодорхойгүй</h3>
+          </div>
+        </div>
+
+        <!-- Collapsed Group: Хангасан (6) -->
+        <div class="bg-surface rounded-[24px] border border-border p-5 flex items-center justify-between hover:bg-surface-tint/20 cursor-pointer transition-colors">
+          <div class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-full bg-green-bg border border-verdict-green/30 flex items-center justify-center text-verdict-green">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </span>
+            <span class="font-serif text-base font-semibold text-ink">Хангасан (6)</span>
+          </div>
+          <svg class="w-5 h-5 text-ink-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+      </section>
+
+      <!-- Action Cards Section -->
+      <section class="space-y-4 pt-2">
+        <!-- Action Card 1: Letter to Employer -->
+        <div class="bg-surface rounded-[24px] border border-border p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h3 class="font-serif text-lg font-semibold text-ink">Ажил олгогчид илгээх захидал</h3>
+          <button type="button" class="h-11 px-6 rounded-full border border-border bg-surface-tint/50 text-ink text-sm font-semibold hover:border-border-strong hover:bg-surface-tint inline-flex items-center justify-center gap-2 transition-colors">
+            <svg class="w-4 h-4 text-ink-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+            <span>Хуулах</span>
+          </button>
+        </div>
+
+        <!-- Action Card 2: Revised Contract Template -->
+        <div class="bg-surface rounded-[24px] border border-border p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h3 class="font-serif text-lg font-semibold text-ink">Зассан гэрээний загвар</h3>
+          <button type="button" class="h-11 px-6 rounded-full border border-border bg-surface-tint/50 text-ink text-sm font-semibold hover:border-border-strong hover:bg-surface-tint inline-flex items-center justify-center gap-2 transition-colors">
+            <svg class="w-4 h-4 text-ink-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <span>PDF татах</span>
+          </button>
+        </div>
+
+        <!-- Action Card 3: Dark Panel Talk with Ajilchin Zugii -->
+        <div class="rounded-[32px] bg-panel text-on-panel p-8 relative overflow-hidden flex flex-col gap-5">
+          <!-- Hexagon decorative watermark in dark panel -->
+          <div class="absolute right-0 top-0 w-48 h-full hexagon-motif opacity-15 pointer-events-none"></div>
+
+          <div class="relative z-10 space-y-1">
+            <h3 class="font-serif text-2xl font-semibold text-on-panel tracking-tight">
+              Ажилчин Зөгийтэй ярилцах
+            </h3>
+          </div>
+
+          <div class="relative z-10 pt-1">
+            <button type="button" class="w-full sm:w-auto h-[52px] px-8 rounded-full bg-primary text-on-primary font-semibold text-base hover:bg-[#dba037] active:scale-[0.99] transition-all inline-flex items-center justify-center">
+              Тусламж хүсэх
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+</body>
+</html>

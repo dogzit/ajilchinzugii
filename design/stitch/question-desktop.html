@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Гэрээний үнэлгээ — Алхам 6/15 | Ажилчин Зөгий</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,600;1,7..72,600&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ground: '#fbf7ef',
+            surface: '#fffdf8',
+            'surface-tint': '#f3e7d3',
+            border: '#eadfcc',
+            'border-strong': '#7d6b54',
+            ink: '#2b2118',
+            'ink-soft': '#3f3124',
+            'ink-muted': '#5c4a38',
+            primary: '#e8a33d',
+            'on-primary': '#2b2118',
+            'accent-text': '#8a520a',
+            'accent-mark': '#a8761a',
+          },
+          fontFamily: {
+            headline: ['Literata', 'serif'],
+            sans: ['Onest', 'sans-serif'],
+          },
+          borderRadius: {
+            card: '24px',
+            pill: '9999px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #fbf7ef;
+      color: #2b2118;
+      font-family: 'Onest', sans-serif;
+    }
+    .font-tabular {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Subtle hexagon pattern watermark */
+    .hex-pattern {
+      background-image: url("data:image/svg+xml,%3Csvg width='48' height='84' viewBox='0 0 48 84' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M24 0l24 14v28L24 56 0 42V14zM24 84l24-14V42L24 56 0 70v14z' fill='none' stroke='%23eadfcc' stroke-width='1' stroke-opacity='0.45'/%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-ground flex flex-col justify-between text-ink antialiased selection:bg-[#f3e7d3]">
+
+  <!-- Header -->
+  <header class="w-full border-b border-border bg-ground sticky top-0 z-50">
+    <div class="max-w-[1200px] mx-auto px-6 h-18 flex items-center justify-between py-4">
+      <!-- Brand Logo & Wordmark -->
+      <a href="#" class="flex items-center gap-3 group">
+        <svg class="w-7 h-7 text-primary" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="16,2 29,9.5 29,24.5 16,32 3,24.5 3,9.5" stroke="#a8761a" stroke-width="2" fill="none" stroke-linejoin="round"/>
+          <path d="M10 13H22M8 17H24M11 21H21" stroke="#2b2118" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span class="font-headline text-xl font-semibold tracking-tight text-ink">Ажилчин Зөгий</span>
+      </a>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center gap-4">
+        <!-- Language Pill -->
+        <span class="inline-flex items-center justify-center px-3.5 py-1 text-xs font-semibold rounded-pill bg-[#f3e7d3] text-ink border border-border">
+          EN
+        </span>
+
+        <!-- Theme Toggle -->
+        <button class="p-2 rounded-full text-ink-muted hover:text-ink hover:bg-[#f3e7d3] transition-colors" aria-label="Theme toggle">
+          <svg class="w-5 h-5 stroke-[1.8]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+        </button>
+
+        <!-- Sign In Button -->
+        <a href="#" class="text-sm font-semibold text-ink px-3 py-1.5 rounded-pill hover:bg-[#f3e7d3] transition-colors">
+          Нэвтрэх
+        </a>
+
+        <!-- Hamburger Menu -->
+        <button class="p-2 rounded-pill text-ink hover:bg-[#f3e7d3] transition-colors" aria-label="Menu">
+          <svg class="w-6 h-6 stroke-[2]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container (Centered 1280px Layout) -->
+  <main class="flex-grow flex items-center justify-center py-12 px-6">
+    <div class="w-full max-w-[620px]">
+
+      <!-- Top Navigation & Stepper -->
+      <div class="mb-8">
+        <div class="flex items-center justify-between mb-3 text-sm font-medium">
+          <button type="button" class="inline-flex items-center gap-1.5 text-ink-soft hover:text-ink transition-colors font-sans">
+            <svg class="w-4 h-4 stroke-[2]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Буцах</span>
+          </button>
+          <span class="font-tabular text-ink-muted tracking-tight font-medium">6 / 15</span>
+        </div>
+
+        <!-- Honey Progress Bar -->
+        <div class="w-full bg-[#eadfcc] h-1.5 rounded-full overflow-hidden">
+          <div class="bg-primary h-full rounded-full transition-all duration-300" style="width: 40%;"></div>
+        </div>
+      </div>
+
+      <!-- Question Card -->
+      <div class="bg-surface rounded-card border border-border p-8 sm:p-10 relative overflow-hidden">
+        <!-- Faint Hexagon Motif Background Accent in Card corner -->
+        <div class="absolute -right-12 -bottom-12 w-48 h-48 hex-pattern pointer-events-none opacity-40"></div>
+
+        <!-- Question Title and Lead -->
+        <div class="relative z-10 mb-8">
+          <h1 class="font-headline text-2xl sm:text-[28px] leading-snug font-semibold text-ink mb-2">
+            Ихэвчлэн хэдэн цагт ажил эхэлж, хэдэн цагт дуусдаг вэ?
+          </h1>
+          <p class="text-ink-muted text-base leading-relaxed">
+            Өдрийн ердийн ажлынхаа цагийг бич.
+          </p>
+        </div>
+
+        <form class="relative z-10 space-y-6" onsubmit="event.preventDefault();">
+          <!-- Time Inputs: Start and End -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Start Time Input Card -->
+            <div class="bg-ground rounded-2xl border border-border p-5 focus-within:border-accent-mark transition-colors">
+              <label for="start-time" class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-2">
+                Эхлэх
+              </label>
+              <input
+                type="text"
+                id="start-time"
+                name="start_time"
+                value="09:00"
+                class="w-full bg-transparent font-headline text-3xl sm:text-4xl font-semibold text-ink font-tabular outline-none p-0 tracking-tight"
+                aria-label="Эхлэх цаг"
+              >
+            </div>
+
+            <!-- End Time Input Card -->
+            <div class="bg-ground rounded-2xl border border-border p-5 focus-within:border-accent-mark transition-colors">
+              <label for="end-time" class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-2">
+                Дуусах
+              </label>
+              <input
+                type="text"
+                id="end-time"
+                name="end_time"
+                value="18:00"
+                class="w-full bg-transparent font-headline text-3xl sm:text-4xl font-semibold text-ink font-tabular outline-none p-0 tracking-tight"
+                aria-label="Дуусах цаг"
+              >
+            </div>
+          </div>
+
+          <!-- Break Duration Input Card -->
+          <div class="bg-ground rounded-2xl border border-border p-5 focus-within:border-accent-mark transition-colors">
+            <label for="break-time" class="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-2">
+              Завсарлага (минут)
+            </label>
+            <input
+              type="text"
+              id="break-time"
+              name="break_duration"
+              value="60"
+              class="w-full bg-transparent font-headline text-3xl sm:text-4xl font-semibold text-ink font-tabular outline-none p-0 tracking-tight"
+              aria-label="Завсарлага минут"
+            >
+          </div>
+
+          <!-- Secondary Pill Button (Мэдэхгүй байна) -->
+          <div class="pt-2">
+            <button
+              type="button"
+              class="w-full h-11 px-6 rounded-pill border border-border-strong text-ink hover:bg-[#f3e7d3] text-sm font-semibold transition-colors flex items-center justify-center"
+            >
+              Мэдэхгүй байна
+            </button>
+          </div>
+
+          <!-- Primary Honey Pill Button (Үргэлжлүүлэх) -->
+          <div class="pt-1">
+            <button
+              type="submit"
+              class="w-full h-[52px] px-8 rounded-pill bg-primary hover:brightness-95 text-on-primary font-semibold text-base transition-all flex items-center justify-center shadow-none active:scale-[0.99]"
+            >
+              Үргэлжлүүлэх
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Clean footer space matching guidelines (no extra text) -->
+  <footer class="w-full py-6"></footer>
+
+</body>
+</html>

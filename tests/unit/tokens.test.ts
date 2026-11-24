@@ -33,7 +33,7 @@ function contrast(a: string, b: string): number {
 
 const backgrounds = ['bg', 'surface', 'surface-tint'] as const;
 const textTokens = ['ink', 'ink-soft', 'ink-muted', 'accent-text', 'focus'] as const;
-const uiTokens = ['border-strong', 'accent-mark'] as const;
+const uiTokens = ['border-strong', 'accent-mark', 'score-red', 'score-amber', 'score-green'] as const;
 
 describe.each(['light', 'dark'] as const)('%s theme tokens', (theme) => {
   const t = tokens(theme);

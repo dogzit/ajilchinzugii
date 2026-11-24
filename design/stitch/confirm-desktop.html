@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Уншсан мэдээллээ шалгана уу — Ажилчин Зөгий</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,600;1,7..72,600&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: '#fbf7ef',
+            surface: '#fffdf8',
+            'surface-tint': '#f3e7d3',
+            border: '#eadfcc',
+            'border-strong': '#7d6b54',
+            ink: '#2b2118',
+            'ink-soft': '#3f3124',
+            'ink-muted': '#5c4a38',
+            primary: '#e8a33d',
+            'on-primary': '#2b2118',
+            'accent-text': '#8a520a',
+            'accent-mark': '#a8761a',
+            'verdict-amber': '#a35f00',
+          },
+          fontFamily: {
+            headline: ['Literata', 'serif'],
+            body: ['Onest', 'sans-serif'],
+          },
+          borderRadius: {
+            pill: '9999px',
+            card: '24px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #fbf7ef;
+      color: #2b2118;
+      font-family: 'Onest', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    /* Hexagon pattern overlay */
+    .hex-bg {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cpath fill-rule='evenodd' stroke='%23eadfcc' stroke-width='0.8' fill='none' opacity='0.45' d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM1 0v1.5L0 2.08v11.84l1 .58V16l12.99 7.5 13-7.5v-1.5l1-.58V2.08L27 1.5V0h-1.01L13.99 7.5 2.01 0H1zm0 33.67l-1 .58v11.83l1 .59V49h1.01l11.98-7.5 11.98 7.5H27v-2.33l1-.59V34.25l-1-.58V33l-13 7.5-13-7.5v.67z'/%3E%3C/svg%3E");
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-background text-ink flex flex-col justify-between hex-bg">
+
+  <!-- Header -->
+  <header class="w-full bg-[#fbf7ef]/90 backdrop-blur-sm border-b border-border sticky top-0 z-50">
+    <div class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between">
+      <!-- Logo: Wordmark with small hexagon bee mark -->
+      <a href="#" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-accent-text rounded-lg px-1 py-1">
+        <svg class="w-8 h-8 flex-shrink-0 text-primary" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Hexagon mark -->
+          <polygon points="16,2 29,9.5 29,24.5 16,32 3,24.5 3,9.5" stroke="#a8761a" stroke-width="2" fill="#fffdf8"/>
+          <!-- Bee motif inside -->
+          <path d="M16 8L16 24" stroke="#e8a33d" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M11 13H21" stroke="#2b2118" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M10 17H22" stroke="#2b2118" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M12 21H20" stroke="#2b2118" stroke-width="1.8" stroke-linecap="round"/>
+          <circle cx="13" cy="10" r="1.2" fill="#2b2118"/>
+          <circle cx="19" cy="10" r="1.2" fill="#2b2118"/>
+        </svg>
+        <span class="font-headline font-semibold text-2xl tracking-tight text-ink">Ажилчин Зөгий</span>
+      </a>
+
+      <!-- Right Nav controls: EN pill, theme toggle, Нэвтрэх button, hamburger -->
+      <div class="flex items-center gap-4">
+        <!-- Language pill 'EN' -->
+        <button type="button" aria-label="Хэл солих" class="h-9 px-4 rounded-pill border border-border bg-surface text-ink text-sm font-medium hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-accent-text transition-colors">
+          EN
+        </button>
+
+        <!-- Theme toggle icon -->
+        <button type="button" aria-label="Горим солих" class="w-9 h-9 rounded-pill border border-border bg-surface flex items-center justify-center text-ink hover:border-border-strong focus:outline-none focus:ring-2 focus:ring-accent-text transition-colors">
+          <svg class="w-4 h-4 text-ink-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+        </button>
+
+        <!-- 'Нэвтрэх' text button -->
+        <button type="button" class="h-10 px-5 rounded-pill text-ink font-medium text-base hover:bg-surface-tint focus:outline-none focus:ring-2 focus:ring-accent-text transition-colors">
+          Нэвтрэх
+        </button>
+
+        <!-- Hamburger -->
+        <button type="button" aria-label="Цэс нээх" class="w-10 h-10 rounded-pill flex items-center justify-center text-ink hover:bg-surface-tint focus:outline-none focus:ring-2 focus:ring-accent-text transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="4" y1="7" x2="20" y2="7"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="17" x2="20" y2="17"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area: 1280px Desktop container with 1200px max content width -->
+  <main class="w-full max-w-[1200px] mx-auto px-6 py-12 flex-grow">
+    
+    <!-- Top Stepper / Breadcrumb context -->
+    <div class="max-w-[760px] mx-auto mb-8">
+      <div class="flex items-center justify-between text-sm text-ink-muted mb-2 font-medium">
+        <span>Гэрээ баталгаажуулах</span>
+        <span class="tabular-nums">Алхам 2 / 3</span>
+      </div>
+      <div class="w-full h-1 bg-border rounded-full overflow-hidden">
+        <div class="h-full bg-primary rounded-full w-2/3"></div>
+      </div>
+    </div>
+
+    <!-- Page Header & Title Section -->
+    <div class="max-w-[760px] mx-auto mb-10 text-left">
+      <h1 class="font-headline font-semibold text-3xl md:text-4xl text-ink leading-tight mb-3">
+        Уншсан мэдээллээ шалгана уу
+      </h1>
+      <p class="font-body text-base md:text-lg text-ink-muted leading-relaxed">
+        Утга бүрийг гэрээнээс авсан хэсэгтэй нь харьцуул. Буруу бол засна уу.
+      </p>
+    </div>
+
+    <!-- Cards List -->
+    <div class="max-w-[760px] mx-auto space-y-6">
+
+      <!-- Card 1: Төрсөн огноо -->
+      <section class="bg-surface border border-border rounded-card p-6 md:p-7 relative overflow-hidden">
+        <!-- Faint hexagon outline motif in background -->
+        <svg class="absolute -right-6 -bottom-6 w-36 h-36 pointer-events-none opacity-20 text-accent-mark" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.2">
+          <polygon points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5" />
+          <polygon points="50,18 78,33.5 78,66.5 50,82 22,66.5 22,33.5" />
+        </svg>
+
+        <label for="field-dob" class="block font-headline font-semibold text-base text-ink mb-2">
+          Төрсөн огноо
+        </label>
+        
+        <div class="mb-4">
+          <input 
+            type="text" 
+            id="field-dob" 
+            name="field-dob" 
+            value="2010-03-14" 
+            class="w-full h-12 px-4 rounded-xl border border-border bg-white text-ink font-body text-base tabular-nums focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-accent-text"
+          />
+        </div>
+
+        <!-- Left-ruled quote block -->
+        <blockquote class="border-l-4 border-primary bg-surface-tint/60 rounded-r-xl px-4 py-3 text-sm text-ink-soft">
+          «Ажилтан: [ID], төрсөн 2010 оны 3 сарын 14»
+        </blockquote>
+      </section>
+
+      <!-- Card 2: Цалин -->
+      <section class="bg-surface border border-border rounded-card p-6 md:p-7 relative overflow-hidden">
+        <svg class="absolute -right-6 -bottom-6 w-36 h-36 pointer-events-none opacity-20 text-accent-mark" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.2">
+          <polygon points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5" />
+        </svg>
+
+        <label for="field-salary" class="block font-headline font-semibold text-base text-ink mb-2">
+          Цалин
+        </label>
+
+        <div class="flex gap-3 mb-4">
+          <input 
+            type="text" 
+            id="field-salary" 
+            name="field-salary" 
+            value="450000" 
+            class="flex-1 h-12 px-4 rounded-xl border border-border bg-white text-ink font-body text-base tabular-nums focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-accent-text"
+          />
+          <div class="relative w-32">
+            <select 
+              id="field-salary-unit" 
+              name="field-salary-unit" 
+              class="w-full h-12 px-4 pr-9 rounded-xl border border-border bg-white text-ink font-body text-base appearance-none focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-accent-text"
+            >
+              <option value="сар" selected>сар</option>
+              <option value="цаг">цаг</option>
+              <option value="өдөр">өдөр</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-ink-muted">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Left-ruled quote block -->
+        <blockquote class="border-l-4 border-primary bg-surface-tint/60 rounded-r-xl px-4 py-3 text-sm text-ink-soft">
+          «сарын цалин 450,000 төгрөг»
+        </blockquote>
+      </section>
+
+      <!-- Card 3: Ажлын цаг -->
+      <section class="bg-surface border border-border rounded-card p-6 md:p-7 relative overflow-hidden">
+        <svg class="absolute -right-6 -bottom-6 w-36 h-36 pointer-events-none opacity-20 text-accent-mark" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.2">
+          <polygon points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5" />
+        </svg>
+
+        <label for="field-workhours" class="block font-headline font-semibold text-base text-ink mb-2">
+          Ажлын цаг
+        </label>
+
+        <div class="mb-4">
+          <input 
+            type="text" 
+            id="field-workhours" 
+            name="field-workhours" 
+            value="10:00 – 22:30" 
+            class="w-full h-12 px-4 rounded-xl border border-border bg-white text-ink font-body text-base tabular-nums focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-accent-text"
+          />
+        </div>
+
+        <!-- Left-ruled quote block -->
+        <blockquote class="border-l-4 border-primary bg-surface-tint/60 rounded-r-xl px-4 py-3 text-sm text-ink-soft">
+          «ажлын цаг 10:00-22:30»
+        </blockquote>
+      </section>
+
+      <!-- Card 4: Долоо хоногт ажиллах өдөр -->
+      <section class="bg-surface border border-border rounded-card p-6 md:p-7 relative overflow-hidden">
+        <svg class="absolute -right-6 -bottom-6 w-36 h-36 pointer-events-none opacity-20 text-accent-mark" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.2">
+          <polygon points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5" />
+        </svg>
+
+        <label for="field-workdays" class="block font-headline font-semibold text-base text-ink mb-2">
+          Долоо хоногт ажиллах өдөр
+        </label>
+
+        <div class="mb-4">
+          <input 
+            type="text" 
+            id="field-workdays" 
+            name="field-workdays" 
+            value="6" 
+            class="w-full h-12 px-4 rounded-xl border border-border bg-white text-ink font-body text-base tabular-nums focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-accent-text"
+          />
+        </div>
+
+        <!-- Left-ruled quote block -->
+        <blockquote class="border-l-4 border-primary bg-surface-tint/60 rounded-r-xl px-4 py-3 text-sm text-ink-soft">
+          «долоо хоногт 6 өдөр»
+        </blockquote>
+      </section>
+
+      <!-- Card 5: Хоосон утга бүхий карт (Илүү цагийн нэмэгдэл хөлс / талбар) -->
+      <section class="bg-surface border border-border rounded-card p-6 md:p-7 relative overflow-hidden">
+        <svg class="absolute -right-6 -bottom-6 w-36 h-36 pointer-events-none opacity-20 text-accent-mark" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.2">
+          <polygon points="50,5 90,27.5 90,72.5 50,95 10,72.5 10,27.5" />
+        </svg>
+
+        <label for="field-overtime" class="block font-headline font-semibold text-base text-ink mb-2">
+          Илүү цагийн нэмэгдэл хөлс
+        </label>
+
+        <div class="mb-4">
+          <input 
+            type="text" 
+            id="field-overtime" 
+            name="field-overtime" 
+            value="" 
+            placeholder="Хоосон (оруулах боломжтой)" 
+            class="w-full h-12 px-4 rounded-xl border border-border bg-white text-ink font-body text-base placeholder:text-ink-muted/50 focus:outline-none focus:border-border-strong focus:ring-2 focus:ring-accent-text"
+          />
+        </div>
+
+        <!-- Amber note block: 'Гэрээнд олдсонгүй — мэдэхгүй гэж үзнэ' with amber icon/accent -->
+        <div class="border-l-4 border-verdict-amber bg-surface-tint/60 rounded-r-xl px-4 py-3 flex items-start gap-2.5 text-sm text-ink-soft">
+          <svg class="w-4 h-4 mt-0.5 text-verdict-amber flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <span class="font-medium text-verdict-amber">Гэрээнд олдсонгүй — мэдэхгүй гэж үзнэ</span>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Bottom Action Button: Primary honey pill (52px tall) -->
+    <div class="max-w-[760px] mx-auto mt-10 mb-8">
+      <button 
+        type="button" 
+        class="w-full h-[52px] rounded-pill bg-primary hover:bg-[#d69330] text-on-primary font-headline font-semibold text-lg flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-accent-text focus:ring-offset-2 transition-colors cursor-pointer shadow-none"
+      >
+        <span>Зөв байна, шалгах</span>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Clean footer minimal spacing without extra invent tags -->
+  <footer class="w-full py-6"></footer>
+
+</body>
+</html>

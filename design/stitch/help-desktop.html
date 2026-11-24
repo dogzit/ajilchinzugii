@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ажилчин Зөгийтэй ярилцах — Ажилчин Зөгий</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,600;1,7..72,600&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: '#fbf7ef',
+            surface: '#fffdf8',
+            'surface-tint': '#f3e7d3',
+            border: '#eadfcc',
+            'border-strong': '#7d6b54',
+            ink: '#2b2118',
+            'ink-soft': '#3f3124',
+            'ink-muted': '#5c4a38',
+            primary: '#e8a33d',
+            'on-primary': '#2b2118',
+            'accent-text': '#8a520a',
+            'accent-mark': '#a8761a',
+          },
+          fontFamily: {
+            headline: ['Literata', 'serif'],
+            body: ['Onest', 'sans-serif'],
+          },
+          borderRadius: {
+            'card': '24px',
+            'pill': '9999px',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #fbf7ef;
+      color: #2b2118;
+      font-family: 'Onest', sans-serif;
+    }
+    h1, h2, h3, .font-headline {
+      font-family: 'Literata', serif;
+    }
+    /* Hexagon motif stroke pattern */
+    .hex-accent {
+      stroke: #eadfcc;
+      stroke-width: 1.5;
+      fill: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-background text-ink flex flex-col justify-between selection:bg-primary selection:text-on-primary">
+
+  <!-- Header -->
+  <header class="w-full border-b border-border bg-background">
+    <div class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between">
+      <!-- Brand Wordmark with small hexagon bee mark -->
+      <a href="#" class="flex items-center gap-3 group text-ink">
+        <svg class="w-8 h-8 text-primary" viewBox="0 0 36 40" fill="none" stroke="currentColor" stroke-width="2">
+          <!-- Outer hexagon -->
+          <polygon points="18,2 34,11 34,29 18,38 2,29 2,11" stroke="#e8a33d" stroke-width="2.5" fill="#fffdf8" />
+          <!-- Bee motif inside hexagon -->
+          <ellipse cx="18" cy="20" rx="6" ry="8" fill="#e8a33d" stroke="#2b2118" stroke-width="1.5" />
+          <line x1="12" y1="18" x2="24" y2="18" stroke="#2b2118" stroke-width="1.5" />
+          <line x1="12" y1="22" x2="24" y2="22" stroke="#2b2118" stroke-width="1.5" />
+          <path d="M12,16 C8,13 8,9 13,11" stroke="#2b2118" stroke-width="1.5" fill="none" />
+          <path d="M24,16 C28,13 28,9 23,11" stroke="#2b2118" stroke-width="1.5" fill="none" />
+        </svg>
+        <span class="font-headline font-semibold text-2xl tracking-tight text-ink">Ажилчин Зөгий</span>
+      </a>
+
+      <!-- Header Right Actions -->
+      <div class="flex items-center gap-4">
+        <!-- Language Pill -->
+        <button type="button" class="px-3.5 py-1.5 rounded-full bg-surface-tint border border-border text-ink text-sm font-medium hover:border-border-strong transition-colors">
+          EN
+        </button>
+
+        <!-- Theme Toggle Icon -->
+        <button type="button" class="w-10 h-10 rounded-full flex items-center justify-center text-ink hover:bg-surface transition-colors" aria-label="Theme toggle">
+          <svg class="w-5 h-5 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+
+        <!-- Sign In Text Button -->
+        <button type="button" class="px-5 py-2 text-ink font-medium hover:text-accent-text transition-colors">
+          Нэвтрэх
+        </button>
+
+        <!-- Hamburger Menu -->
+        <button type="button" class="w-10 h-10 flex items-center justify-center text-ink hover:bg-surface rounded-full transition-colors" aria-label="Menu">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="18" x2="20" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Intake Content -->
+  <main class="flex-grow py-12 px-6">
+    <div class="max-w-[720px] mx-auto">
+      
+      <!-- Page Title & Meta Section -->
+      <div class="mb-8">
+        <h1 class="font-headline font-semibold text-3xl md:text-4xl text-ink tracking-tight mb-4">
+          Ажилчин Зөгийтэй ярилцах
+        </h1>
+
+        <!-- Priority Chip -->
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface-tint border border-border text-ink-soft text-sm font-medium mb-3">
+          <svg class="w-4 h-4 text-accent-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span>Хариу: 3 хоногийн дотор</span>
+        </div>
+
+        <!-- Lead text -->
+        <p class="text-ink-soft text-base md:text-lg leading-relaxed">
+          Манай ажилтан тантай холбогдоно. Яаралтай бол <a href="tel:108" class="text-accent-text font-semibold underline underline-offset-4 hover:opacity-80">108</a> руу залга.
+        </p>
+      </div>
+
+      <!-- Form Card Container -->
+      <div class="relative bg-surface rounded-card border border-border p-8 md:p-10">
+        
+        <!-- Faint decorative hexagon outline motif -->
+        <svg class="absolute top-6 right-6 w-36 h-36 pointer-events-none opacity-40" viewBox="0 0 120 120">
+          <polygon points="60,10 100,32 100,78 60,100 20,78 20,32" class="hex-accent" />
+          <polygon points="90,60 115,74 115,102 90,116 65,102 65,74" class="hex-accent" />
+        </svg>
+
+        <form class="relative z-10 space-y-7" onsubmit="event.preventDefault();">
+          
+          <!-- Radio Group: Холбогдох арга -->
+          <div>
+            <label class="block text-ink font-semibold text-sm mb-3">
+              Холбогдох арга
+            </label>
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Option 1: Утас (Selected) -->
+              <label class="flex items-center justify-center gap-2.5 h-[52px] px-6 rounded-pill bg-primary text-on-primary font-medium cursor-pointer transition-colors border border-transparent">
+                <input type="radio" name="contact_method" value="phone" class="sr-only" checked>
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                </svg>
+                <span>Утас</span>
+              </label>
+
+              <!-- Option 2: Facebook -->
+              <label class="flex items-center justify-center gap-2.5 h-[52px] px-6 rounded-pill bg-surface-tint border border-border text-ink font-medium cursor-pointer hover:border-border-strong transition-colors">
+                <input type="radio" name="contact_method" value="facebook" class="sr-only">
+                <svg class="w-5 h-5 text-ink-soft" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                </svg>
+                <span>Facebook</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Text Input: Утасны дугаар эсвэл Facebook хаяг -->
+          <div>
+            <label for="contact_handle" class="block text-ink font-semibold text-sm mb-2">
+              Утасны дугаар эсвэл Facebook хаяг
+            </label>
+            <input 
+              type="text" 
+              id="contact_handle" 
+              name="contact_handle"
+              placeholder="Жишээ: 99112233 эсвэл fb.com/profile" 
+              class="w-full h-[52px] px-5 rounded-pill bg-surface border border-border text-ink placeholder-ink-muted focus:outline-none focus:ring-2 focus:ring-accent-text focus:border-accent-text text-base transition-all"
+            >
+          </div>
+
+          <!-- Select: Залгахад тохиромжтой цаг -->
+          <div>
+            <label for="preferred_time" class="block text-ink font-semibold text-sm mb-2">
+              Залгахад тохиромжтой цаг
+            </label>
+            <div class="relative">
+              <select 
+                id="preferred_time" 
+                name="preferred_time"
+                class="w-full h-[52px] px-5 pr-12 rounded-pill bg-surface border border-border text-ink focus:outline-none focus:ring-2 focus:ring-accent-text focus:border-accent-text text-base appearance-none cursor-pointer transition-all"
+              >
+                <option value="morning">Өглөө</option>
+                <option value="afternoon">Өдөр</option>
+                <option value="evening">Орой</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-5 text-ink-soft">
+                <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Textarea: Товч тайлбар (заавал биш) -->
+          <div>
+            <label for="description" class="block text-ink font-semibold text-sm mb-2">
+              Товч тайлбар (заавал биш)
+            </label>
+            <textarea 
+              id="description" 
+              name="description" 
+              rows="4" 
+              placeholder="Нөхцөл байдлын талаар товч дурдана уу..."
+              class="w-full p-4 rounded-card bg-surface border border-border text-ink placeholder-ink-muted focus:outline-none focus:ring-2 focus:ring-accent-text focus:border-accent-text text-base resize-none transition-all"
+            ></textarea>
+          </div>
+
+          <!-- Checkboxes (each unticked) -->
+          <div class="space-y-4 pt-2">
+            <!-- Checkbox 1 -->
+            <label class="flex items-start gap-3.5 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                class="mt-1 w-5 h-5 rounded border-border-strong text-primary focus:ring-accent-text accent-primary cursor-pointer shrink-0"
+              >
+              <span class="text-ink text-sm leading-snug group-hover:text-ink-soft">
+                Надтай холбогдохыг зөвшөөрч байна
+              </span>
+            </label>
+
+            <!-- Checkbox 2 with Helper -->
+            <label class="flex items-start gap-3.5 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                class="mt-1 w-5 h-5 rounded border-border-strong text-primary focus:ring-accent-text accent-primary cursor-pointer shrink-0"
+              >
+              <div class="text-sm">
+                <span class="text-ink leading-snug group-hover:text-ink-soft block font-medium">
+                  Ажилчин Зөгий надад туслахын тулд хадгал
+                </span>
+                <span class="text-ink-muted text-xs leading-relaxed block mt-0.5">
+                  Регистрийн дугаар устгагдаж, файл шифрлэгдэнэ. 90 хоногийн дараа автоматаар устна.
+                </span>
+              </div>
+            </label>
+
+            <!-- Checkbox 3 -->
+            <label class="flex items-start gap-3.5 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                class="mt-1 w-5 h-5 rounded border-border-strong text-primary focus:ring-accent-text accent-primary cursor-pointer shrink-0"
+              >
+              <span class="text-ink text-sm leading-snug group-hover:text-ink-soft">
+                Эцэг эх / асран хамгаалагч зөвшөөрсөн (18 хүрээгүй бол)
+              </span>
+            </label>
+          </div>
+
+          <!-- Primary CTA Button -->
+          <div class="pt-4">
+            <button 
+              type="submit" 
+              class="w-full h-[52px] rounded-pill bg-primary hover:bg-[#dba138] text-on-primary font-medium text-base transition-colors flex items-center justify-center shadow-none active:scale-[0.99]"
+            >
+              Илгээх
+            </button>
+          </div>
+
+          <!-- Privacy Policy Link -->
+          <div class="text-center pt-1">
+            <a href="#" class="text-ink-muted hover:text-accent-text text-sm underline underline-offset-4 transition-colors">
+              Нууцлалын бодлого
+            </a>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Clean footer minimal spacer/boundary conforming strictly to instructions with no invented items -->
+  <footer class="w-full py-6 border-t border-border mt-12">
+    <div class="max-w-[1200px] mx-auto px-6 text-center text-xs text-ink-muted">
+      &copy; Ажилчин Зөгий
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Гэрээ шалгагч — Ажилчин Зөгий</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,600;1,7..72,600&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: #fbf7ef;
+      color: #2b2118;
+      font-family: 'Onest', sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 0;
+    }
+    .mobile-frame {
+      width: 100%;
+      max-width: 390px;
+      min-height: 100vh;
+      background-color: #fbf7ef;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid #eadfcc;
+      background-color: #fbf7ef;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #2b2118;
+    }
+    .bee-hex-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+    .brand-title {
+      font-family: 'Literata', serif;
+      font-weight: 600;
+      font-size: 17px;
+      letter-spacing: -0.2px;
+      color: #2b2118;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lang-pill {
+      border: 1px solid #eadfcc;
+      background: transparent;
+      color: #2b2118;
+      font-family: 'Onest', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .theme-toggle-btn, .hamburger-btn {
+      background: transparent;
+      border: none;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2b2118;
+      cursor: pointer;
+    }
+    .signin-btn {
+      background: transparent;
+      border: none;
+      color: #2b2118;
+      font-family: 'Onest', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 4px 6px;
+    }
+
+    /* Content Area */
+    main {
+      padding: 24px 16px 36px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Chip */
+    .chip-container {
+      display: flex;
+    }
+    .sub-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background-color: #f3e7d3;
+      color: #8a520a;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+    }
+    .chip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #e8a33d;
+    }
+
+    /* Titles */
+    .heading-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    h1 {
+      font-family: 'Literata', serif;
+      font-weight: 600;
+      font-size: 26px;
+      line-height: 1.22;
+      color: #2b2118;
+      letter-spacing: -0.3px;
+    }
+    .lead-text {
+      color: #5c4a38;
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    /* Choice Cards */
+    .choice-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .choice-card {
+      background-color: #fffdf8;
+      border: 1px solid #eadfcc;
+      border-radius: 24px;
+      padding: 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .choice-card:active {
+      background-color: #fff8f4;
+      border-color: #e8a33d;
+    }
+
+    /* Honey Icon Tile */
+    .honey-tile {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background-color: #e8a33d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #2b2118;
+      box-shadow: none;
+    }
+    .tile-svg {
+      width: 22px;
+      height: 22px;
+      stroke: #2b2118;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card-text-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .card-title {
+      font-family: 'Literata', serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: #2b2118;
+      line-height: 1.25;
+    }
+    .card-arrow {
+      color: #a8761a;
+      flex-shrink: 0;
+    }
+    .card-desc {
+      color: #5c4a38;
+      font-size: 13.5px;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    /* Faint hexagon pattern in background of bottom card or card accents */
+    .faint-hex {
+      position: absolute;
+      right: 14px;
+      bottom: 12px;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    /* Informational notices */
+    .info-boxes-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .quiet-info-box {
+      background-color: #fffdf8;
+      border: 1px solid #eadfcc;
+      border-radius: 18px;
+      padding: 13px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+    }
+    .quiet-info-box svg {
+      width: 18px;
+      height: 18px;
+      stroke: #7d6b54;
+      stroke-width: 1.8;
+      fill: none;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .quiet-info-text {
+      color: #5c4a38;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .amber-notice-box {
+      border: 1px solid #eadfcc;
+      border-left: 3px solid #a35f00;
+      background-color: #fff9f0;
+      border-radius: 14px;
+      padding: 11px 13px;
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+    }
+    .amber-notice-box svg {
+      width: 16px;
+      height: 16px;
+      stroke: #a35f00;
+      stroke-width: 2;
+      fill: none;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .amber-notice-text {
+      color: #7a4600;
+      font-size: 12.5px;
+      line-height: 1.4;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="mobile-frame">
+    <!-- Header -->
+    <header>
+      <a href="#" class="brand-wrap">
+        <!-- Hexagon Bee Icon -->
+        <svg class="bee-hex-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="14,2 25,8.3 25,21 14,27.3 3,21 3,8.3" fill="#e8a33d" stroke="#2b2118" stroke-width="1.5" stroke-linejoin="round" />
+          <path d="M14 9V19M10 13H18M11 16H17" stroke="#2b2118" stroke-width="1.8" stroke-linecap="round" />
+          <circle cx="14" cy="7.5" r="1.2" fill="#2b2118" />
+        </svg>
+        <span class="brand-title">Ажилчин Зөгий</span>
+      </a>
+
+      <div class="header-actions">
+        <button class="lang-pill" type="button" aria-label="Change language">EN</button>
+        <button class="theme-toggle-btn" type="button" aria-label="Toggle theme">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+        <button class="signin-btn" type="button">Нэвтрэх</button>
+        <button class="hamburger-btn" type="button" aria-label="Open navigation menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <!-- Chip -->
+      <div class="chip-container">
+        <span class="sub-chip">
+          <span class="chip-dot"></span>
+          Гэрээ шалгагч
+        </span>
+      </div>
+
+      <!-- Title & Lead -->
+      <div class="heading-group">
+        <h1>Ажлаа хэрхэн шалгуулах вэ?</h1>
+        <p class="lead-text">Гурван аргын аль нэгийг сонго. Нэвтрэх шаардлагагүй.</p>
+      </div>
+
+      <!-- 3 Choice Cards -->
+      <div class="choice-stack">
+        <!-- Card 1 -->
+        <div class="choice-card" role="button" tabindex="0">
+          <div class="honey-tile">
+            <!-- Questions checklist / speech bubble icon -->
+            <svg class="tile-svg" viewBox="0 0 24 24">
+              <path d="M9 11l3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+            </svg>
+          </div>
+          <div class="card-text-wrap">
+            <div class="card-title-row">
+              <span class="card-title">Асуултад хариулах</span>
+              <svg class="card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+            <p class="card-desc">Бичгээр гэрээ байхгүй бол. 15 асуулт, 5 минут орчим.</p>
+          </div>
+          <svg class="faint-hex" width="36" height="42" viewBox="0 0 36 42" fill="none">
+            <polygon points="18,1 35,10.8 35,31.2 18,41 1,31.2 1,10.8" stroke="#2b2118" stroke-width="1.2"/>
+          </svg>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="choice-card" role="button" tabindex="0">
+          <div class="honey-tile">
+            <!-- Text document / paste icon -->
+            <svg class="tile-svg" viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <line x1="10" y1="9" x2="8" y2="9"></line>
+            </svg>
+          </div>
+          <div class="card-text-wrap">
+            <div class="card-title-row">
+              <span class="card-title">Гэрээний текст буулгах</span>
+              <svg class="card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+            <p class="card-desc">Гэрээгээ хуулж буулгана.</p>
+          </div>
+          <svg class="faint-hex" width="36" height="42" viewBox="0 0 36 42" fill="none">
+            <polygon points="18,1 35,10.8 35,31.2 18,41 1,31.2 1,10.8" stroke="#2b2118" stroke-width="1.2"/>
+          </svg>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="choice-card" role="button" tabindex="0">
+          <div class="honey-tile">
+            <!-- Upload / camera / file icon -->
+            <svg class="tile-svg" viewBox="0 0 24 24">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+          </div>
+          <div class="card-text-wrap">
+            <div class="card-title-row">
+              <span class="card-title">Зураг эсвэл файл оруулах</span>
+              <svg class="card-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+            <p class="card-desc">Утасны зураг, PDF эсвэл Word. Зураг таны утсан дээр уншигдана.</p>
+          </div>
+          <svg class="faint-hex" width="36" height="42" viewBox="0 0 36 42" fill="none">
+            <polygon points="18,1 35,10.8 35,31.2 18,41 1,31.2 1,10.8" stroke="#2b2118" stroke-width="1.2"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Info & Notice Section -->
+      <div class="info-boxes-stack">
+        <!-- Quiet info box with lock icon -->
+        <div class="quiet-info-box">
+          <svg viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span class="quiet-info-text">Таны мэдээлэл хадгалагдахгүй. Үр дүн харуулсны дараа устгагдана.</span>
+        </div>
+
+        <!-- Amber notice -->
+        <div class="amber-notice-box">
+          <svg viewBox="0 0 24 24">
+            <polygon points="12 2 22 20 2 20 12 2"></polygon>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <circle cx="12" cy="17" r="1" fill="#a35f00"></circle>
+          </svg>
+          <span class="amber-notice-text">Тайлбарууд хуульчаар хараахан хянагдаагүй ноорог.</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

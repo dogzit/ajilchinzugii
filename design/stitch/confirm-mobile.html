@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Уншсан мэдээллээ шалгана уу — Ажилчин Зөгий</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,600;1,7..72,600&family=Onest:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ground: '#fbf7ef',
+            surface: '#fffdf8',
+            'surface-tint': '#f3e7d3',
+            border: '#eadfcc',
+            'border-strong': '#7d6b54',
+            ink: '#2b2118',
+            'ink-soft': '#3f3124',
+            'ink-muted': '#5c4a38',
+            primary: '#e8a33d',
+            'on-primary': '#2b2118',
+            'accent-text': '#8a520a',
+            'accent-mark': '#a8761a',
+            'verdict-amber': '#a35f00',
+            'amber-bg': '#fcf4e8',
+          },
+          fontFamily: {
+            serif: ['Literata', 'serif'],
+            sans: ['Onest', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #fbf7ef;
+      color: #2b2118;
+      font-family: 'Onest', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .font-tabular {
+      font-feature-settings: "tnum" 1;
+      font-variant-numeric: tabular-nums;
+    }
+    .custom-input {
+      background-color: #ffffff;
+      border: 1px solid #eadfcc;
+      color: #2b2118;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .custom-input:focus {
+      border-color: #8a520a;
+      box-shadow: 0 0 0 1px #8a520a;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex justify-center bg-ground p-0 selection:bg-[#e8a33d]/30">
+  <!-- 390px Mobile Viewport Container -->
+  <div class="w-full max-w-[390px] min-h-screen bg-ground flex flex-col justify-between relative border-x border-[#eadfcc]/60 shadow-sm">
+    
+    <!-- Top Header -->
+    <header class="w-full px-4 pt-3.5 pb-3 border-b border-border bg-ground/95 sticky top-0 z-20 backdrop-blur-sm">
+      <div class="flex items-center justify-between">
+        <!-- Logo & Wordmark -->
+        <div class="flex items-center gap-2">
+          <!-- Hexagon Bee Mark (faint outline motif with bee symbol) -->
+          <svg class="w-7 h-7 text-ink shrink-0" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="14,2 25,8.35 25,21.05 14,27.4 3,21.05 3,8.35" stroke="#a8761a" stroke-width="1.5" fill="#f3e7d3" />
+            <!-- Bee Stylized Motif -->
+            <path d="M14 8C12.5 8 11.5 9.2 11.5 10.5V17C11.5 18.5 12.5 19.5 14 19.5C15.5 19.5 16.5 18.5 16.5 17V10.5C16.5 9.2 15.5 8 14 8Z" fill="#2b2118" />
+            <path d="M11.5 12.5H16.5M11.5 15.5H16.5" stroke="#e8a33d" stroke-width="1.2" stroke-linecap="round" />
+            <!-- Tiny Wings -->
+            <path d="M11 11C8.8 9.5 7.5 11.2 9.5 13.2L11.5 13.8" stroke="#7d6b54" stroke-width="1.2" stroke-linecap="round" />
+            <path d="M17 11C19.2 9.5 20.5 11.2 18.5 13.2L16.5 13.8" stroke="#7d6b54" stroke-width="1.2" stroke-linecap="round" />
+          </svg>
+          <span class="font-serif font-semibold text-[17px] text-ink tracking-tight leading-none">
+            Ажилчин Зөгий
+          </span>
+        </div>
+
+        <!-- Right Controls: EN, Theme toggle, Sign In, Hamburger -->
+        <div class="flex items-center gap-1.5">
+          <!-- Language Pill -->
+          <span class="px-2 py-1 text-[11px] font-semibold text-ink-muted border border-border rounded-full tracking-wider bg-surface">
+            EN
+          </span>
+
+          <!-- Theme toggle icon -->
+          <button type="button" aria-label="Theme toggle" class="w-8 h-8 flex items-center justify-center rounded-full text-ink-muted hover:text-ink">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </button>
+
+          <!-- 'Нэвтрэх' Text button -->
+          <button type="button" class="text-[13px] font-medium text-ink hover:text-accent-text px-1.5 py-1">
+            Нэвтрэх
+          </button>
+
+          <!-- Hamburger -->
+          <button type="button" aria-label="Цэс" class="w-8 h-8 flex items-center justify-center rounded-full text-ink">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="px-4 pt-5 pb-28 flex-1">
+      
+      <!-- Stepper / Status Indicator -->
+      <div class="flex items-center justify-between mb-3 text-[12px] font-medium text-ink-muted">
+        <span>Гэрээ баталгаажуулах</span>
+        <span class="font-tabular font-semibold text-accent-text">Алхам 2 / 3</span>
+      </div>
+      <!-- Thin honey bar -->
+      <div class="w-full h-1 bg-[#eadfcc] rounded-full overflow-hidden mb-6">
+        <div class="h-full bg-primary rounded-full w-2/3"></div>
+      </div>
+
+      <!-- Heading & Lead -->
+      <div class="mb-6">
+        <h1 class="font-serif font-semibold text-[23px] leading-tight text-ink mb-2">
+          Уншсан мэдээллээ шалгана уу
+        </h1>
+        <p class="font-sans text-[14px] leading-relaxed text-ink-muted">
+          Утга бүрийг гэрээнээс авсан хэсэгтэй нь харьцуул. Буруу бол засна уу.
+        </p>
+      </div>
+
+      <!-- Field Cards List -->
+      <div class="flex flex-col gap-4">
+
+        <!-- Card 1: Төрсөн огноо -->
+        <div class="bg-surface rounded-[24px] border border-border p-4 relative overflow-hidden">
+          <!-- Faint Hexagon Motif watermark in corner -->
+          <svg class="absolute -right-4 -bottom-4 w-20 h-20 text-[#eadfcc]/35 pointer-events-none" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="50,5 93,30 93,80 50,105 7,80 7,30" />
+          </svg>
+
+          <label class="block text-[13px] font-semibold text-ink-soft mb-1.5" for="birthdate">
+            Төрсөн огноо
+          </label>
+          <div class="relative mb-3">
+            <input 
+              type="text" 
+              id="birthdate" 
+              value="2010-03-14" 
+              class="custom-input w-full h-[46px] rounded-full px-4 text-[15px] font-medium font-tabular text-ink"
+            />
+          </div>
+          <!-- Left-ruled Quote Block -->
+          <div class="bg-surface-tint rounded-xl border-l-[3px] border-primary px-3 py-2 text-[12px] text-ink-muted leading-relaxed font-tabular">
+            «Ажилтан: [ID], төрсөн 2010 оны 3 сарын 14»
+          </div>
+        </div>
+
+        <!-- Card 2: Цалин -->
+        <div class="bg-surface rounded-[24px] border border-border p-4 relative overflow-hidden">
+          <svg class="absolute -right-4 -bottom-4 w-20 h-20 text-[#eadfcc]/35 pointer-events-none" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="50,5 93,30 93,80 50,105 7,80 7,30" />
+          </svg>
+
+          <label class="block text-[13px] font-semibold text-ink-soft mb-1.5" for="salary">
+            Цалин
+          </label>
+          <div class="flex items-center gap-2 mb-3">
+            <input 
+              type="text" 
+              id="salary" 
+              value="450000" 
+              class="custom-input flex-1 h-[46px] rounded-full px-4 text-[15px] font-medium font-tabular text-ink"
+            />
+            <div class="relative shrink-0 w-[84px]">
+              <select class="custom-input w-full h-[46px] rounded-full px-3 pr-7 text-[13px] font-medium text-ink appearance-none cursor-pointer">
+                <option value="sar" selected>сар</option>
+                <option value="tsag">цаг</option>
+                <option value="udur">өдөр</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-ink-muted">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <!-- Left-ruled Quote Block -->
+          <div class="bg-surface-tint rounded-xl border-l-[3px] border-primary px-3 py-2 text-[12px] text-ink-muted leading-relaxed font-tabular">
+            «сарын цалин 450,000 төгрөг»
+          </div>
+        </div>
+
+        <!-- Card 3: Ажлын цаг -->
+        <div class="bg-surface rounded-[24px] border border-border p-4 relative overflow-hidden">
+          <svg class="absolute -right-4 -bottom-4 w-20 h-20 text-[#eadfcc]/35 pointer-events-none" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="50,5 93,30 93,80 50,105 7,80 7,30" />
+          </svg>
+
+          <label class="block text-[13px] font-semibold text-ink-soft mb-1.5" for="work-hours">
+            Ажлын цаг
+          </label>
+          <div class="relative mb-3">
+            <input 
+              type="text" 
+              id="work-hours" 
+              value="10:00 – 22:30" 
+              class="custom-input w-full h-[46px] rounded-full px-4 text-[15px] font-medium font-tabular text-ink"
+            />
+          </div>
+          <!-- Left-ruled Quote Block -->
+          <div class="bg-surface-tint rounded-xl border-l-[3px] border-primary px-3 py-2 text-[12px] text-ink-muted leading-relaxed font-tabular">
+            «ажлын цаг 10:00-22:30»
+          </div>
+        </div>
+
+        <!-- Card 4: Долоо хоногт ажиллах өдөр -->
+        <div class="bg-surface rounded-[24px] border border-border p-4 relative overflow-hidden">
+          <svg class="absolute -right-4 -bottom-4 w-20 h-20 text-[#eadfcc]/35 pointer-events-none" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="50,5 93,30 93,80 50,105 7,80 7,30" />
+          </svg>
+
+          <label class="block text-[13px] font-semibold text-ink-soft mb-1.5" for="work-days">
+            Долоо хоногт ажиллах өдөр
+          </label>
+          <div class="relative mb-3">
+            <input 
+              type="text" 
+              id="work-days" 
+              value="6" 
+              class="custom-input w-full h-[46px] rounded-full px-4 text-[15px] font-medium font-tabular text-ink"
+            />
+          </div>
+          <!-- Left-ruled Quote Block -->
+          <div class="bg-surface-tint rounded-xl border-l-[3px] border-primary px-3 py-2 text-[12px] text-ink-muted leading-relaxed font-tabular">
+            «долоо хоногт 6 өдөр»
+          </div>
+        </div>
+
+        <!-- Card 5: Empty value with amber note -->
+        <div class="bg-surface rounded-[24px] border border-border p-4 relative overflow-hidden">
+          <svg class="absolute -right-4 -bottom-4 w-20 h-20 text-[#eadfcc]/35 pointer-events-none" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="50,5 93,30 93,80 50,105 7,80 7,30" />
+          </svg>
+
+          <label class="block text-[13px] font-semibold text-ink-soft mb-1.5" for="overtime-rate">
+            Илүү цагийн нэмэгдэл хөлс
+          </label>
+          <div class="relative mb-3">
+            <input 
+              type="text" 
+              id="overtime-rate" 
+              placeholder="Хоосон (оруулах боломжтой)" 
+              class="custom-input w-full h-[46px] rounded-full px-4 text-[14px] text-ink placeholder:text-ink-muted/50"
+            />
+          </div>
+
+          <!-- Amber Note with Warning Badge Icon (triangle with '?') -->
+          <div class="bg-amber-bg rounded-xl border-l-[3px] border-verdict-amber p-2.5 flex items-start gap-2">
+            <div class="mt-0.5 shrink-0 text-verdict-amber">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <circle cx="12" cy="17" r="0.5" fill="currentColor"></circle>
+              </svg>
+            </div>
+            <div class="text-[12px] font-medium text-verdict-amber leading-snug">
+              Гэрээнд олдсонгүй — мэдэхгүй гэж үзнэ
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Bottom Sticky Primary CTA (52px tall pill) -->
+    <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] px-4 py-3 bg-ground/95 border-t border-border backdrop-blur-sm z-30">
+      <button 
+        type="button" 
+        class="w-full h-[52px] bg-primary hover:bg-[#d9942d] active:scale-[0.99] text-on-primary font-semibold text-[16px] rounded-full flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
+      >
+        <span>Зөв байна, шалгах</span>
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</body>
+</html>
