@@ -21,11 +21,18 @@ skeptical readers: precise, sourced, no marketing fluff.
    aggregate `Totals` and `Monthly` tabs. Do not add code that reads any other
    tab, and do not store raw rows in the database, logs or cache.
 4. **No minors' personal data anywhere**: no names, photos, schools or
-   workplaces of minors in content, alt text, file names, image EXIF, URLs or
-   seed data. Member photos require a recorded written consent (teen + parent);
-   the Media collection enforces this.
-5. **Publish only.** No forms that collect data. Contact is a plain email
-   address shown as selectable text.
+   workplaces of minors in content, alt text, file names, image EXIF, URLs,
+   logs, analytics, caches or seed data. Member photos require a recorded
+   written consent (teen + parent); the Media collection enforces this. The
+   one exception: the rater pipeline may process it in memory (redacted
+   before the LLM, discarded once the result is shown), and it may be stored
+   only by explicit opt-in (with guardian consent for ages 13–17) in an
+   encrypted case record or a member account.
+5. **Publish only — for public content pages.** Content pages collect no
+   data; contact is a plain email address shown as selectable text.
+   Exceptions, each under the privacy rules in `docs/rater/PLAN.md`: the
+   contract rater, the CV rater, Clerk sign-up and sign-in, the account area,
+   and the escalation intake form.
 6. **Bilingual.** Mongolian (`mn`, default) and English (`en`). Every page has a
    language switch that keeps the reader on the same page. No UI string is
    hardcoded; all go through `messages/{mn,en}.json` or localized CMS fields.
@@ -41,6 +48,13 @@ skeptical readers: precise, sourced, no marketing fluff.
    domain must be an env change + 301 redirect, nothing else.
 10. **Accounts belong to the client.** Do not create or reference personal
     accounts of the developer in config. All service credentials come from env.
+11. **The LLM extracts, code decides.** No verdict, score or legal judgment
+    comes from a model. Every rule, threshold, wage figure and date lives in
+    `src/lib/rater/rules.yaml` or `src/lib/cv/cv-rules.yaml`, never in a
+    component (this extends rule 1).
+12. **Rater analytics are anonymous aggregates only** (spec, "Anonymous
+    analytics"). Any public figure from them follows small-cell suppression
+    (rule 2).
 
 ## Stack
 

@@ -1,0 +1,57 @@
+# Open questions
+
+Each was resolved for now in the direction that protects the worker ("doubt
+is never green") and the build continued. Owner: **Lawyer**, **Eba** or
+**CTO**.
+
+## Lawyer
+
+1. **Official hourly minimum wage.** The engine divides the monthly minimum
+   by 168 hours (792,000 → ≈ 4,714 ₮/h until 2026-12-31; 1,000,000 → ≈ 5,952
+   ₮/h from 2027-01-01). Confirm the official hourly rate and basis.
+2. **Every rule and every `explain_mn` text** is a draft (`lawyer_verified:
+   false`). Articles come from the unofficial English translation; check each
+   against the official Mongolian text.
+3. **In-kind-only pay** (a herding helper paid in food and lodging) is rated
+   as unpaid in money: Q01 red (P1) and G04 red. Confirm whether in-kind-only
+   pay is "unpaid" under 107.4 or only "below minimum wage".
+4. **Assistant herders' rest (G09, 71.6).** The spec says "more than one
+   24-hour rest day a week". Read as two rest days (not necessarily
+   consecutive). Confirm.
+5. **G11 fixed term "only for allowed cases".** The allowed cases (50.1) are
+   not encoded, so every fixed-term contract is yellow-unknown with a
+   prompt to check. Provide the list if it should be checked.
+6. **G13 article.** The spec says "lawyer assigns".
+7. **Q02 can't quit / Q03 injured** are added as red P1 rules (see ADR §10).
+   Assign articles and approve the wording.
+8. **G08 "unless days off are given"** cannot be verified from a contract;
+   the engine ignores the exception. Confirm that is acceptable.
+9. **M02 in the questionnaire.** Without a document the engine cannot see
+   whether the date of birth is stated or an ID copy attached, so a 15–17
+   year old's M02 is at best yellow from the questionnaire. Confirm.
+10. **Consent and storage texts, privacy notice, guardian consent wording**:
+    review against Mongolia's personal data protection law.
+11. **Clerk stores account data outside Mongolia** (US/EU). Check against the
+    personal data protection law before production.
+12. **CV rules** (`cv-rules.yaml`, `staff_verified: false`): staff review,
+    and lawyer review of the over-sharing rule for minors.
+
+## Eba
+
+1. **Order A/122** (jobs prohibited to minors), in full — spec data item 2.
+   Until then every job category is `[ХҮЛЭЭГДЭЖ БУЙ / TBD]` and M08 is
+   yellow for every minor.
+2. **Light-work list for ages 13–15** (Art. 142.4) — spec data item 3. Until
+   then M01 for ages 13–14 is yellow unless the guardian did not consent.
+3. **The job-category pick list** used by the questionnaire and the CV
+   rater: confirm the categories and their Mongolian names.
+4. **Caseworker on-duty rota** and who receives P1 alerts.
+5. **Self-help kit wording** for P3 cases over capacity.
+
+## CTO
+
+1. **OCR engine** after the benchmark (spec data item 6).
+2. **Rate limits** are per isolate on Workers; move to the Rate Limiting
+   binding if abuse appears.
+3. **Key rotation** for `CASE_FILES_KEY` (re-encryption script not built).
+4. **LLM provider terms**: zero data retention and no training, in writing.
