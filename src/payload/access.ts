@@ -1,10 +1,11 @@
 import type { Access, FieldAccess, PayloadRequest } from 'payload';
 
 /**
- * Two roles: `admin` manages users and settings, `editor` writes content.
- * There is no public sign-up — only an admin can create a user.
+ * Three roles: `admin` manages users and settings, `editor` writes content,
+ * `caseworker` handles escalation cases — and only caseworkers can open a
+ * case. There is no public sign-up — only an admin can create a user.
  */
-export type Role = 'admin' | 'editor';
+export type Role = 'admin' | 'editor' | 'caseworker';
 
 export const isAdmin: Access = ({ req: { user } }) => user?.role === 'admin';
 
@@ -16,7 +17,12 @@ export const isStaff: Access = ({ req: { user } }) =>
  * boolean — a query constraint is meaningless for a login.
  */
 export const canUseAdminPanel = ({ req: { user } }: { req: PayloadRequest }): boolean =>
-  user?.role === 'admin' || user?.role === 'editor';
+  user?.role === 'admin' || user?.role === 'editor' || user?.role === 'caseworker';
+
+/** Cases are for caseworkers alone — not editors, and not admins either. */
+export const isCaseworker: Access = ({ req: { user } }) => user?.role === 'caseworker';
+
+export const isAdminOrCaseworker: Access = ({ req: { user } }) => user?.role === 'admin' || user?.role === 'caseworker';
 
 export const isAdminField: FieldAccess = ({ req: { user } }) => user?.role === 'admin';
 

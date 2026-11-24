@@ -36,11 +36,12 @@ function localeAndRobots(request: NextRequest) {
 /**
  * Where Clerk runs: its Frontend API, proxied through this origin so the
  * browser never talks to a Clerk domain (and the CSP stays close to 'self'),
- * the account pages, and the account API. Everywhere else — every public
+ * the account pages, the account API, and the case intake (so a signed-in
+ * reader's case is linked to their account). Everywhere else — every public
  * page and both raters — is untouched by it: no session check, no handshake
  * redirect, no Clerk JavaScript. Without keys Clerk is not loaded at all.
  */
-const CLERK_PATHS = /^\/(?:__clerk(?:\/|$)|api\/account(?:\/|$)|(?:mn|en)\/(?:sign-in|sign-up|account)(?:\/|$))/;
+const CLERK_PATHS = /^\/(?:__clerk(?:\/|$)|api\/account(?:\/|$)|api\/rater\/cases$|(?:mn|en)\/(?:sign-in|sign-up|account)(?:\/|$))/;
 
 const withClerk = clerkConfigured()
   ? clerkMiddleware(
@@ -53,6 +54,8 @@ const withClerk = clerkConfigured()
 
 export default function proxy(request: NextRequest, event: NextFetchEvent) {
   if (withClerk && CLERK_PATHS.test(request.nextUrl.pathname)) return withClerk(request, event);
+  // An API route in the matcher (for Clerk's sake) has no locale to add.
+  if (request.nextUrl.pathname.startsWith('/api/')) return NextResponse.next();
   return localeAndRobots(request);
 }
 
@@ -67,6 +70,8 @@ export const config = {
     '/(mn|en)/:path*',
     '/__clerk/:path*',
     '/api/account/:path*',
+    // So a signed-in reader's case links to their account.
+    '/api/rater/cases',
     '/((?!admin|api|guide|_next|_vercel|__clerk|.*\\..*).*)',
   ],
 };

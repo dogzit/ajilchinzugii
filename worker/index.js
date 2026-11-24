@@ -91,6 +91,16 @@ const handler = {
     }
 
     console.log(`[cron] revalidated the impact figures at ${at}`);
+
+    // The same daily run deletes opted-in case files that are 90 days old or
+    // whose case has closed (src/app/api/cases/purge).
+    const purge = await worker.default.fetch(
+      new Request(new URL('/api/cases/purge', base), { headers: { authorization: `Bearer ${env.CRON_SECRET}` } }),
+      env,
+      ctx,
+    );
+    if (!purge.ok) throw new Error(`[cron] case purge failed (${purge.status}) at ${at}`);
+    console.log(`[cron] purged case files at ${at}`);
   },
 };
 

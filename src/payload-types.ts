@@ -74,6 +74,9 @@ export interface Config {
     users: User;
     members: Member;
     'saved-ratings': SavedRating;
+    cases: Case;
+    'case-access-log': CaseAccessLog;
+    'rater-stats': RaterStat;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -88,6 +91,9 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     members: MembersSelect<false> | MembersSelect<true>;
     'saved-ratings': SavedRatingsSelect<false> | SavedRatingsSelect<true>;
+    cases: CasesSelect<false> | CasesSelect<true>;
+    'case-access-log': CaseAccessLogSelect<false> | CaseAccessLogSelect<true>;
+    'rater-stats': RaterStatsSelect<false> | RaterStatsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -264,7 +270,6 @@ export interface Media {
     metaTitle?: string | null;
     metaDescription?: string | null;
   };
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -411,9 +416,13 @@ export interface User {
   id: number;
   name: string;
   /**
-   * Админ хэрэглэгч, тохиргоог удирдана. Редактор агуулга бичнэ. Admins manage users and settings. Editors write content.
+   * Админ хэрэглэгч, тохиргоог удирдана. Редактор агуулга бичнэ. Хэргийн ажилтан тусламж хүссэн хэргүүдийг хариуцна. Admins manage users and settings. Editors write content. Caseworkers handle escalation cases.
    */
-  role: 'admin' | 'editor';
+  role: 'admin' | 'editor' | 'caseworker';
+  /**
+   * Яаралтай (P1) хэргийн мэдэгдлийг и-мэйлээр авна. Receives P1 alerts by email.
+   */
+  onDuty?: boolean | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -516,6 +525,85 @@ export interface SavedRating {
   createdAt: string;
 }
 /**
+ * Зөвхөн хэргийн ажилтан нээнэ; нээх бүр бүртгэгдэнэ. Caseworkers only; every view is logged.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cases".
+ */
+export interface Case {
+  id: number;
+  caseId: string;
+  priority: 'P1' | 'P2' | 'P3';
+  deadline: string;
+  overCapacity?: boolean | null;
+  weekKey: string;
+  status: 'new' | 'contacted' | 'in_progress' | 'referred' | 'closed';
+  outcome?:
+    ('fixed_with_employer' | 'referred_labour_inspection' | 'referred_cmtu_legal_aid' | 'no_response' | 'other') | null;
+  caseworker?: (number | null) | User;
+  failedRules:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  ageBand?: string | null;
+  jobCategory?: string | null;
+  contactMethod: 'phone' | 'facebook';
+  /**
+   * Шифрлэгдсэн. Encrypted at rest.
+   */
+  contact: string;
+  bestTime?: ('morning' | 'day' | 'evening') | null;
+  /**
+   * Шифрлэгдсэн. Encrypted at rest.
+   */
+  description?: string | null;
+  consentToContact: boolean;
+  storeFile?: boolean | null;
+  guardianConsent?: boolean | null;
+  guardianConsentAt?: string | null;
+  /**
+   * 18 хүрээгүй бол анхны дуудлагаар асран хамгаалагчийн зөвшөөрлийг баталгаажуулна. For a minor, confirm the guardian consented on the first call.
+   */
+  guardianConfirmedOnCall?: boolean | null;
+  fileKey?: string | null;
+  fileDeleteAt?: string | null;
+  memberClerkId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "case-access-log".
+ */
+export interface CaseAccessLog {
+  id: number;
+  case?: (number | null) | Case;
+  user: number | User;
+  action: 'view';
+  at: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rater-stats".
+ */
+export interface RaterStat {
+  id: number;
+  ruleId: string;
+  result: 'green' | 'yellow' | 'red';
+  ruleSetVersion: string;
+  month: string;
+  ageBand: string;
+  jobCategory: string;
+  employerKind: string;
+  aimag?: string | null;
+  count: number;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -566,6 +654,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'saved-ratings';
         value: number | SavedRating;
+      } | null)
+    | ({
+        relationTo: 'cases';
+        value: number | Case;
+      } | null)
+    | ({
+        relationTo: 'case-access-log';
+        value: number | CaseAccessLog;
+      } | null)
+    | ({
+        relationTo: 'rater-stats';
+        value: number | RaterStat;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -736,7 +836,6 @@ export interface MediaSelect<T extends boolean = true> {
         metaTitle?: T;
         metaDescription?: T;
       };
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -820,6 +919,7 @@ export interface MediaSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
+  onDuty?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -867,6 +967,62 @@ export interface SavedRatingsSelect<T extends boolean = true> {
   ratedOn?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cases_select".
+ */
+export interface CasesSelect<T extends boolean = true> {
+  caseId?: T;
+  priority?: T;
+  deadline?: T;
+  overCapacity?: T;
+  weekKey?: T;
+  status?: T;
+  outcome?: T;
+  caseworker?: T;
+  failedRules?: T;
+  ageBand?: T;
+  jobCategory?: T;
+  contactMethod?: T;
+  contact?: T;
+  bestTime?: T;
+  description?: T;
+  consentToContact?: T;
+  storeFile?: T;
+  guardianConsent?: T;
+  guardianConsentAt?: T;
+  guardianConfirmedOnCall?: T;
+  fileKey?: T;
+  fileDeleteAt?: T;
+  memberClerkId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "case-access-log_select".
+ */
+export interface CaseAccessLogSelect<T extends boolean = true> {
+  case?: T;
+  user?: T;
+  action?: T;
+  at?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "rater-stats_select".
+ */
+export interface RaterStatsSelect<T extends boolean = true> {
+  ruleId?: T;
+  result?: T;
+  ruleSetVersion?: T;
+  month?: T;
+  ageBand?: T;
+  jobCategory?: T;
+  employerKind?: T;
+  aimag?: T;
+  count?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

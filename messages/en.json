@@ -886,5 +886,50 @@
         "body": "If you have a question, write to the email address at the bottom of the site."
       }
     }
+  },
+  "cases": {
+    "title": "Talk to Ajilchin Zugii",
+    "lead": "One of our team will contact you and plan the next step with you. If it is urgent, call 108.",
+    "responseTime": {
+      "P1": "within 24 hours",
+      "P2": "within 3 days",
+      "P3": "within 7 days"
+    },
+    "response": "Reply: {time}",
+    "contactMethod": "How to contact you",
+    "phone": "Phone",
+    "facebook": "Facebook",
+    "contact": "Phone number or Facebook name",
+    "bestTime": "Best time to call",
+    "morning": "Morning",
+    "day": "Daytime",
+    "evening": "Evening",
+    "description": "A short description (optional)",
+    "consent": "I agree to Ajilchin Zugii contacting me.",
+    "store": "Save so Ajilchin Zugii can help me",
+    "storeHelp": "The contract text is stored without your register number, encrypted. It is deleted automatically after 90 days or when the case closes.",
+    "guardian": "My parent or guardian has agreed",
+    "guardianHelp": "If you leave this unticked, our caseworker will ask on the first call.",
+    "deleteEmail": "Email for the delete link (optional)",
+    "deleteEmailHelp": "Used once to send the link, then not kept.",
+    "linkedAccount": "This will be linked to your account.",
+    "submit": "Send",
+    "sending": "Sending…",
+    "doneTitle": "Received",
+    "done": "Your case number is {caseId}. One of our team will contact you {time}.",
+    "overCapacityNote": "We are very busy this week, but your case has been accepted.",
+    "fileNotStored": "Storing the contract is not available right now — only your contact details were saved.",
+    "deleteLinkTitle": "Link to delete your information",
+    "deleteLinkBody": "Keep this link — you can delete your case information whenever you want.",
+    "selfHelpTitle": "Our whole team is busy this week",
+    "selfHelpBody": "Start with the message to your employer and the corrected contract template on your result. You can ask again from {date}.",
+    "backToResults": "Back to the result",
+    "notConfigured": "Asking for help is not available right now. Call 108, or write to the email address below.",
+    "error": "We could not send it. Please try again.",
+    "deleteTitle": "Delete your case information",
+    "deleteBody": "Press the button below to delete your case and any stored file for good. This cannot be undone.",
+    "deleteButton": "Delete",
+    "deleted": "Deleted. Nothing of your case is left.",
+    "deleteInvalid": "This link is not valid, or the information has already been deleted."
   }
 }

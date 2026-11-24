@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { ContractRater } from '@/components/rater/contract-rater';
 import type { AccountMessages } from '@/components/accounts/sign-up-gate';
+import type { CaseMessages } from '@/components/rater/case-intake';
 import type { RaterMessages } from '@/components/rater/types';
 import type { Locale } from '@/i18n/routing';
 import { getSite } from '@/lib/cms';
@@ -35,6 +36,7 @@ export default async function ContractCheckPage({ params }: Props) {
       <ContractRater
         t={(messages as { rater: RaterMessages }).rater}
         accountT={(messages as { account: AccountMessages }).account}
+        casesT={(messages as { cases: CaseMessages }).cases}
         rules={raterRuleTexts(locale)}
         categories={raterCategories(locale)}
         locale={locale}

@@ -6,6 +6,7 @@ import { Pill } from '@/components/ui/pill';
 import type { Rating } from '@/lib/rater/engine';
 import { answersToFields, emptyAnswers, type Answers } from '@/lib/rater/questionnaire';
 import type { AccountMessages } from '@/components/accounts/sign-up-gate';
+import { CaseIntake, type CaseMessages } from './case-intake';
 import { ConfirmFields } from './confirm-fields';
 import { DocumentInput, type Extracted } from './document-input';
 import { Questionnaire } from './questionnaire';
@@ -33,8 +34,10 @@ export function ContractRater({
   privacyHref,
   contactEmail,
   accountT,
+  casesT,
 }: {
   accountT: AccountMessages;
+  casesT: CaseMessages;
   t: RaterMessages;
   rules: Record<string, RuleText>;
   categories: CategoryOption[];
@@ -155,29 +158,19 @@ export function ContractRater({
     );
   }
 
-  if (step.name === 'help') {
+  if (step.name === 'help' && request && rating?.priority) {
     return (
-      <section aria-labelledby="help" className="mx-auto max-w-[40rem]">
-        <h2 id="help" className="text-ink">
-          {t.help.title}
-        </h2>
-        <p className="text-ink-soft mt-4">{t.help.body}</p>
-        <p className="mt-6 flex flex-wrap gap-3">
-          <a href="tel:108" className="border-border-strong text-ink inline-flex min-h-11 items-center gap-2 rounded-full border px-5 font-medium">
-            <Icon name="phone" className="h-4 w-4" />
-            {t.results.call108}
-          </a>
-        </p>
-        {contactEmail ? <p className="text-ink mt-6 select-all">{t.help.email.replace('{email}', contactEmail)}</p> : null}
-        <button
-          type="button"
-          onClick={() => setStep({ name: 'results' })}
-          className="text-accent-text hover:text-ink mt-8 inline-flex min-h-11 items-center gap-1.5 font-medium"
-        >
-          <Icon name="arrow-left" className="h-4 w-4" />
-          {t.help.back}
-        </button>
-      </section>
+      <CaseIntake
+        t={casesT}
+        locale={locale}
+        request={request}
+        priority={rating.priority}
+        minor={['under_13', '13_14', '15_17', 'unknown'].includes(rating.ageBand)}
+        documentText={request.fields.source === 'document' ? (extracted?.text ?? null) : null}
+        contactEmail={contactEmail}
+        phoneLabel={t.results.call108}
+        onBack={() => setStep({ name: 'results' })}
+      />
     );
   }
 

@@ -79,11 +79,22 @@ export const Users: CollectionConfig = {
       options: [
         { label: 'Админ / Admin', value: 'admin' },
         { label: 'Редактор / Editor', value: 'editor' },
+        { label: 'Хэргийн ажилтан / Caseworker', value: 'caseworker' },
       ],
       label: 'Үүрэг / Role',
       admin: {
         description:
-          'Админ хэрэглэгч, тохиргоог удирдана. Редактор агуулга бичнэ. Admins manage users and settings. Editors write content.',
+          'Админ хэрэглэгч, тохиргоог удирдана. Редактор агуулга бичнэ. Хэргийн ажилтан тусламж хүссэн хэргүүдийг хариуцна. Admins manage users and settings. Editors write content. Caseworkers handle escalation cases.',
+      },
+    },
+    {
+      name: 'onDuty',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Жижүүр / On duty',
+      admin: {
+        condition: (data) => data?.role === 'caseworker',
+        description: 'Яаралтай (P1) хэргийн мэдэгдлийг и-мэйлээр авна. Receives P1 alerts by email.',
       },
     },
   ],

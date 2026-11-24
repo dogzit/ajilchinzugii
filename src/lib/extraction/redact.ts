@@ -19,10 +19,12 @@ const RULES: { label: string; pattern: RegExp }[] = [
   // 9–20 digits, or 4-digit groups — longer than a phone number, and no pay
   // amount a teen is offered is written as 100,000,000 without separators.
   { label: '[ACCOUNT]', pattern: /\bMN\s?\d{2}(?:[\s-]?\d{2,4}){4,8}\b/gi },
-  { label: '[ACCOUNT]', pattern: /(?<![\d.,])(?:\d{9,20}|\d{4}(?:[\s-]\d{4}){2,4})(?![\d.,])/g },
+  { label: '[ACCOUNT]', pattern: /(?<!\d|\d[.,])(?:\d{9,20}|\d{4}(?:[\s-]\d{4}){2,4})(?!\d|[.,]\d)/g },
   // Phone: Mongolian mobile and landline numbers, 8 digits, optionally
   // grouped and with the +976 country code.
-  { label: '[PHONE]', pattern: /(?:\+?976[\s-]?)?(?<![\d.,])[5-9]\d(?:[\s-]?\d){6}(?![\d.,])/g },
+  // A full stop or comma after the number ends the sentence; only a digit
+  // after it (450,000 or 1.5) makes it part of a larger number.
+  { label: '[PHONE]', pattern: /(?:\+?976[\s-]?)?(?<!\d|\d[.,])[5-9]\d(?:[\s-]?\d){6}(?!\d|[.,]\d)/g },
 ];
 
 export type Redaction = { text: string; counts: Record<string, number> };

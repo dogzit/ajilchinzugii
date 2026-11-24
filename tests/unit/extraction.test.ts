@@ -32,6 +32,15 @@ describe('redaction', () => {
     expect(redact(`x ${input} y`).text).toBe(`x ${label} y`);
   });
 
+  it.each([
+    ['утас 99112233.', 'утас [PHONE].'],
+    ['утас 99112233, и-мэйл', 'утас [PHONE], и-мэйл'],
+    ['(99112233)', '([PHONE])'],
+    ['данс 5000123456.', 'данс [ACCOUNT].'],
+  ])('redacts a number at the end of a sentence: %s', (input, output) => {
+    expect(redact(input).text).toBe(output);
+  });
+
   it.each(['2026.09.01', '2010 оны 3 сарын 14', '450,000 төгрөг', '7,000', '13:00-19:00', '1 300 000', 'сард 2 удаа'])(
     'leaves %s alone',
     (input) => {

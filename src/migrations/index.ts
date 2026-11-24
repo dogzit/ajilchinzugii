@@ -11,6 +11,7 @@ import * as migration_20261107_131511_site_logo_restore from './20261107_131511_
 import * as migration_20261110_161011_localize_team_name from './20261110_161011_localize_team_name';
 import * as migration_20261117_221500_drop_team_name from './20261117_221500_drop_team_name';
 import * as migration_20261124_085238_rater_members from './20261124_085238_rater_members';
+import * as migration_20261124_090611_rater_cases from './20261124_090611_rater_cases';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20261124_085238_rater_members.up,
     down: migration_20261124_085238_rater_members.down,
-    name: '20261124_085238_rater_members'
+    name: '20261124_085238_rater_members',
+  },
+  {
+    up: migration_20261124_090611_rater_cases.up,
+    down: migration_20261124_090611_rater_cases.down,
+    name: '20261124_090611_rater_cases'
   },
 ];
