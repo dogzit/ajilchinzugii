@@ -39,6 +39,23 @@ is never green") and the build continued. Owner: **Lawyer**, **Eba** or
     is red. Confirm whether the minimum applies to short or part-time shifts.
 13. **CV rules** (`cv-rules.yaml`, `staff_verified: false`): staff review,
     and lawyer review of the over-sharing rule for minors.
+14. **Overtime and night rates written as percentages.** Code reads a rate
+    up to 3 as a multiplier (1.5), 100 or more as a total percentage (150%),
+    and anything between as an extra on top (50% нэмэгдэл → 1.5). So
+    "100% нэмэгдэл" (double pay) reads as 1.0 and fails — a false red, never
+    a false green. Confirm, or add a unit to the extraction.
+15. **M10 when the AI finds no non-compete clause** in a document: green,
+    labelled "checked by AI", as for G13. A clause the model names but cannot
+    quote is yellow. Confirm the AI-checked green is acceptable for a red rule.
+16. **Monthly pay against the minimum** is pro-rated by weekly hours over 40,
+    so exactly the monthly minimum at 40 hours passes; hourly figures use
+    the 168-hour basis. Confirm both.
+17. **Names are not redacted** before the model (rule 4 says "redacted
+    before the LLM"; the spec lists register numbers, phones, emails and
+    accounts). Decide whether names must go too.
+18. **A minor's file without guardian consent** is not stored; the case
+    still opens. Confirm, or hold the file until a caseworker confirms
+    consent on the call.
 
 ## Eba
 

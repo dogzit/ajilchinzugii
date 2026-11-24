@@ -13,7 +13,15 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    // The raters are used on phones first: their flows run again at phone size.
+    {
+      name: 'mobile',
+      use: { ...devices['Pixel 7'] },
+      testMatch: /(contract-check|contract-document|cv-check|cases|accounts|rater-a11y)\.spec\.ts/,
+    },
+  ],
   webServer: {
     command: `pnpm build && pnpm start --port ${PORT}`,
     url: baseURL,

@@ -63,8 +63,11 @@ export async function openCase(
   const deadline = new Date(now.getTime() + ruleSet.escalation.response_hours[priority] * 3_600_000).toISOString();
   const fields = request.actual ?? request.fields;
 
+  // A minor's file (or one whose age is unknown) is stored only with a
+  // guardian's consent (CLAUDE.md rule 4); without it the case still opens.
+  const adult = rating.ageBand === '18_24' || rating.ageBand === '25_plus';
   let fileKey: string | null = null;
-  if (intake.storeFile && options.store) {
+  if (intake.storeFile && options.store && (adult || intake.guardianConsent)) {
     // Redacted again here whatever the browser sent: the register number is
     // never stored (spec, "Opt-in storage").
     const bundle = {

@@ -1,4 +1,4 @@
-import type mnMessages from '@messages/mn.json';
+import type mnMessages from '@messages/tools/mn.json';
 
 /** The `rater` message namespace, handed down from the server as plain strings. */
 export type RaterMessages = (typeof mnMessages)['rater'];

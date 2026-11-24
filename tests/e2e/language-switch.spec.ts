@@ -4,7 +4,7 @@ import { expect, test } from '@playwright/test';
  * The switch must land on the same page in the other language — from either
  * language, on every page, by mouse and by keyboard.
  */
-const paths = ['/', '/impact', '/methodology', '/research', '/policy', '/about'];
+const paths = ['/', '/impact', '/methodology', '/research', '/policy', '/about', '/contract-check', '/cv-check', '/privacy'];
 const pairs = [
   { from: 'mn', to: 'en', lang: 'en' },
   { from: 'en', to: 'mn', lang: 'mn-MN' },

@@ -10,9 +10,18 @@ import { NavPending } from '@/components/nav-pending';
  * The language switch is deliberately not one of these: it reloads the
  * document, and the browser's own cross-document transition covers it.
  */
+/**
+ * The two tools are not prefetched. Their pages carry every question,
+ * explanation and label in both raters' vocabularies, and a home page that
+ * fetched both in the background spent ~30 KB of a 400 KB budget on pages
+ * most readers of it never open. They load on the click instead.
+ */
+const NO_PREFETCH = /\/(contract-check|cv-check)(?:$|[?#])/;
+
 export function Link({ children, ...props }: React.ComponentProps<typeof NextLink>) {
+  const prefetch = props.prefetch ?? (typeof props.href === 'string' && NO_PREFETCH.test(props.href) ? false : undefined);
   return (
-    <NextLink {...props}>
+    <NextLink {...props} prefetch={prefetch}>
       {children}
       <NavPending />
     </NextLink>

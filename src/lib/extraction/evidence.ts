@@ -17,10 +17,29 @@ export function normalize(text: string): string {
     .trim();
 }
 
-/** True when a non-trivial excerpt occurs in the source. */
+/**
+ * True when a non-trivial excerpt occurs in the source. A quote cut short
+ * with "…" is matched without the dots. A number at either end of the quote
+ * must not be part of a longer number in the source: "20" is not in "2026".
+ */
 export function excerptMatches(excerpt: string, source: string): boolean {
-  const needle = normalize(excerpt);
+  const needle = normalize(excerpt).replace(/^(?:\.{3}|…)\s*|\s*(?:\.{3}|…)$/g, '');
   // Two characters could match anywhere; an excerpt must quote something.
   if (needle.replace(/[^\p{L}\p{N}]/gu, '').length < 2) return false;
-  return normalize(source).includes(needle);
+  const haystack = normalize(source);
+  const digit = /\d/;
+  for (let at = haystack.indexOf(needle); at !== -1; at = haystack.indexOf(needle, at + 1)) {
+    const before = haystack[at - 1] ?? '';
+    const after = haystack[at + needle.length] ?? '';
+    if (digit.test(needle[0]!) && digit.test(before)) continue;
+    if (digit.test(needle.at(-1)!) && digit.test(after)) continue;
+    return true;
+  }
+  return false;
+}
+
+/** True when the digits of a number appear in its quote: 7000 in "7,000 төгрөг". */
+export function numberInExcerpt(value: number, excerpt: string): boolean {
+  const digits = (text: string) => text.replace(/\D/g, '');
+  return digits(excerpt).includes(digits(String(value)));
 }

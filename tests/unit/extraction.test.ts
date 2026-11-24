@@ -5,10 +5,11 @@ import { PDFDocument } from 'pdf-lib';
 import { POST as extractPOST } from '../../src/app/api/rater/extract/route';
 import { contractWireSchema, type ContractWire } from '../../src/lib/extraction/contract';
 import { excerptMatches, normalize } from '../../src/lib/extraction/evidence';
+import { emptyExtraction } from '../../src/lib/rater/fields';
 import type { ExtractionSpec, Extractor } from '../../src/lib/extraction/extractor';
 import { mockExtractor } from '../../src/lib/extraction/mock';
 import { redact } from '../../src/lib/extraction/redact';
-import { extractContract } from '../../src/lib/extraction/service';
+import { checkContractEvidence, extractContract } from '../../src/lib/extraction/service';
 import { docxText, ExtractionError, fileText, pdfText } from '../../src/lib/extraction/text';
 import { limit } from '../../src/lib/rate-limit';
 import { evaluate, TARGET } from '../../scripts/eval-extraction';
@@ -28,6 +29,19 @@ describe('redaction', () => {
     ['MN12 0005 0000 1234 5678', '[ACCOUNT]'],
     ['5000123456', '[ACCOUNT]'],
     ['5000 0000 0000 0000', '[ACCOUNT]'],
+    // Found in review: OCR look-alikes, spaced or dotted digits, landlines, groups.
+    ['СA 08251512', '[ID]'],
+    ['УБ 0825 1512', '[ID]'],
+    ['УБ08 25 15 12', '[ID]'],
+    ['УБ№08251512', '[ID]'],
+    ['9911.2233', '[PHONE]'],
+    ['9911–2233', '[PHONE]'],
+    ['11-312345', '[PHONE]'],
+    ['+976 (11) 312345', '[PHONE]'],
+    ['501-234-5678', '[ACCOUNT]'],
+    ['50 1234 5678', '[ACCOUNT]'],
+    ['5012 3456 78', '[ACCOUNT]'],
+    ['bat.bold [at] gmail.com', '[EMAIL]'],
   ])('replaces %s', (input, label) => {
     expect(redact(`x ${input} y`).text).toBe(`x ${label} y`);
   });
@@ -41,7 +55,7 @@ describe('redaction', () => {
     expect(redact(input).text).toBe(output);
   });
 
-  it.each(['2026.09.01', '2010 оны 3 сарын 14', '450,000 төгрөг', '7,000', '13:00-19:00', '1 300 000', 'сард 2 удаа'])(
+  it.each(['2026.09.01', '2010 оны 3 сарын 14', '450,000 төгрөг', '7,000', '13:00-19:00', '1 300 000', 'сард 2 удаа', '2026.09.01 - 2026.12.31', '15 000 000 төгрөг', '1.5 дахин'])(
     'leaves %s alone',
     (input) => {
       expect(redact(input).text).toBe(input);
@@ -104,9 +118,27 @@ describe('the extraction pipeline', () => {
     expect(dropped).toContain('medical_checks');
   });
 
-  it('drops a flagged clause the document does not contain', async () => {
-    const { fields } = await extractContract(text01, fixed({ flagged_clauses: [{ category: 'fine', excerpt: 'хоцорвол торгууль төлнө', page: 1 }] }));
-    expect(fields.flagged_clauses).toEqual([]);
+  it('keeps a flagged clause the document does not contain only as unverified, without its made-up quote', async () => {
+    const { fields, dropped } = await extractContract(text01, fixed({ flagged_clauses: [{ category: 'fine', excerpt: 'хоцорвол торгууль төлнө', page: 1 }] }));
+    expect(fields.flagged_clauses).toEqual([{ category: 'fine', excerpt: '', page: 1, unverified: true }]);
+    expect(dropped).toContain('flagged_clauses');
+  });
+
+  it('matches a quote cut short with an ellipsis', () => {
+    expect(excerptMatches('Цагийн хөлс 7,000…', text01)).toBe(true);
+  });
+
+  it('keeps a number only when its quote shows that number, as a whole number', () => {
+    const text = 'Гэрээ 2026 оны 9 сарын 1. Цалин сард олгоно. Ажлын цаг тохиролцоно.';
+    expect(excerptMatches('20', text)).toBe(false);
+    const ex = emptyExtraction();
+    ex.pay.amount = 2_000_000;
+    ex.schedule.hours_per_week = 20;
+    ex.evidence = { 'pay.amount': { excerpt: 'Цалин', page: 1, confidence: 1 }, 'schedule.hours_per_week': { excerpt: '20', page: 1, confidence: 1 } };
+    const { fields, dropped } = checkContractEvidence(ex, text);
+    expect(fields.pay.amount).toBeNull();
+    expect(fields.schedule.hours_per_week).toBeNull();
+    expect(dropped).toEqual(expect.arrayContaining(['pay.amount', 'schedule.hours_per_week']));
   });
 
   it('makes a malformed date or time unknown instead of failing the document', async () => {

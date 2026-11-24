@@ -1,5 +1,5 @@
 import { limit } from '@/lib/rate-limit';
-import mn from '@messages/mn.json';
+import mn from '@messages/tools/mn.json';
 import { writeEmployerMessage } from '@/lib/rater/employer-message';
 import { json, problem, readJson } from '@/lib/rater/http';
 import { renderDetail } from '@/lib/rater/present';

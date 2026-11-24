@@ -8,8 +8,12 @@ export default getRequestConfig(async ({ requestLocale }) => {
     ? requested
     : routing.defaultLocale;
 
-  return {
-    locale,
-    messages: (await import(`../../messages/${locale}.json`)).default,
-  };
+  // The tools' strings (both raters, accounts, cases, the privacy notice)
+  // live in their own catalogue so that the error boundary, which imports
+  // the main one into every page's bundle, does not carry them too.
+  const [main, tools] = await Promise.all([
+    import(`../../messages/${locale}.json`),
+    import(`../../messages/tools/${locale}.json`),
+  ]);
+  return { locale, messages: { ...main.default, ...tools.default } };
 });

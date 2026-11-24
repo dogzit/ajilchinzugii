@@ -1,4 +1,8 @@
 @import 'tailwindcss';
+/* Design references and docs are not the site: their mock-up classes must not
+   reach every page's stylesheet. */
+@source not '../../design';
+@source not '../../docs';
 
 /*
  * Design tokens. Warm, light and quiet: a cream ground, brown text, one

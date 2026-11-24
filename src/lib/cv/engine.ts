@@ -58,7 +58,10 @@ const evaluators: Record<string, (input: CvInput, set: CvRuleSet, contract: Rule
     const phone = (redactions['[PHONE]'] ?? 0) > 0 || cv.contact.phone === true;
     const email = (redactions['[EMAIL]'] ?? 0) > 0 || cv.contact.email === true;
     if (phone || email || cv.contact.other === true) return { status: 'pass' };
-    return { status: 'fail', details: [{ key: 'noContact' }] };
+    // Only a "no" for every kind of contact is a fail; the model's silence is not.
+    const { contact } = cv;
+    if (contact.phone === false && contact.email === false && contact.other === false) return { status: 'fail', details: [{ key: 'noContact' }] };
+    return { status: 'unknown', details: [{ key: 'noContact' }] };
   },
 
   C02_OVERSHARING({ cv, redactions, profile }, set) {
@@ -71,7 +74,11 @@ const evaluators: Record<string, (input: CvInput, set: CvRuleSet, contract: Rule
     const quotes = [cv.evidence.home_address?.excerpt, cv.evidence.family_details?.excerpt].filter((q): q is string => Boolean(q));
     if (found.length) {
       // Unknown age gets the minor's severity: doubt protects the young person.
-      const severity = minor(profile) === false ? params.severity_adult : params.severity_minor;
+      // But a red needs a finding code made — a register number the redactor
+      // removed, or a photo the person said is there — not the model's reading
+      // alone, which goes no further than yellow.
+      const codeFound = found.some((d) => d.key === 'registerNumber' || d.key === 'photo');
+      const severity = minor(profile) === false || !codeFound ? params.severity_adult : params.severity_minor;
       return { status: 'fail', severity, details: found, quotes };
     }
     if (cv.home_address === null || cv.family_details === null || profile.hasPhoto === null) return { status: 'unknown', details: [{ key: 'oversharingUnknown' }] };

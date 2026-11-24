@@ -2,7 +2,10 @@ import { z } from 'zod';
 import { currentUserId } from '@/lib/accounts/clerk';
 import { sameOrigin } from '@/lib/accounts/http';
 import { canStore, findMember, payload } from '@/lib/accounts/members';
+import { cvRuleSet } from '@/lib/cv/rule-set';
 import { json, problem, readJson, todayInUlaanbaatar } from '@/lib/rater/http';
+import { ruleSet } from '@/lib/rater/rule-set';
+import { worstVerdict } from '@/lib/rater/verdict';
 
 /**
  * Saves a rating the member chose to keep: rule ids and colours, the score,
@@ -18,7 +21,14 @@ const bodySchema = z.object({
   verdict,
   score: z.number().int().min(1).max(100),
   results: z.array(z.object({ id: z.string().regex(/^[A-Z]\d{2}_[A-Z0-9_]+$/), verdict })).max(40),
-});
+})
+  // The fields are the browser's, so they must at least agree with each
+  // other: the verdict is the worst rule's, and the score sits in its band.
+  .refine((r) => r.verdict === worstVerdict(r.results.map((x) => x.verdict)))
+  .refine((r) => {
+    const band = (r.kind === 'cv' ? cvRuleSet : ruleSet).score.bands[r.verdict];
+    return r.score >= band.min && r.score <= band.max;
+  });
 
 export async function POST(request: Request) {
   if (!sameOrigin(request)) return problem('forbidden', 403);

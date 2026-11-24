@@ -139,7 +139,13 @@ describe('opening a case', () => {
     expect(store.objects.size).toBe(0);
 
     const text = 'Ажилтан АС 12345678, утас 99112233. Ажлын цаг 17:30-22:30.';
-    await openCase(payload, p2, { ...intake, storeFile: true, text }, { store, memberClerkId: 'user_1', now, alert: vi.fn() });
+    // A minor's file needs a guardian's consent; without it the case opens with no file.
+    const noGuardian = await openCase(payload, p2, { ...intake, storeFile: true, guardianConsent: false, text }, { store, memberClerkId: null, now, alert: vi.fn() });
+    expect(noGuardian).toMatchObject({ accepted: true, fileStored: false });
+    expect(store.objects.size).toBe(0);
+    payload.tables.cases.pop();
+
+    await openCase(payload, p2, { ...intake, storeFile: true, guardianConsent: true, text }, { store, memberClerkId: 'user_1', now, alert: vi.fn() });
     const [key, sealed] = [...store.objects.entries()][0]!;
     expect(key).toMatch(/^cases\/[0-9a-f-]{36}\.bin$/);
     expect(new TextDecoder().decode(sealed)).not.toContain('17:30');
@@ -155,8 +161,9 @@ describe('opening a case', () => {
   it('the delete link deletes the case and its file; the daily purge removes expired and closed files', async () => {
     const payload = fakePayload();
     const store = memoryStore();
-    const opened = await openCase(payload, p2, { ...intake, storeFile: true, text: 'Ажлын цаг 17:30-22:30, долоо хоногт 5 өдөр.' }, { store, memberClerkId: null, now, alert: vi.fn() });
+    const opened = await openCase(payload, p2, { ...intake, storeFile: true, guardianConsent: true, text: 'Ажлын цаг 17:30-22:30, долоо хоногт 5 өдөр.' }, { store, memberClerkId: null, now, alert: vi.fn() });
     if (!opened.accepted) throw new Error('expected a case');
+    expect(store.objects.size).toBe(1);
     expect(await deleteCase(payload, opened.caseId, store)).toBe(true);
     expect(payload.tables.cases).toEqual([]);
     expect(store.objects.size).toBe(0);

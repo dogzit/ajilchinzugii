@@ -1,7 +1,17 @@
 import { LlmUnavailable } from '../llm/anthropic';
 import type { Extraction } from '../rater/fields';
 import { CONTRACT_PATHS, CONTRACT_SYSTEM, contractWireSchema, getPath, setPath, wireToExtraction } from './contract';
-import { excerptMatches } from './evidence';
+import { excerptMatches, numberInExcerpt } from './evidence';
+
+/** Numbers whose quote must show the number itself (pay, rates, hours). */
+const NUMBER_QUOTED = new Set<string>([
+  'pay.amount',
+  'pay.overtime_rate',
+  'pay.night_rate',
+  'probation.pay_amount',
+  'schedule.hours_per_day',
+  'schedule.hours_per_week',
+]);
 import type { Extractor } from './extractor';
 import { redact } from './redact';
 import { ExtractionError, MAX_TEXT_CHARS } from './text';
@@ -57,7 +67,12 @@ export function checkContractEvidence(extraction: Extraction, text: string): { f
       delete fields.evidence[path];
       continue;
     }
-    if (!evidence || !excerptMatches(evidence.excerpt, text)) {
+    if (
+      !evidence ||
+      !excerptMatches(evidence.excerpt, text) ||
+      // A number must be the number its quote shows, not one from elsewhere.
+      (typeof value === 'number' && NUMBER_QUOTED.has(path) && !numberInExcerpt(value, evidence.excerpt))
+    ) {
       setPath(fields, path, null);
       delete fields.evidence[path];
       dropped.push(path);
@@ -68,9 +83,14 @@ export function checkContractEvidence(extraction: Extraction, text: string): { f
     if (!(CONTRACT_PATHS as readonly string[]).includes(key)) delete fields.evidence[key];
   }
   fields.job.tasks = fields.job.tasks.filter((task) => excerptMatches(task, text));
-  const clauses = fields.flagged_clauses.filter((clause) => excerptMatches(clause.excerpt, text));
-  if (clauses.length < fields.flagged_clauses.length) dropped.push('flagged_clauses');
-  fields.flagged_clauses = clauses;
+  // A clause whose quote is not in the document is not proof of the clause
+  // — nor proof there is none. It stays, without the made-up quote, marked
+  // unverified, so the rule it touches turns unknown rather than green.
+  const verified = fields.flagged_clauses.filter((clause) => excerptMatches(clause.excerpt, text));
+  if (verified.length < fields.flagged_clauses.length) dropped.push('flagged_clauses');
+  fields.flagged_clauses = fields.flagged_clauses.map((clause) =>
+    verified.includes(clause) ? clause : { ...clause, excerpt: '', unverified: true },
+  );
   return { fields, dropped };
 }
 

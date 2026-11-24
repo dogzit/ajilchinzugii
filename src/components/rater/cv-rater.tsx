@@ -1,6 +1,6 @@
 'use client';
 
-import type mnMessages from '@messages/mn.json';
+import type mnMessages from '@messages/tools/mn.json';
 import { useEffect, useState } from 'react';
 import { Button, ButtonLink } from '@/components/ui/button';
 import { EvidenceQuote } from '@/components/ui/evidence-quote';

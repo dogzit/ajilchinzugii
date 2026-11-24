@@ -56,17 +56,20 @@ describe('cv-rules.yaml', () => {
 });
 
 describe('CV rules', () => {
-  it('C01: a phone or email found in redaction counts as contact; none is a fail', () => {
+  it('C01: a phone or email found in redaction counts as contact; none is a fail, the model\'s silence is unknown', () => {
     expect(verdict(input({}, adult, { redactions: { '[PHONE]': 1 } }), 'C01_CONTACT')).toBe('green');
     expect(verdict(input({}, adult, { redactions: { '[EMAIL]': 1 } }), 'C01_CONTACT')).toBe('green');
-    expect(verdict(input({}), 'C01_CONTACT')).toBe('red');
+    expect(verdict(input({ contact: { phone: false, email: false, other: false } }), 'C01_CONTACT')).toBe('red');
+    expect(verdict(input({}), 'C01_CONTACT')).toBe('yellow');
   });
 
   it('C02: over-sharing is red for a minor, yellow for an adult, and unknown age counts as a minor', () => {
+    // A home address rests on the model's reading alone: never more than yellow.
     const shared = input({ home_address: true }, minor);
-    expect(verdict(shared, 'C02_OVERSHARING')).toBe('red');
+    expect(verdict(shared, 'C02_OVERSHARING')).toBe('yellow');
     expect(verdict({ ...shared, profile: adult }, 'C02_OVERSHARING')).toBe('yellow');
-    expect(verdict({ ...shared, profile: { ...adult, ageBand: null } }, 'C02_OVERSHARING')).toBe('red');
+    expect(verdict(input({ home_address: true }, minor, { redactions: { '[ID]': 1 } }), 'C02_OVERSHARING')).toBe('red');
+    expect(verdict(input({}, { ...adult, ageBand: null }, { redactions: { '[ID]': 1 } }), 'C02_OVERSHARING')).toBe('red');
     expect(verdict(input({}, minor, { redactions: { '[ID]': 1 } }), 'C02_OVERSHARING')).toBe('red');
     expect(verdict(input({}, { ...minor, hasPhoto: true }), 'C02_OVERSHARING')).toBe('red');
     expect(verdict(input({}, minor), 'C02_OVERSHARING')).toBe('green');

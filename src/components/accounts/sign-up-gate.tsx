@@ -1,7 +1,7 @@
 'use client';
 
 import { SignUp } from '@clerk/nextjs';
-import type mnMessages from '@messages/mn.json';
+import type mnMessages from '@messages/tools/mn.json';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Choice } from '@/components/rater/inputs';

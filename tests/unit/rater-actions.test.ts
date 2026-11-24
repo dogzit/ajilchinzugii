@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import en from '../../messages/en.json';
-import mn from '../../messages/mn.json';
+import en from '../../messages/tools/en.json';
+import mn from '../../messages/tools/mn.json';
 import { POST as ratePOST } from '../../src/app/api/rater/rate/route';
 import { rate } from '../../src/lib/rater/engine';
 import { templateWriter, writeEmployerMessage } from '../../src/lib/rater/employer-message';

@@ -74,6 +74,8 @@ export const extractionSchema = z.object({
       category: z.enum(flaggedCategories),
       excerpt: z.string(),
       page: z.number().int().positive(),
+      /** The model named this clause but its quote is not in the document. */
+      unverified: z.boolean().optional(),
     }),
   ),
   evidence: z.record(z.string(), evidenceItem),

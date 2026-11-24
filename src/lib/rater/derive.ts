@@ -76,17 +76,39 @@ export function dailyHours(f: ContractFields): number | null {
   return largest(f.schedule.hours_per_day, fromTimes);
 }
 
+/** Days worked a week; 0 is not an answer anyone works by, so it counts as unknown. */
+const workDays = (f: ContractFields) => (f.schedule.days_per_week ? f.schedule.days_per_week : null);
+
 /** Ordinary hours in a week: stated, or daily × days, whichever is larger. */
 export function weeklyHours(f: ContractFields): number | null {
   const daily = dailyHours(f);
-  const days = f.schedule.days_per_week;
+  const days = workDays(f);
   return largest(f.schedule.hours_per_week, daily !== null && days !== null ? daily * days : null);
 }
 
-/** Ordinary hours plus the extra hours the worker says they actually do. */
+/**
+ * Ordinary hours plus the extra hours the worker actually does. When there
+ * is overtime but nobody knows how much, the total is unknown — never the
+ * ordinary hours alone, which would understate it.
+ */
 export function totalWeeklyHours(f: ContractFields): number | null {
   const weekly = weeklyHours(f);
-  return weekly === null ? null : weekly + (f.extra_hours_per_week ?? 0);
+  if (weekly === null) return null;
+  if (f.extra_hours_per_week === null && f.schedule.overtime_allowed === true) return null;
+  return weekly + (f.extra_hours_per_week ?? 0);
+}
+
+/**
+ * An overtime or night rate as a multiplier. Contracts write it three ways:
+ * "1.5 дахин" (1.5), "150%" of the base (150), or "50% нэмэгдэл" on top of
+ * it (50). Up to 3 is a multiplier, 100 or more a total percentage, anything
+ * between an extra percentage.
+ */
+export function rateMultiplier(value: number | null): number | null {
+  if (value === null) return null;
+  if (value <= 3) return value;
+  if (value >= 100) return value / 100;
+  return 1 + value / 100;
 }
 
 const WEEKS_PER_MONTH = 52 / 12;
@@ -111,6 +133,12 @@ export function effectiveHourlyPay(f: ContractFields): number | null {
     case 'hour':
       return amount;
     case 'day': {
+      // A week's pay over a week's hours, extra hours included, when both
+      // are known; otherwise one day's pay over one day's hours.
+      const days = workDays(f);
+      const total = totalWeeklyHours(f);
+      if (days && total) return (amount * days) / total;
+      if (f.schedule.overtime_allowed === true && f.extra_hours_per_week === null) return null;
       const daily = dailyHours(f);
       return daily ? amount / daily : null;
     }

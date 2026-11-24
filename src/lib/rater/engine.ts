@@ -7,6 +7,7 @@ import {
   dailyHours,
   effectiveHourlyPay,
   nightOverlapMinutes,
+  rateMultiplier,
   shiftMinutes,
   totalWeeklyHours,
   weeklyHours,
@@ -175,6 +176,31 @@ export function minimumWage(set: RuleSet, date: string): { monthly: number; hour
 
 const category = (ctx: Context) => ctx.set.job_categories.find((c) => c.id === ctx.f.job_category);
 
+/**
+ * Pay against the minimum wage in force on the rating date. Monthly pay is
+ * compared with the monthly minimum, pro-rated by the hours worked against a
+ * full week (G07's 40 hours), so exactly the minimum for a full week passes.
+ * Every other unit goes through the hourly rate (monthly ÷ hourly basis).
+ */
+function minimumWageOutcome(ctx: Context): Outcome {
+  const wage = minimumWage(ctx.set, ctx.date);
+  const evidence = ['pay.amount', 'pay.unit'];
+  if (!wage) return unknown([{ key: 'minimumUnknown' }], evidence);
+  const hourly = effectiveHourlyPay(ctx.f);
+  const minimum = { key: 'minimumHourly', values: { pay: Math.round(wage.hourly), monthly: wage.monthly } };
+  if (hourly === null) {
+    return unknown([ctx.f.pay.amount === null ? { key: 'payUnknown' } : { key: 'hoursNeededForPay' }, minimum], evidence);
+  }
+  const details: Detail[] = [{ key: 'hourlyPay', values: { pay: Math.round(hourly) } }, minimum];
+  if (ctx.f.pay.unit === 'in_kind') details.unshift({ key: 'inKindOnly' });
+  if (ctx.f.pay.unit === 'month' && ctx.f.pay.amount !== null) {
+    const fullWeek = params.G07_ADULT_HOURS.parse(ctx.set.rules.find((r) => r.id === 'G07_ADULT_HOURS')?.params).max_weekly_hours;
+    const total = totalWeeklyHours(ctx.f)!;
+    return ctx.f.pay.amount < wage.monthly * (total / fullWeek) ? fail(details, evidence) : pass(details, evidence);
+  }
+  return hourly < wage.hourly ? fail(details, evidence) : pass(details, evidence);
+}
+
 // ── the evaluators, one per rule id ─────────────────────────────────────────
 
 const evaluators: Record<string, (ctx: Context) => Outcome> = {
@@ -223,8 +249,16 @@ const evaluators: Record<string, (ctx: Context) => Outcome> = {
   M03_MINOR_WEEKLY_HOURS(ctx) {
     const { max_weekly_hours } = p(ctx, 'M03_MINOR_WEEKLY_HOURS');
     const total = totalWeeklyHours(ctx.f);
+    const weekly = weeklyHours(ctx.f);
     const evidence = ['schedule.hours_per_week', 'schedule.hours_per_day', 'schedule.days_per_week', 'schedule.start_time', 'schedule.end_time'];
-    if (total === null) return unknown([{ key: 'hoursUnknown' }], evidence);
+    if (total === null) {
+      // Overtime of an unknown amount on top of hours already at the limit
+      // is over the limit, whatever the amount.
+      if (weekly !== null && weekly >= max_weekly_hours && ctx.f.schedule.overtime_allowed === true) {
+        return fail([{ key: 'weeklyHours', values: { hours: round1(weekly), max: max_weekly_hours } }, { key: 'overtimeOnTop' }], evidence);
+      }
+      return unknown([{ key: weekly === null ? 'hoursUnknown' : 'extraHoursUnknown' }], evidence);
+    }
     const details: Detail[] = [{ key: 'weeklyHours', values: { hours: round1(total), max: max_weekly_hours } }];
     if (ctx.f.extra_hours_per_week) details.push({ key: 'extraHours', values: { hours: ctx.f.extra_hours_per_week } });
     return total > max_weekly_hours ? fail(details, evidence) : pass(details, evidence);
@@ -269,8 +303,10 @@ const evaluators: Record<string, (ctx: Context) => Outcome> = {
   M09_MEDICAL_CHECKS: (ctx) => tri(ctx.f.medical_checks, false, [], ['medical_checks']),
 
   M10_NON_COMPETE(ctx) {
-    const clause = ctx.f.flagged_clauses.find((c) => c.category === 'non_compete');
+    const clauses = ctx.f.flagged_clauses.filter((c) => c.category === 'non_compete');
+    const clause = clauses.find((c) => !c.unverified);
     if (clause) return fail([], [], { quotes: [clause.excerpt].filter(Boolean), aiJudgment: ctx.f.source === 'document' });
+    if (clauses.length) return { ...unknown([{ key: 'clauseUnverified' }]), aiJudgment: true };
     if (ctx.f.written_contract === false) return pass([{ key: 'noWrittenContract' }]);
     if (ctx.f.source === 'document') return { ...pass([{ key: 'aiChecked' }]), aiJudgment: true };
     return unknown([{ key: 'contractNotRead' }]);
@@ -326,25 +362,18 @@ const evaluators: Record<string, (ctx: Context) => Outcome> = {
     if (f.pay.amount === null && f.pay.unit !== 'in_kind') missing.push('pay');
     const s = f.schedule;
     if ([s.hours_per_day, s.hours_per_week, s.start_time, s.days_per_week].every((v) => v === null)) missing.push('conditions');
-    if (f.employer_kind === 'individual') {
-      if (dailyHours(f) === null && s.hours_per_week === null) missing.push('hours');
-      if (f.pay.fixed_pay_dates !== true) missing.push('payDates');
-    }
-    return missing.length ? fail(missing.map((term) => ({ key: 'missingTerm', values: { term } }))) : pass();
+    const individualTerms: string[] = [];
+    if (dailyHours(f) === null && s.hours_per_week === null) individualTerms.push('hours');
+    if (f.pay.fixed_pay_dates !== true) individualTerms.push('payDates');
+    if (f.employer_kind === 'individual') missing.push(...individualTerms);
+    if (missing.length) return fail(missing.map((term) => ({ key: 'missingTerm', values: { term } })));
+    // Who the employer is decides whether hours and pay dates are required.
+    if (f.employer_kind === null && individualTerms.length) return unknown([{ key: 'employerKindUnknown' }]);
+    return pass();
   },
 
   G04_MIN_WAGE(ctx) {
-    const wage = minimumWage(ctx.set, ctx.date);
-    const evidence = ['pay.amount', 'pay.unit'];
-    if (!wage) return unknown([{ key: 'minimumUnknown' }], evidence);
-    const hourly = effectiveHourlyPay(ctx.f);
-    const minimum = { key: 'minimumHourly', values: { pay: Math.round(wage.hourly), monthly: wage.monthly } };
-    if (hourly === null) {
-      return unknown([ctx.f.pay.amount === null ? { key: 'payUnknown' } : { key: 'hoursNeededForPay' }, minimum], evidence);
-    }
-    const details: Detail[] = [{ key: 'hourlyPay', values: { pay: Math.round(hourly) } }, minimum];
-    if (ctx.f.pay.unit === 'in_kind') details.unshift({ key: 'inKindOnly' });
-    return hourly < wage.hourly ? fail(details, evidence) : pass(details, evidence);
+    return minimumWageOutcome(ctx);
   },
 
   G05_PAY_FREQUENCY(ctx) {
@@ -381,20 +410,35 @@ const evaluators: Record<string, (ctx: Context) => Outcome> = {
     if (f.probation_paid === 'none' || f.probation_paid === 'partial') parts.push(fail([{ key: 'trialUnderpaid' }]));
     else if (f.probation_paid === 'full') parts.push(pass());
     else if (pay_amount === null || f.pay.amount === null) parts.push(unknown([{ key: 'trialPayUnknown' }]));
+    // A trial is paid by the month; comparing it with an hourly or daily
+    // rate would compare different things.
+    else if (f.pay.unit !== 'month') parts.push(unknown([{ key: 'trialPayUnknown' }]));
     else parts.push(pay_amount < f.pay.amount ? fail([{ key: 'trialUnderpaid' }]) : pass());
     return combine(parts, [], evidence);
   },
 
   G07_ADULT_HOURS(ctx) {
-    const { max_daily_hours, max_weekly_hours, max_total_weekly_hours } = p(ctx, 'G07_ADULT_HOURS');
+    const { max_daily_hours, max_weekly_hours, max_overtime_daily_hours, max_total_weekly_hours } = p(ctx, 'G07_ADULT_HOURS');
     const daily = dailyHours(ctx.f);
     const weekly = weeklyHours(ctx.f);
     const total = totalWeeklyHours(ctx.f);
+    const extra = ctx.f.extra_hours_per_week;
+    const days = ctx.f.schedule.days_per_week;
+    // Overtime a day, from the week's extra hours spread over the working
+    // days — the most favourable spread, so a fail here is certain.
+    const overtimeDaily = extra !== null && days ? extra / days : null;
     const evidence = ['schedule.hours_per_day', 'schedule.hours_per_week', 'schedule.start_time', 'schedule.end_time', 'schedule.days_per_week'];
     const parts: Outcome[] = [
       daily === null ? unknown([{ key: 'hoursUnknown' }]) : daily > max_daily_hours ? fail([{ key: 'dailyHours', values: { hours: round1(daily), max: max_daily_hours } }]) : pass([{ key: 'dailyHours', values: { hours: round1(daily), max: max_daily_hours } }]),
       weekly === null ? unknown() : weekly > max_weekly_hours ? fail([{ key: 'weeklyHours', values: { hours: round1(weekly), max: max_weekly_hours } }]) : pass([{ key: 'weeklyHours', values: { hours: round1(weekly), max: max_weekly_hours } }]),
       total === null ? unknown() : total > max_total_weekly_hours ? fail([{ key: 'totalWeeklyHours', values: { hours: round1(total), max: max_total_weekly_hours } }]) : pass(),
+      overtimeDaily === null
+        ? (extra ?? 0) > 0 || (extra === null && ctx.f.schedule.overtime_allowed === true)
+          ? unknown()
+          : pass()
+        : overtimeDaily > max_overtime_daily_hours
+          ? fail([{ key: 'overtimeDaily', values: { hours: round1(overtimeDaily), max: max_overtime_daily_hours } }])
+          : pass(),
     ];
     return combine(parts, [], evidence);
   },
@@ -412,8 +456,10 @@ const evaluators: Record<string, (ctx: Context) => Outcome> = {
     const rate = (happens: boolean | null, value: number | null, min: number, key: string): Outcome => {
       if (happens === false) return pass();
       if (happens === null) return unknown([{ key: `${key}Unknown` }]);
-      if (value === null) return unknown([{ key: `${key}RateNotStated` }]);
-      return value < min ? fail([{ key: `${key}Rate`, values: { rate: value, min } }]) : pass([{ key: `${key}Rate`, values: { rate: value, min } }]);
+      const multiplier = rateMultiplier(value);
+      if (multiplier === null) return unknown([{ key: `${key}RateNotStated` }]);
+      const shown = { key: `${key}Rate`, values: { rate: Math.round(multiplier * 100) / 100, min } };
+      return multiplier < min ? fail([shown]) : pass([shown]);
     };
     return combine(
       [rate(overtime, f.pay.overtime_rate, min_overtime_rate, 'overtime'), rate(nightWork, f.pay.night_rate, min_night_rate, 'night')],
@@ -463,27 +509,27 @@ const evaluators: Record<string, (ctx: Context) => Outcome> = {
 
   G12_INTERN_APPRENTICE_PAY(ctx) {
     if (ctx.f.doc_type === 'apprenticeship') return unknown([{ key: 'apprenticeBaseUnknown' }], ['doc_type']);
-    const wage = minimumWage(ctx.set, ctx.date);
-    const hourly = effectiveHourlyPay(ctx.f);
-    if (!wage || hourly === null) return unknown([{ key: 'payUnknown' }], ['pay.amount', 'pay.unit']);
-    const details: Detail[] = [{ key: 'hourlyPay', values: { pay: Math.round(hourly) } }, { key: 'minimumHourly', values: { pay: Math.round(wage.hourly), monthly: wage.monthly } }];
-    return hourly < wage.hourly ? fail(details, ['pay.amount', 'pay.unit']) : pass(details, ['pay.amount', 'pay.unit']);
+    return minimumWageOutcome(ctx);
   },
 
   G13_FLAGGED_CLAUSES(ctx) {
     const { categories } = p(ctx, 'G13_FLAGGED_CLAUSES');
     const { f } = ctx;
+    // The person's own answers count whatever the source: not AI judgment.
+    const found = [
+      ...(f.deductions === true ? [{ key: 'clause', values: { category: 'fine' } }] : []),
+      ...(f.id_kept === true ? [{ key: 'clause', values: { category: 'id_retention' } }] : []),
+    ];
+    if (found.length) return fail(found);
     if (f.source === 'questionnaire') {
-      // From the person's own answers: not AI judgment.
-      const found = [
-        ...(f.deductions === true ? [{ key: 'clause', values: { category: 'fine' } }] : []),
-        ...(f.id_kept === true ? [{ key: 'clause', values: { category: 'id_retention' } }] : []),
-      ];
-      if (found.length) return fail(found);
       return f.deductions === false && f.id_kept === false ? pass() : unknown([{ key: 'clausesUnknown' }]);
     }
-    const flagged = f.flagged_clauses.filter((c) => categories.includes(c.category));
-    if (!flagged.length) return { ...pass([{ key: 'aiChecked' }]), aiJudgment: true };
+    const all = f.flagged_clauses.filter((c) => categories.includes(c.category));
+    const flagged = all.filter((c) => !c.unverified);
+    if (!flagged.length) {
+      if (all.length) return { ...unknown([{ key: 'clauseUnverified' }]), aiJudgment: true };
+      return { ...pass([{ key: 'aiChecked' }]), aiJudgment: true };
+    }
     return fail(
       [...new Set(flagged.map((c) => c.category))].map((category) => ({ key: 'clause', values: { category } })),
       [],
@@ -539,10 +585,18 @@ const inForce = (rule: Rule, date: string) =>
 
 type Evaluation = { results: RuleResult[]; notChecked: string[]; age: number | null };
 
+/**
+ * Rules that test the same thing for minors and for adults. With the age
+ * unknown, a fail of one is only "unknown" — but if both fail, the job breaks
+ * the law at any age, and the fail stands.
+ */
+const AGE_PAIRS: [string, string][] = [['M03_MINOR_WEEKLY_HOURS', 'G07_ADULT_HOURS']];
+
 export function evaluate(f: ContractFields, ratingDate: string, set: RuleSet = currentRuleSet): Evaluation {
   const age = ageAtStart(f, ratingDate);
   const results: RuleResult[] = [];
   const notChecked: string[] = [];
+  const failedAtUnknownAge = new Map<string, Outcome>();
 
   for (const rule of set.rules) {
     if (!inForce(rule, ratingDate)) continue;
@@ -560,6 +614,7 @@ export function evaluate(f: ContractFields, ratingDate: string, set: RuleSet = c
     // An age-scoped rule that fails while the age is unknown cannot be held
     // against the employer — but it is not a pass either.
     if (scope === 'maybe' && outcome.status === 'fail') {
+      failedAtUnknownAge.set(rule.id, outcome);
       outcome = { ...outcome, status: 'unknown', p1: false, details: [{ key: 'ageUnknown' }, ...(outcome.details ?? [])] };
     }
 
@@ -575,6 +630,23 @@ export function evaluate(f: ContractFields, ratingDate: string, set: RuleSet = c
       quotes: outcome.quotes ?? [],
       aiJudgment: Boolean(outcome.aiJudgment),
     });
+  }
+
+  for (const pair of AGE_PAIRS) {
+    if (!pair.every((id) => failedAtUnknownAge.has(id))) continue;
+    for (const id of pair) {
+      const index = results.findIndex((r) => r.id === id);
+      const rule = set.rules.find((r) => r.id === id)!;
+      const original = failedAtUnknownAge.get(id)!;
+      const verdict = original.severity ?? rule.severity_if_fail;
+      results[index] = {
+        ...results[index]!,
+        status: 'fail',
+        verdict,
+        priority: verdict === 'red' ? rule.escalation : null,
+        details: [{ key: 'failsAtAnyAge' }, ...(original.details ?? [])],
+      };
+    }
   }
 
   return { results, notChecked, age };

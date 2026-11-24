@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import en from '../../messages/en.json';
 import mn from '../../messages/mn.json';
+import enTools from '../../messages/tools/en.json';
+import mnTools from '../../messages/tools/mn.json';
 import { navItems } from '../../src/lib/nav';
 
 type Tree = { [key: string]: string | Tree };
@@ -54,5 +56,12 @@ describe('message catalogues', () => {
   it('marks unfinished content with the agreed placeholder', () => {
     expect(mn.placeholder.tbd).toBe('[ХҮЛЭЭГДЭЖ БУЙ / TBD]');
     expect(en.placeholder.tbd).toBe('[ХҮЛЭЭГДЭЖ БУЙ / TBD]');
+  });
+
+  it('the tools catalogues define the same keys in both languages, and none twice', () => {
+    expect(keyPaths(enTools as Tree).sort()).toEqual(keyPaths(mnTools as Tree).sort());
+    for (const key of Object.keys(mnTools)) expect(mn, key).not.toHaveProperty(key);
+    expect(JSON.stringify(mnTools)).not.toContain(':""');
+    expect(JSON.stringify(enTools)).not.toContain(':""');
   });
 });
