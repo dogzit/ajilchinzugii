@@ -1,0 +1,578 @@
+# Contract rater — rule set
+#
+# The single source of every rule, threshold, wage figure, date, article,
+# explanation, weight and escalation the contract rater uses (CLAUDE.md
+# rules 1 and 11). The engine (engine.ts) holds one evaluator per rule id and
+# reads everything it compares against from here. `check` states in plain
+# words what that evaluator tests.
+#
+# After editing: `pnpm rules:compile` (writes rules.generated.json, which is
+# what the app imports). tests/unit/rater-rules-sync.test.ts fails while the
+# two disagree, and the regression suite runs on every change.
+#
+# Every rule is `lawyer_verified: false`. A production build fails until a
+# lawyer has checked each one against the official Mongolian text of the
+# Labour Law (scripts/check-rules-verified.ts). Never set it to true without
+# that review. Articles are from the unofficial English translation on
+# legalinfo.mn.
+#
+# `explain_mn` is the authoritative text and is shown word for word.
+# `explain_en` is an unofficial translation.
+
+version: "2026.11.24-draft.1"
+law: "Хөдөлмөрийн тухай хууль (2021 оны шинэчилсэн найруулга)"
+law_en: "Labour Law of Mongolia (revised 2021)"
+
+# applies_to:
+#   minor              under 18
+#   minor_15_17        15, 16 or 17
+#   adult              18 and over
+#   all                everyone
+#   intern_apprentice  internship and apprenticeship contracts
+# inputs: which paths can evaluate the rule. A rule a path cannot see is
+#   listed on the results page as "not checked", never shown as green.
+
+# Score: 100 minus the weight of every rule that is not green — `fail` for a
+# failed rule, the smaller `unknown` when the answer is not known — then
+# clamped into the verdict's band (red 1–39, yellow 40–74, green 75–100).
+# Any P1 trigger caps the score at 10.
+score:
+  start: 100
+  bands:
+    red: { min: 1, max: 39 }
+    yellow: { min: 40, max: 74 }
+    green: { min: 75, max: 100 }
+  p1_cap: 10
+
+escalation:
+  # Response time per priority, in hours.
+  response_hours: { P1: 24, P2: 72, P3: 168 }
+  weekly_capacity: 20
+  week_time_zone: Asia/Ulaanbaatar
+
+# Order A/122 (jobs prohibited to minors) and the minister's light-work list
+# for ages 13–15 (Art. 142.4) are not available yet (spec data items 2 and 3).
+# Until they are, no category is on either list, so M08 and the 13–14 branch
+# of M01 come out yellow ("unknown") — never green.
+lists_status: "[ХҮЛЭЭГДЭЖ БУЙ / TBD]"
+a122_prohibited: []   # job category ids on Order A/122   [ХҮЛЭЭГДЭЖ БУЙ / TBD]
+a122_cleared: []      # ids a lawyer has confirmed are NOT on A/122   [ХҮЛЭЭГДЭЖ БУЙ / TBD]
+light_work: []        # ids on the light-work list for 13–15   [ХҮЛЭЭГДЭЖ БУЙ / TBD]
+not_light_work: []    # ids confirmed NOT on the light-work list   [ХҮЛЭЭГДЭЖ БУЙ / TBD]
+
+# The pick list in the questionnaire and the CV rater. Names: confirm with Eba.
+job_categories:
+  - { id: cafe_restaurant, name_mn: "Кафе, ресторан", name_en: "Café or restaurant" }
+  - { id: retail, name_mn: "Дэлгүүр, худалдаа", name_en: "Shop or retail" }
+  - { id: market_vendor, name_mn: "Зах дээрх худалдаа", name_en: "Market stall" }
+  - { id: delivery, name_mn: "Хүргэлт", name_en: "Delivery" }
+  - { id: construction_helper, name_mn: "Барилгын туслах ажил", name_en: "Construction helper" }
+  - { id: herding_helper, name_mn: "Малчны туслах", name_en: "Herding helper", herding: true }
+  - { id: tutoring, name_mn: "Хичээл заах, сургагч", name_en: "Tutoring" }
+  - { id: summer_job, name_mn: "Зуны ажил, зуслан", name_en: "Summer job or camp" }
+  - { id: office_internship, name_mn: "Оффис, дадлага", name_en: "Office work or internship" }
+  - { id: cleaning, name_mn: "Цэвэрлэгээ", name_en: "Cleaning" }
+  - { id: car_wash, name_mn: "Машин угаалга, засвар", name_en: "Car wash or repair" }
+  - { id: factory, name_mn: "Үйлдвэр, цех", name_en: "Factory or workshop" }
+  - { id: mining, name_mn: "Уул уурхай, алт угаах", name_en: "Mining or gold panning" }
+  - { id: arts_sports_ads, name_mn: "Урлаг, спорт, сурталчилгаа", name_en: "Arts, sports or commercials", trips_exempt: true }
+  - { id: other, name_mn: "Бусад", name_en: "Other" }
+
+rules:
+  - id: M01_MIN_AGE
+    title_mn: "Ажиллах насны доод хязгаар"
+    title_en: "Minimum working age"
+    applies_to: minor
+    inputs: [document, questionnaire]
+    article: "142.1, 142.3–142.5"
+    check: "Age at the start of work is 15 or over; or 13–14 doing a job on the light-work list with a guardian's consent; under 13 always fails."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "15 нас хүрсэн бол ажиллаж болно. 13–14 настай бол зөвхөн хөнгөн ажлыг эцэг эх эсвэл асран хамгаалагчийнхаа зөвшөөрөлтэйгөөр хийж болно. 13 хүрээгүй хүүхдийг ажиллуулж болохгүй."
+    explain_en: "From 15 you may work. At 13 or 14 you may do only light work, with a parent's or guardian's consent. A child under 13 may not be employed."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { min_age: 15, light_work_min_age: 13, p1_under_age: 13 }
+    score_weight: { fail: 40, unknown: 10 }
+    lawyer_verified: false
+
+  - id: M02_THREE_PARTY
+    title_mn: "Гурван талын гэрээ"
+    title_en: "Three-party contract"
+    applies_to: minor_15_17
+    inputs: [document, questionnaire]
+    article: "142.7–142.8"
+    check: "Signed by the employer, the guardian and the minor; date of birth stated; a copy of the ID or birth certificate attached. Red if the guardian has not signed, otherwise yellow."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "15–17 настай хүний гэрээнд ажил олгогч, та өөрөө, эцэг эх эсвэл асран хамгаалагч гурвуулаа гарын үсэг зурна. Гэрээнд таны төрсөн огноо бичигдэж, иргэний үнэмлэх эсвэл төрсний гэрчилгээний хуулбар хавсарсан байх ёстой."
+    explain_en: "If you are 15–17, the employer, you and a parent or guardian all sign the contract. It must state your date of birth and have a copy of your ID card or birth certificate attached."
+    escalation: P2
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { severity_if_no_guardian: red }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: M03_MINOR_WEEKLY_HOURS
+    title_mn: "Долоо хоногийн ажлын цаг"
+    title_en: "Weekly working hours"
+    applies_to: minor
+    inputs: [document, questionnaire]
+    article: "84.3"
+    check: "Total hours a week, including extra hours, are 30 or fewer."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй хүн долоо хоногт 30 цагаас илүү ажиллахгүй. Ердийн цаг дээр нэмж ажилласан цаг бас тооцогдоно."
+    explain_en: "Under 18, you may not work more than 30 hours a week. Extra hours on top of your usual ones count too."
+    escalation: P2
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { max_weekly_hours: 30 }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: M04_NIGHT_WORK
+    title_mn: "Шөнийн ажил"
+    title_en: "Night work"
+    applies_to: minor
+    inputs: [document, questionnaire]
+    article: "88.1, 88.6"
+    check: "No working time between 22:00 and 06:00, including shifts that run past midnight."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй хүнийг 22:00-оос 06:00 цагийн хооронд ажиллуулж болохгүй. Ажил 22:00-оос хойш дуусч байвал шөнийн ажил болно."
+    explain_en: "Under 18, you may not work between 22:00 and 06:00. A shift that ends after 22:00 is night work."
+    escalation: P2
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { night_start: "22:00", night_end: "06:00" }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: M05_MINOR_OVERTIME
+    title_mn: "Илүү цагийн ажил"
+    title_en: "Overtime"
+    applies_to: minor
+    inputs: [document, questionnaire]
+    article: "91.5"
+    check: "No overtime: overtime is not allowed by the contract and no extra hours are worked."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй хүнийг илүү цагаар ажиллуулж болохгүй."
+    explain_en: "Under 18, you may not be made to work overtime."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: M06_ROSTER_WORK
+    title_mn: "Вахтын ажил"
+    title_en: "Rotating shifts away from home"
+    applies_to: minor
+    inputs: [document, questionnaire]
+    article: "92.10"
+    check: "No roster (shift-rotation, вахт) work."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй хүнийг вахтаар буюу гэрээсээ хол газар ээлжээр ажиллуулж болохгүй."
+    explain_en: "Under 18, you may not be put on rotating shifts away from home (вахт)."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: M07_BUSINESS_TRIPS
+    title_mn: "Томилолт"
+    title_en: "Work trips"
+    applies_to: minor
+    inputs: [document, questionnaire]
+    article: "143.3"
+    check: "No work trips, except in arts, sports or commercials (job categories marked trips_exempt)."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй хүнийг томилолтоор явуулж болохгүй. Урлаг, спорт, сурталчилгааны ажил үүнд хамаарахгүй."
+    explain_en: "Under 18, you may not be sent on work trips, except for arts, sports or commercials."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: M08_PROHIBITED_JOB
+    title_mn: "Хүүхдэд хориглосон ажил"
+    title_en: "Job prohibited for minors"
+    applies_to: minor
+    inputs: [document, questionnaire]
+    article: "142.2, 142.9"
+    check: "The job category is not on Order A/122. A category on the list fails; a category a lawyer has cleared passes; anything else is unknown."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй хүнийг хүүхдэд хориглосон ажлын жагсаалтад (А/122 тушаал) орсон ажилд ажиллуулж болохгүй."
+    explain_en: "Under 18, you may not do any job on the list of jobs prohibited for children (Order A/122)."
+    escalation: P1
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 40, unknown: 10 }
+    lawyer_verified: false
+
+  - id: M09_MEDICAL_CHECKS
+    title_mn: "Эрүүл мэндийн үзлэг"
+    title_en: "Medical checks"
+    applies_to: minor
+    inputs: [document]
+    article: "143.1–143.2"
+    check: "The employer pays for a medical check every 6 months."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй ажилтныг ажил олгогч өөрийн зардлаар 6 сар тутам эрүүл мэндийн үзлэгт хамруулна."
+    explain_en: "Your employer pays for a medical check for you every 6 months while you are under 18."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { months_between_checks: 6 }
+    score_weight: { fail: 12, unknown: 6 }
+    lawyer_verified: false
+
+  - id: M10_NON_COMPETE
+    title_mn: "Өрсөлдөхгүй байх нөхцөл"
+    title_en: "Non-compete clause"
+    applies_to: minor
+    inputs: [document, questionnaire]
+    article: "72.6"
+    check: "The contract has no non-compete clause. With no written contract there is no clause; a written contract we have not read is unknown."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй хүнтэй байгуулсан гэрээнд «өөр газар ажиллахгүй», «өрсөлдөгч байгууллагад орохгүй» гэх мэт нөхцөл тавьж болохгүй."
+    explain_en: "A contract with someone under 18 may not say they cannot work elsewhere or join a competitor."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: M11_LABOUR_AGENCY
+    title_mn: "Хөдөлмөр зуучлалын гэрээ"
+    title_en: "Hired through a labour agency"
+    applies_to: minor
+    inputs: [document, questionnaire]
+    article: "76.10"
+    check: "Not hired through a labour-supply contract."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "18 хүрээгүй хүнийг ажилтан нийлүүлэх буюу хөдөлмөр зуучлалын гэрээгээр ажиллуулж болохгүй."
+    explain_en: "Under 18, you may not be hired out through a labour-supply (agency) contract."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G01_WRITTEN_CONTRACT
+    title_mn: "Бичгээр байгуулсан гэрээ"
+    title_en: "Written contract"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: "48.1–48.3"
+    check: "A written contract, signed by both sides, with a copy given to the worker. Red after 10 business days of work without one, otherwise yellow."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Ажилд орохдоо бичгээр гэрээ байгуулж, хоёр тал гарын үсэг зурна. Гэрээний нэг хувийг танд өгөх ёстой. Гэрээгүйгээр 10 ажлын өдрөөс илүү ажиллуулж болохгүй."
+    explain_en: "When you start a job, you and the employer sign a written contract and you get a copy. You may not be kept working for more than 10 working days without one."
+    escalation: P2
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { grace_business_days: 10, severity_after_grace: red }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G02_DISGUISED_JOB
+    title_mn: "Ажил гүйцэтгэх гэрээ мэт нуусан хөдөлмөрийн гэрээ"
+    title_en: "A job disguised as a service contract"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: "41.3"
+    check: "A service or other contract that describes a job (set hours, days or regular pay, or listed duties) is treated as employment: yellow, with an explanation."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Гэрээг «ажил гүйцэтгэх» эсвэл «хөлсөөр ажиллах» гэж нэрлэсэн ч та тогтсон цагт, тогтмол цалинтай, ажил олгогчийн удирдлагаар ажиллаж байвал энэ нь хөдөлмөрийн гэрээ юм. Тэгвэл та хуулийн бүх хамгаалалтыг эдэлнэ."
+    explain_en: "Even if the contract calls itself a service contract, if you work set hours for regular pay under the employer's direction it is an employment contract, and the whole of the law protects you."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 12, unknown: 6 }
+    lawyer_verified: false
+
+  - id: G03_REQUIRED_TERMS
+    title_mn: "Гэрээнд заавал байх нөхцөл"
+    title_en: "Required terms"
+    applies_to: all
+    inputs: [document]
+    article: "49.1, 69.1"
+    check: "The contract states the job and duties, the place of work, the pay amount and the working conditions; an individual employer also states the hours and the pay dates. Yellow per missing term."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Гэрээнд ажил, үүрэг, ажлын байр, цалингийн хэмжээ, ажлын нөхцөл заавал бичигдэнэ. Хувь хүн ажил олгогч бол ажлын цаг, цалин олгох өдрийг бас бичнэ."
+    explain_en: "A contract must state the job and duties, where you work, how much you are paid and the working conditions. An individual employer must also state the hours and the pay dates."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 12, unknown: 6 }
+    lawyer_verified: false
+
+  - id: G04_MIN_WAGE
+    title_mn: "Хөдөлмөрийн хөлсний доод хэмжээ"
+    title_en: "Minimum wage"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: "107.3–107.4"
+    check: "Effective hourly pay, worked out in code from the amount, its unit and the hours, is at or above the minimum hourly wage on the rating date."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Таны нэг цагийн цалин хөдөлмөрийн хөлсний доод хэмжээнээс бага байж болохгүй. Бид таны цалинг нэг цагт ногдох хэмжээнд шилжүүлж, тухайн өдөр мөрдөж буй доод хэмжээтэй харьцуулна."
+    explain_en: "Your pay per hour may not be below the minimum wage. We work out your pay per hour and compare it with the minimum in force on the day you check."
+    escalation: P2
+    effective_from: 2022-01-01
+    effective_to: null
+    params:
+      wages:
+        - { monthly_mnt: 792000, effective_from: null, effective_to: 2026-12-31 }
+        - { monthly_mnt: 1000000, effective_from: 2027-01-01, effective_to: null }
+      hourly_basis_hours: 168   # confirm the official hourly rate (open-questions, lawyer 1)
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G05_PAY_FREQUENCY
+    title_mn: "Цалин олгох давтамж"
+    title_en: "How often you are paid"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: "104.1"
+    check: "Paid at least twice a month on fixed dates. Red if less often; yellow if the dates are not fixed."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Цалинг сард дор хаяж хоёр удаа, тогтсон өдөр олгоно."
+    explain_en: "You are paid at least twice a month, on fixed dates."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { min_payments_per_month: 2, severity_if_dates_not_fixed: yellow }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G06_PROBATION
+    title_mn: "Туршилтын хугацаа"
+    title_en: "Trial period"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: "64.2–64.4, 62.7"
+    check: "Trial of 3 months or less, one extension of 3 months or less, paid at least the job's own wage; no trial at all for seasonal, replacement or apprentice work."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Туршилтын хугацаа 3 сараас ихгүй байна. Нэг удаа, 3 сар хүртэл сунгаж болно. Туршилтын үед ч тухайн ажлын цалингаас багагүй цалин олгоно. Улирлын ажил, түр орлон ажиллах болон дагалдан суралцах ажилд туршилтын хугацаа тогтоохгүй."
+    explain_en: "A trial lasts 3 months at most and may be extended once by up to 3 months. During a trial you are paid at least the job's normal wage. Seasonal, replacement and apprentice work has no trial period."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params:
+      max_months: 3
+      max_extension_months: 3
+      no_trial_term_kinds: [seasonal, replacement]
+      no_trial_doc_types: [apprenticeship]
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G07_ADULT_HOURS
+    title_mn: "Ажлын цаг (18 ба түүнээс дээш)"
+    title_en: "Working hours (18 and over)"
+    applies_to: adult
+    inputs: [document, questionnaire]
+    article: "84.1, 84.2, 84.4"
+    check: "Ordinary hours at most 8 a day and 40 a week; overtime at most 4 hours a day; at most 56 hours a week in total."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Ердийн ажлын өдөр 8 цаг, долоо хоног 40 цаг байна. Илүү цаг өдөрт 4 цагаас, нийт ажлын цаг долоо хоногт 56 цагаас хэтэрч болохгүй."
+    explain_en: "A normal working day is 8 hours and a normal week 40. Overtime may not exceed 4 hours a day, and total hours may not exceed 56 a week."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { max_daily_hours: 8, max_weekly_hours: 40, max_overtime_daily_hours: 4, max_total_weekly_hours: 56 }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G08_OVERTIME_NIGHT_PAY
+    title_mn: "Илүү цаг, шөнийн цагийн нэмэгдэл"
+    title_en: "Overtime and night pay"
+    applies_to: adult
+    inputs: [document, questionnaire]
+    article: "109.1, 109.3"
+    check: "Overtime is paid at 1.5 times or more and night work at 1.2 times or more. Red if lower; yellow if not stated. (The 'unless days off are given' exception cannot be seen in a contract and is not applied.)"
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Илүү цагийн ажлыг 1.5-аас доошгүй дахин, шөнийн цагийн ажлыг 1.2-оос доошгүй дахин нэмэгдүүлсэн хөлсөөр төлнө. Оронд нь чөлөө өгсөн бол өөр."
+    explain_en: "Overtime is paid at least 1.5 times and night work at least 1.2 times the normal rate, unless time off is given instead."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { min_overtime_rate: 1.5, min_night_rate: 1.2 }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G09_REST
+    title_mn: "Амралт, завсарлага"
+    title_en: "Rest and breaks"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: "94.3, 95.1, 96.1–96.2, 71.6"
+    check: "A lunch break of 1 hour or more, 12 hours or more between working days, and 2 rest days a week (assistant herders: rest days, not necessarily together). Red if less is stated."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Өдөрт дор хаяж 1 цагийн үдийн завсарлага, ажлын хоёр өдрийн хооронд 12-оос доошгүй цаг амрах, долоо хоногт дараалсан 2 өдөр амрах эрхтэй. Малчны туслах бол долоо хоногт нэгээс илүү бүтэн өдөр амарна."
+    explain_en: "You have the right to a lunch break of at least 1 hour, at least 12 hours off between working days, and 2 days off in a row each week. An assistant herder gets more than one full day off a week."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { min_lunch_minutes: 60, min_hours_between_days: 12, min_rest_days: 2, herding_min_rest_days: 2 }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G10_ANNUAL_LEAVE
+    title_mn: "Ээлжийн амралт"
+    title_en: "Annual leave"
+    applies_to: all
+    inputs: [document]
+    article: "99.2–99.3"
+    check: "At least 15 working days of paid annual leave after 6 months. Red if fewer are stated; yellow if leave is not stated."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "6 сар ажилласны дараа жилд дор хаяж 15 ажлын өдөр цалинтай ээлжийн амралт авна."
+    explain_en: "After 6 months of work you get at least 15 working days of paid leave a year."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { min_days: 15 }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G11_FIXED_TERM
+    title_mn: "Хугацаатай гэрээ"
+    title_en: "Fixed-term contract"
+    applies_to: all
+    inputs: [document]
+    article: "50.1, 50.4"
+    check: "A fixed-term contract lasts 2 years or less in total, extensions included; longer, it becomes indefinite. Whether a fixed term is allowed for the job (50.1) is not encoded: every fixed-term result says to check it."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    explain_mn: "Хугацаатай гэрээг зөвхөн хуульд заасан тохиолдолд байгуулна. Хугацаатай гэрээ сунгагдсаар нийт 2 жилээс хэтэрвэл хугацаагүй гэрээ болно."
+    explain_en: "A fixed-term contract is allowed only in the cases the law lists. If fixed terms add up to more than 2 years, the contract becomes one with no end date."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { max_total_months: 24 }
+    score_weight: { fail: 12, unknown: 6 }
+    lawyer_verified: false
+
+  - id: G12_INTERN_APPRENTICE_PAY
+    title_mn: "Дадлагажигч, дагалдан суралцагчийн цалин"
+    title_en: "Intern and apprentice pay"
+    applies_to: intern_apprentice
+    inputs: [document, questionnaire]
+    article: "63.5, 62.6"
+    check: "An intern's base pay is at or above the minimum wage; an apprentice's is at least 70% of a permanent employee's base pay (not in the contract: unknown)."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Дадлагажигчийн үндсэн цалин хөдөлмөрийн хөлсний доод хэмжээнээс багагүй байна. Дагалдан суралцагчийн цалин тухайн ажлын байнгын ажилтны үндсэн цалингийн 70 хувиас багагүй байна."
+    explain_en: "An intern's base pay is at least the minimum wage. An apprentice is paid at least 70% of a permanent employee's base pay for the same job."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { apprentice_min_share: 0.7 }
+    score_weight: { fail: 30, unknown: 8 }
+    lawyer_verified: false
+
+  - id: G13_FLAGGED_CLAUSES
+    title_mn: "Анхаарах нөхцөлүүд"
+    title_en: "Clauses to look at"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: null   # the lawyer assigns
+    check: "No fines, deposits, ID kept by the employer, unpaid trial days, quitting penalties or end-of-season pay. Yellow at most; from a document it is labelled as AI judgment."
+    severity_if_fail: yellow
+    if_unknown: yellow
+    ai_judgment: true
+    explain_mn: "Торгууль, барьцаа мөнгө, таны бичиг баримтыг барьж үлдээх, цалингүй туршилтын өдөр, ажлаас гарахад торгох, улирлын төгсгөлд нэг дор цалинжуулах зэрэг нөхцөл таны эрхийг зөрчиж болзошгүй. Хуульчаар шалгуулаарай."
+    explain_en: "Fines, deposits, the employer keeping your documents, unpaid trial days, penalties for quitting and being paid only at the end of the season may break your rights. Have a lawyer look at them."
+    escalation: P3
+    effective_from: 2022-01-01
+    effective_to: null
+    params: { categories: [fine, deposit, id_retention, unpaid_trial, quit_penalty, end_of_season_pay, other] }
+    score_weight: { fail: 12, unknown: 6 }
+    lawyer_verified: false
+
+  - id: Q01_UNPAID
+    title_mn: "Цалингүй ажил"
+    title_en: "Unpaid work"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: "107.4"
+    check: "Pay in money above zero. Pay only in kind (food, lodging) counts as no money pay."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Ажилласан бол мөнгөн цалин авах эрхтэй. Зөвхөн хоол, байраар «цалинжуулах» эсвэл огт цалингүй ажиллуулж болохгүй."
+    explain_en: "If you work, you have the right to be paid in money. Being 'paid' only with food or a place to stay, or not at all, is not allowed."
+    escalation: P1
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 60, unknown: 10 }
+    lawyer_verified: false
+
+  # The spec makes "can't quit" and "injured" P1 triggers. A P1 caps the
+  # score at 10, which is in the red band, so they are red rules too — see
+  # docs/rater/adr-001-decisions.md §10. Articles: the lawyer assigns.
+  - id: Q02_CANNOT_QUIT
+    title_mn: "Ажлаасаа гарч чадахгүй байна"
+    title_en: "You cannot leave the job"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: null
+    check: "The worker answers that they could quit if they wanted to."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Хүссэн үедээ ажлаасаа гарч чадахгүй байгаа бол энэ нь албадан хөдөлмөр байж болзошгүй. Яаралтай тусламж аваарай."
+    explain_en: "If you cannot leave the job when you want to, it may be forced labour. Get help now."
+    escalation: P1
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 60, unknown: 6 }
+    lawyer_verified: false
+
+  - id: Q03_INJURED
+    title_mn: "Ажил дээрээ гэмтсэн"
+    title_en: "Injured at work"
+    applies_to: all
+    inputs: [document, questionnaire]
+    article: null
+    check: "The worker answers that they have not been injured at work."
+    severity_if_fail: red
+    if_unknown: yellow
+    explain_mn: "Ажил дээрээ гэмтсэн бол эмчилгээ, нөхөн төлбөр авах эрхтэй. Яаралтай тусламж аваарай."
+    explain_en: "If you were hurt at work, you have the right to treatment and compensation. Get help now."
+    escalation: P1
+    effective_from: 2022-01-01
+    effective_to: null
+    params: {}
+    score_weight: { fail: 60, unknown: 6 }
+    lawyer_verified: false

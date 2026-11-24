@@ -19,8 +19,9 @@ is never green") and the build continued. Owner: **Lawyer**, **Eba** or
    24-hour rest day a week". Read as two rest days (not necessarily
    consecutive). Confirm.
 5. **G11 fixed term "only for allowed cases".** The allowed cases (50.1) are
-   not encoded, so every fixed-term contract is yellow-unknown with a
-   prompt to check. Provide the list if it should be checked.
+   not encoded. The engine checks the 2-year limit only and every fixed-term
+   result tells the reader to check whether a fixed term is allowed for the
+   job. Provide the list if it should be checked in code.
 6. **G13 article.** The spec says "lawyer assigns".
 7. **Q02 can't quit / Q03 injured** are added as red P1 rules (see ADR §10).
    Assign articles and approve the wording.
@@ -33,7 +34,10 @@ is never green") and the build continued. Owner: **Lawyer**, **Eba** or
     review against Mongolia's personal data protection law.
 11. **Clerk stores account data outside Mongolia** (US/EU). Check against the
     personal data protection law before production.
-12. **CV rules** (`cv-rules.yaml`, `staff_verified: false`): staff review,
+12. **G09 lunch break on short shifts.** The spec's "lunch 1 h min" is
+    applied to every stated break, so a 4-hour shift with a 15-minute break
+    is red. Confirm whether the minimum applies to short or part-time shifts.
+13. **CV rules** (`cv-rules.yaml`, `staff_verified: false`): staff review,
     and lawyer review of the over-sharing rule for minors.
 
 ## Eba

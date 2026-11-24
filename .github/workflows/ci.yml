@@ -33,6 +33,13 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      # The lawyer gate (docs/rater). A report on pull requests; a failure on
+      # a push to main while any rule is unverified, because main is what
+      # production builds from.
+      - name: Rules verified by a lawyer
+        run: pnpm check:rules
+        env:
+          RULES_GATE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && 'strict' || 'report' }}
 
   browser:
     name: e2e, accessibility, Lighthouse
